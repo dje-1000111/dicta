@@ -1,0 +1,12 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+{% load adjusted_elided_page %}
+{% load extra_filters %}
+{% block title %}Not found - {% endblock title %}
+{% block css_container %}<div class="grid-home-container" id="hcontainer">{% endblock css_container %}
+    {% block 404 %}
+
+    <div class="d-flex justify-content-center align-items-center">
+    error 404
+    </div>
+    {% endblock 404 %}

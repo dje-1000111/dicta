@@ -1,2 +1,3 @@
-## YDT
-in progress
+## dicta
+
+Prod version
