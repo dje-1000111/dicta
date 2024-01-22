@@ -1,7 +1,10 @@
 .git
 
 # Project
-assets/
+project_ignore/
+goodconfig.txt
+/assets/
+staticfiles/
 
 # Python
 __pycache__/

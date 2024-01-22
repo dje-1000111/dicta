@@ -92,7 +92,6 @@ DATABASES = {
         "NAME": os.getenv("DB_NAME"),
         "USER": os.getenv("DB_USER"),
         "PASSWORD": os.getenv("DB_PASSWD"),
-        "HOST": os.getenv("DB_HOST"),
         "PORT": os.getenv("DB_PORT"),
         "DISABLE_SERVER_SIDE_CURSORS": True,
         "TEST": {
@@ -104,8 +103,8 @@ DATABASES = {
     }
 }
 
-if not DEBUG:
-    DATABASES["default"].update({"HOST": os.getenv("DB_HOST")})
+# if not DEBUG:
+#     DATABASES["default"].update({"HOST": os.getenv("DB_HOST")})
 
 
 # Password validation
