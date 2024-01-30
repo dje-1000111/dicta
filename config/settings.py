@@ -11,6 +11,23 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
+
+# import raven
+# import sentry_sdk
+
+# sentry_sdk.init(
+#     dsn=os.getenv("SENTRY_DSN"),
+#     # integrations=[DjangoIntegration()],
+#     # enable_tracing=True,
+#     # Set traces_sample_rate to 1.0 to capture 100%
+#     # of transactions for performance monitoring.
+#     traces_sample_rate=1.0,
+#     # Set profiles_sample_rate to 1.0 to profile 100%
+#     # of sampled transactions.
+#     # We recommend adjusting this value in production.
+#     profiles_sample_rate=1.0,
+# )
+
 from pathlib import Path
 import psycopg2.extensions
 from dotenv import load_dotenv, find_dotenv  # type: ignore
@@ -27,13 +44,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 if DEBUG:
     ALLOWED_HOSTS = []
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 else:
     ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split()
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = os.getenv("DJANGO_EMAIL_HOST")
+    EMAIL_PORT = os.getenv("DJANGO_EMAIL_PORT")
+    EMAIL_USE_TLS = os.getenv("DJANGO_EMAIL_USE_TLS")
+    EMAIL_HOST_USER = os.getenv("DJANGO_EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD = os.getenv("DJANGO_EMAIL_HOST_PASSWORD")
 
 # Application definition
 
@@ -49,11 +72,13 @@ INSTALLED_APPS = [
     "apps.dictation_auth",
     "apps.dictation.templatetags.extra_filters",
     "apps.dictation.templatetags.adjusted_elided_page",
+    "raven.contrib.django.raven_compat",
 ]
 
 MIDDLEWARE = [
+    # "csp.middleware.CSPMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    # "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -146,18 +171,25 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
+# STATIC_URL = "static/"
+STATIC_URL = "/static/"
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
+# STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
-STATIC_ROOT = "/staticfiles/"
+# STATIC_ROOT = "staticfiles/"
+STATIC_ROOT = "/var/www/dictatube/static"
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
 
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# CSRF_COOKIE_SECURE = True
+# CSRF_COOKIE_HTTPONLY = True
+# SESSION_COOKIE_SECURE = True
+# SESSION_COOKIE_HTTPONLY = True
+# SECURE_HSTS_SECONDS = False
 
 LOGIN_URL = "/auth/accounts/login"
 
@@ -195,18 +227,56 @@ PONCTUATION = [
     "*",
     "¤",
     "|",
+    "`",
 ]
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "WARNING",
-    },
-}
+# RAVEN_CONFIG = {
+#     "dsn": os.getenv("SENTRY_DSN"),
+#     # If you are using git, you can also automatically configure the
+#     # release based on the git info.
+#     # 'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
+# }
+
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": True,
+#     "root": {
+#         "level": "INFO",  # WARNING by default. Change this to capture more than warnings.
+#         "handlers": ["sentry"],
+#     },
+#     "formatters": {
+#         "verbose": {
+#             "format": "%(levelname)s %(asctime)s %(module)s "
+#             "%(process)d %(thread)d %(message)s"
+#         },
+#     },
+#     "handlers": {
+#         "sentry": {
+#             "level": "INFO",  # To capture more than ERROR, change to WARNING, INFO, etc.
+#             "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
+#             "tags": {"custom-tag": "x"},
+#         },
+#         "console": {
+#             "level": "DEBUG",
+#             "class": "logging.StreamHandler",
+#             "formatter": "verbose",
+#         },
+#     },
+#     "loggers": {
+#         "django.db.backends": {
+#             "level": "ERROR",
+#             "handlers": ["console"],
+#             "propagate": False,
+#         },
+#         "raven": {
+#             "level": "DEBUG",
+#             "handlers": ["console"],
+#             "propagate": False,
+#         },
+#         "sentry.errors": {
+#             "level": "DEBUG",
+#             "handlers": ["console"],
+#             "propagate": False,
+#         },
+#     },
+# }

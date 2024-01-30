@@ -4,10 +4,10 @@
 {% load extra_filters %}
 {% block title %}Not found - {% endblock title %}
 {% block css_container %}<div class="grid-home-container" id="hcontainer">{% endblock css_container %}
-    {% block 404 %}
+    {% block 400 %}
 <main class="d-flex justify-content-center align-items-center">
     <div class="fs-2">
-        error 404, this page could not be found
+        Error 400: The server cannot process a request due to invalid syntax or corrupted data.
     </div>
 </main>
-    {% endblock 404 %}
+    {% endblock 400 %}

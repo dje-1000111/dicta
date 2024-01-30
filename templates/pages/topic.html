@@ -2,7 +2,7 @@
 {% load static %}
 {% load compress %}
 {% block title %}{{ topic_name|capfirst }} - {% endblock title %}
-{% block head_script %}<script src="{% static 'js/video.js' %}"></script>{% endblock head_script %}
+{% block head_script %}<script src="{% static 'js/video.js' %}" nonce="{{request.csp_nonce}}"></script>{% endblock head_script %}
 {% block css_container %}<div class="grid-topic-container" id="tcontainer">{% endblock css_container %}
 {% block index %}
 {% spaceless %}
@@ -28,8 +28,9 @@
             </div>
                 <p>As a logged in user you can rate the difficulty of this dictation. You can also continue your progress where you left off last time.<br>Otherwise, you always start again at the beginning.</p>
         {% else %}
-            <span class="bg-info p-2 d-flex fitcontent mt-5">Save your progress -><a class="text-primary" href="{% url 'auth:login' %}"> Log in</a></span>
+            <span class="bg-info p-2 d-flex fitcontent mt-5">Save your progress<a class="ms-2 text-primary" href="{% url 'auth:login' %} ">Log in</a></span>
         {% endif %} 
+        {% comment %} <p>No need to pay attention to punctuation, you can concentrate on the words.</p> {% endcomment %}
     </div>
     <div id="embvid" class="embeded-video">
         <div id="blur">
@@ -41,22 +42,22 @@
         <div id="tip" class="tip"></div>
     <div id="counter-cont" class="d-flex justify-content-between counter-cont">
         <button type="button" title="previous" id="previous" class="btn btn-sm active border-0 mb-3 mt-3">
-            <i class="fa-solid fa-left-long" style="transform: scale(3,3);"></i>
+            <i class="fa-solid fa-left-long custom-transform-arrow choco"></i>
         </button>                
         <div class="d-flex align-content-center align-items-center rounded mb-3 mt-3">
             <strong><span id="counter">{{ line_nb }}</span>&nbsp;/&nbsp;{{total_lines}}</strong>
         </div>
         <button type="button" title="next" id="go-next" class="btn btn-sm active border-0 mb-3 mt-3">
-            <i class="fa-solid fa-right-long" style="transform: scale(3,3);"></i>
+            <i class="fa-solid fa-right-long custom-transform-arrow choco"></i>
         </button>                
     </div> 
     {{form}}
     <div class="d-flex justify-content-between rounded bg-white mt-3">
         <div class="d-flex align-items-center p-2">
-            <button type="button" class="btn btn-outline-secondary ms-1" title="play" id="replay"><i id="iplaystop" class="fa-solid fa-play w-ctrl"></i></button>
-            <button type="button" class="btn btn-primary ms-1" title="check" id="check"><i class="fa-solid fa-check w-ctrl"></i></button>
-            <button type="button" class="btn btn-warning ms-1" title="reveal first letter" id="reveal"> <i class="fa-solid fa-0 w-ctrl"></i></button> 
-            <button type="button" id="blur-btn" class="btn btn-outline-secondary ms-1" title="Blur video"><i id="iblur" class="fa-solid fa-droplet w-ctrl"></i></button>
+            <button type="button" class="btn btn-danger ms-1 controls-tt" title="play" id="playstop"data-tooltip="Play/Stop"><i id="iplaystop" class="fa-solid fa-play w-ctrl"></i></button>
+            <button type="button" class="btn btn-success ms-1 controls-tt" title="check" id="check" data-tooltip="Check your answer step by step."><i class="fa-solid fa-check w-ctrl"></i></button>
+            <button type="button" class="btn btn-warning ms-1 controls-tt" title="reveal first letter" id="reveal" data-tooltip="You can click 3 times by segment to get the very next letter."><i class="fa-solid fa-0 w-ctrl"></i></button>
+            <button type="button" class="btn btn-outline-secondary ms-1 controls-tt" data-tooltip="If the video provides the text, click to blur it." title="Blur video" id="blur-btn" ><i id="iblur" class="fa-solid fa-droplet w-ctrl"></i></button>
         </div>            
             <span id="complete" class="d-flex p-2"></span>
     </div>
@@ -73,13 +74,13 @@
             </div>
         </div>
         {% if user.is_authenticated %}
-        <script>const dictation_id = {{ dictation_id }};</script>
+        <script nonce="{{request.csp_nonce}}">const dictation_id = {{ dictation_id }};</script>
         {% else %}
-        <script>const dictation_id = null;</script>
+        <script nonce="{{request.csp_nonce}}">const dictation_id = null;</script>
         {% endif %}
     </div>
     {% endspaceless %}
-    <script>
+    <script nonce="{{request.csp_nonce}}">
         const aptc = "{% url 'dictation:ajax_post_textarea_content' %}",
             aprr = "{% url 'dictation:ajax_post_request_rating' %}",
             topicname = '{{ topic_name }}',
@@ -93,6 +94,6 @@
             lines = [];
         lines = implines 
     </script>
-    <script src="{% static 'js/topic.js' %}"></script>
-    <script src="{% static 'js/assets/scripts/topic/index.bundle.js' %}"></script>
+    <script src="{% static 'js/topic.js' %}" nonce="{{request.csp_nonce}}"></script>
+    <script src="{% static 'js/assets/scripts/topic/index.bundle.js' %}" nonce="{{request.csp_nonce}}"></script>
 {% endblock index %}

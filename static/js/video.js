@@ -12,6 +12,7 @@ function onYouTubeIframeAPIReady() {
         playerVars: {
             'controls': 0,
             'showinfo': 1,
+            'autoplay': 0,
             'autohide': 1,
             'playsinline': 1,
             'start': ts[lineNb], //Number((ts[lineNb] / 4.321).toFixed(2))
@@ -25,7 +26,7 @@ function onYouTubeIframeAPIReady() {
 
 
 function onPlayerReady(event) {
-    event.target.playVideo();
+    event.target.pauseVideo();
 }
 
 var paused = true
@@ -33,14 +34,12 @@ var done = false;
 
 function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING && !done) {
-        // replay.innerHTML = "Stop"
         iplaystop.classList.replace('fa-play', 'fa-stop')
         timeout = setTimeout(stopVideo, timeouts[lineNb]);
         done = true;
         paused = false
     }
     if (event.data == YT.PlayerState.PAUSED && !done) {
-        // replay.innerHTML = "Play"
         iplaystop.classList.replace('fa-stop', 'fa-play')
         done = false;
         paused = true

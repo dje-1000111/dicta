@@ -63,33 +63,51 @@ header {
     width: 50px;
 }
 
-.tooltipz {
+.dict-tt {
     position: relative;
-    font-size: small;
     border-bottom: 1px dotted black;
     float: right;
-    /* If you want dots under the hoverable text */
 }
 
-/* Tooltip text */
-.tooltipz .tooltiptext {
+.dict-tt .dict-tt-content {
+    position: absolute;
     visibility: hidden;
     width: 120px;
-    background-color: black;
-    color: #fff;
-    /* text-align: center; */
+    background-color: #0dcaf0;
+    color: #000;
     padding: 5px 0;
     border-radius: 6px;
-
-    position: absolute;
     z-index: 1;
     top: 100%;
     left: 50%;
     margin-left: -60px;
 }
 
-.tooltipz:hover .tooltiptext {
+.dict-tt:hover .dict-tt-content {
     visibility: visible;
+}
+
+.controls-tt {
+    display: block;
+    cursor: pointer;
+    position: relative;
+    text-decoration: underline;
+}
+
+.controls-tt:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 0%;
+    left: 50%;
+    color: #fff;
+    background: #1f2227;
+    border: 1px solid #071f33;
+    border-radius: 10px;
+    width: 150px;
+    text-align: center;
+    padding: 10px;
+    opacity: 1;
+    transform: translate(-50%, -42px);
 }
 
 main {
@@ -226,6 +244,31 @@ textarea {
 
 .w-play {
     width: 60px;
+}
+
+.w-dl {
+    width: 50px;
+}
+
+.w-tmb {
+    width: 120px;
+}
+
+.custom-nbar-container-bg {
+    background-color: #1f1f1f;
+}
+
+.customs-fa-bars {
+    color: #fff;
+    font-size: 25px;
+}
+
+.custom-transform-arrow {
+    transform: scale(3, 3);
+}
+
+.choco {
+    color: chocolate;
 }
 
 .text-entry {

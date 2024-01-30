@@ -11,10 +11,14 @@ from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
 from django.template.context import RequestContext
 from django.http.response import JsonResponse
-from django.http import HttpResponse, HttpRequest, HttpResponseNotFound
+from django.http import (
+    HttpResponse,
+    HttpRequest,
+    HttpResponseNotFound,
+    HttpResponseForbidden,
+)
 from django.utils.safestring import mark_safe
 from django.views.generic.list import ListView
-
 from django.views.generic.detail import DetailView
 from apps.dictation.models import (
     correction,
@@ -26,9 +30,20 @@ from apps.dictation.models import (
 from apps.dictation.forms import DictationForm
 
 
-def error_404(request, exception):
-    """Error 404 view."""
+def bad_request(request, exception=None, template_name="400.html"):
+    return render(request, "pages/400.html", status=400)
+
+
+def permission_denied(request, exception=None, template_name="403.html"):
+    return render(request, "pages/403.html", status=403)
+
+
+def not_found(request, exception=None, template_name="404.html"):
     return render(request, "pages/404.html", status=404)
+
+
+def server_error(request, exception=None, template_name="500.html"):
+    return render(request, "pages/500.html", status=500)
 
 
 class HomeView(ListView):

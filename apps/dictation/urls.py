@@ -1,6 +1,6 @@
 """Urls dictation."""
 from django.urls import path
-
+from django.views.generic import TemplateView
 from apps.dictation import views
 
 app_name = "dictation"
@@ -8,6 +8,7 @@ app_name = "dictation"
 urlpatterns = [
     path("", views.HomeView.as_view(), name="home"),
     path("topic/<slug>/", views.TopicView.as_view(), name="topic"),
+    path("about/", TemplateView.as_view(template_name="pages/about.html")),
     path(
         "aptc/",
         views.AjaxDetailView.as_view(),

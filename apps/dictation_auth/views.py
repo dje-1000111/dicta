@@ -1,7 +1,6 @@
 """Dictation auth views."""
 from typing import Any, Dict
 
-# from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
@@ -25,6 +24,7 @@ from django.contrib.auth.views import (
     PasswordResetView,
 )
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.mail import send_mail
 
 
 from apps.dictation_auth.models import User
@@ -65,17 +65,20 @@ def signup(request):
             # Send email confirmation
             current_site = get_current_site(request)
             subject = "Activate your account"
+            from_email = "contact@dictatube.com"
+            recipient_list = [user.email]
             message = render_to_string(
                 "registration/account_activation_email.html",
                 {
                     "user": user,
-                    "domain": current_site.domain,
+                    "domain": current_site.domain,  # settings.DOMAIN,  #
                     "uid": urlsafe_base64_encode(force_bytes(user.pk)),
                     "token": account_activation_token.make_token(user),
                 },
             )
 
-            user.email_user(subject, message)
+            send_mail(subject, message, from_email, recipient_list)
+
             messages.info(
                 request,
                 mark_safe(
@@ -153,7 +156,7 @@ class UpdateProfile(SuccessMessageMixin, LoginRequiredMixin, FormView):
     form_class = UpdateProfileForm
     template_name: str = "registration/profile_form.html"
     model = User
-    success_message = "%(username)s was updated successfully"
+    success_message = "Your username: %(username)s was updated successfully"
 
     # LoginRequiredMixin
     redirect_field_name = settings.LOGIN_URL
@@ -183,32 +186,32 @@ class UpdateProfile(SuccessMessageMixin, LoginRequiredMixin, FormView):
         return reverse("auth:profile")
 
 
-class DeleteAccount(LoginRequiredMixin, DeleteView):
-    model = User
-    template_name = "registration/user_confirm_delete.html"
-    success_url = reverse_lazy("dictation:home")
+@login_required
+def delete_account(request):
+    """Lead to a confirmation page."""
+    return render(request, "registration/delete_account.html")
 
-    # LoginRequiredMixin
-    redirect_field_name = settings.LOGIN_URL
-    login_url = settings.LOGIN_URL
 
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        context = self.get_context_data(object=self.object.id)
-
-        if self.object.id == self.request.user.id:
-            self.object.delete()
-            messages.success(
-                self.request,
-                mark_safe("Your account has been deleted as well as your datas."),
-            )
-            return redirect(self.success_url)
-        else:
-            messages.warning(
-                self.request,
-                mark_safe("Permission denied."),
-            )
-            return redirect("auth:delete_account", pk=request.user.pk)
+@login_required
+def delete_account_confirm(request):
+    """Delete account confirmation."""
+    try:
+        user = User.objects.get(pk=request.user.pk)
+    except (TypeError, ValueError, User.DoesNotExist):
+        user = None
+    if user is not None:
+        user.delete()
+        messages.success(
+            request,
+            mark_safe("Your account has been deleted as well as your datas."),
+        )
+        return redirect("dictation:home")
+    else:
+        messages.warning(
+            request,
+            mark_safe("Permission denied."),
+        )
+    return render(request, "registration/delete_account.html")
 
 
 def user_logout(request):

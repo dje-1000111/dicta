@@ -7,7 +7,7 @@
     <meta name="Description" content="Dictations are underestimated for learning a language. Here you can improve your listening, enrich your vocabulary, your grammar, learn new words using a selection of videos in English.">
     <title>{% block title %}{% endblock title %}dictatube</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" nonce="{{request.csp_nonce}}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="icon" type="image/x-icon" href="{% static 'img/favydt.png' %}">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
@@ -16,7 +16,7 @@
 </head>
 <body>
   {% csrf_token %}
-  <script>
+  <script nonce="{{request.csp_nonce}}">
       var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
       const prde = "{% url 'dictation:ajax_post_request_definition' %}";
   </script>
@@ -24,22 +24,22 @@
   {% block css_container %}{% endblock css_container %}
       <header>
         <nav class="navbar navbar-expand-lg navbar-bg z-2">
-          <div class="container-fluid" style="background-color: #1f1f1f;">
+          <div class="container-fluid custom-nbar-container-bg">
             <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon">
-                <i class="fas fa-bars" style="color:#fff; font-size:25px;"></i>
+                <i class="fas fa-bars customs-fa-bars"></i>
               </span>
             </button>
             <a class="navbar-brand" href="{% url 'dictation:home' %}">
               <div class="applogo">
-                <img class="ydt" src="{% static 'img/diclogo.svg' %}" alt="logo dictatube">
+                <img class="ydt" src="{% static 'img/diclogo.svg' %}" alt="image dictatube">
               </div>
             </a>
-            <button id="ligbtn" data-light="light" class="light-button btn ms-auto me-0 order-lg-last" title="light"
+            <button id="ligbtn" data-light="light" class="light-button btn ms-auto me-0 order-lg-last w-dl" title="light"
             hidden>
             <i class="fa-solid fa-sun fa-sm text-light"></i>
             </button>
-            <button id="darkbtn" data-dark="dark" class="dark-button btn ms-auto me-0 order-lg-last" title="dark">
+            <button id="darkbtn" data-dark="dark" class="dark-button btn ms-auto me-0 order-lg-last w-dl" title="dark">
               <i class="fa-solid fa-moon fa-sm text-light"></i>
             </button>
             <div class="collapse navbar-collapse d-lg-flex" id="navbarSupportedContent">
@@ -58,7 +58,7 @@
                   <div class="d-lg-flex col-lg-5 justify-content-lg-end"></div>
                 {% else %}
                     <ul class="list-group list-group-horizontal-lg ms-auto">    
-                      <li class="btn btn-secondary btn-sm m-2 sigbnt">    
+                      <li class="btn btn-primary btn-sm m-2 sigbnt">    
                         <a class="nav-link text-light" href="{% url 'auth:signup' %}" >Sign up
                         </a>
                       </li>
@@ -75,6 +75,7 @@
 
       {% block index %}{% endblock %}
       {% block home %}{% endblock %}
+      {% block about %}{% endblock %}
       {% block profile %}{% endblock %}
       {% block signup %}{% endblock %}
       {% block signin %}{% endblock %}
@@ -83,13 +84,16 @@
       {% block update_profile %}{% endblock %}
       {% block user_confirm_delete %}{% endblock %}
       {% block password_change %}{% endblock %}
+      {% block 400 %}{% endblock %}
+      {% block 403 %}{% endblock %}
       {% block 404 %}{% endblock %}
+      {% block 500 %}{% endblock %}
 
       <footer>
         <span class="nocop">dictatube 2024</span>
       </footer>
   </div>
   {% endspaceless %}
-  <script src="{% static 'js/assets/scripts/base/index.bundle.js' %}"></script>
+  <script src="{% static 'js/assets/scripts/base/index.bundle.js' %}" nonce="{{request.csp_nonce}}"></script>
 </body>
 </html>

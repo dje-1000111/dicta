@@ -18,17 +18,20 @@ from django.utils.safestring import mark_safe
 from django.contrib import admin
 from django.urls import path, include
 
-app_name = "youdictube"
-handler404 = "apps.dictation.views.error_404"
+app_name = "dictatube"
+handler400 = "apps.dictation.views.bad_request"
+handler403 = "apps.dictation.views.permission_denied"
+handler404 = "apps.dictation.views.not_found"
+handler500 = "apps.dictation.views.server_error"
 
-admin.site.site_title = "dictatube site admin (DEV)"
-admin.site.site_header = mark_safe(
+admin.site.site_title = "dictatube site admin"
+admin.site.site_header = "Site administration"
+admin.site.index_title = mark_safe(
     "dictatube administration -> Run the management/command <span style='color: red;'>update_total_line</span> after adding a new dictation"
 )
-admin.site.index_title = "Site administration"
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("admin-entry-point-private-access/", admin.site.urls),
     path("auth/", include("apps.dictation_auth.urls")),
     path("", include("apps.dictation.urls")),
 ]

@@ -24,9 +24,14 @@ auth_patterns = (
         ),
         path("accounts/signout", views.user_logout, name="signout"),
         path(
-            "accounts/profile/delete/<int:pk>/",
-            views.DeleteAccount.as_view(),
+            "accounts/profile/delete/",
+            views.delete_account,
             name="delete_account",
+        ),
+        path(
+            "accounts/profile/delete-confirm/",
+            views.delete_account_confirm,
+            name="delete_account_confirm",
         ),
         path(
             "account-activation-sent/",

@@ -1,6 +1,28 @@
-This project was first of all a personal need, I watched a video while pausing at each sentence to write it down, then I wanted to make the process easier and more practical.
-This is just the beginning for this project and it could expand over time. 
-For the moment, each video is timestamped by hand, the text is taken from automatic translations from Youtube or from transcripts given by the author of the video.
-In the case of automatic transcripts, there are many errors to correct natively (and some may remain after publication).
-This is still a development level project and may bring changes in the future.
+{% extends 'pages/base.html' %}
+{% load static %}
+{% load adjusted_elided_page %}
+{% load extra_filters %}
+{% block title %}{% endblock title %}
+{% block css_container %}<div class="grid-home-container" id="hcontainer">{% endblock css_container %}
+{% block about %}
+<main>
+    {% if messages %}
+    <ul class="d-block float-start p-0 w-100">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %} 
+    <h2>About</h2>
+    <div id="bonus-container" class="bonus-container">
+        <p>This project was first of all a personal need, I watched a video while pausing at each sentence to write it down, then I wanted to make the process easier and more practical.
+        This is just the beginning for this project and it could expand over time. 
+        For the moment, each video is timestamped by hand, the text is taken from automatic translations from YouTube or from transcripts given by the author of the video.
+        In the case of automatic transcripts, there are many errors to correct natively (and some may remain after publication).
+        This is still a development level project and may bring changes in the future.</p>
+        <p>Please, feel free to <a href="mailto:contact@dictatube.com">contact me</a> if you see any errors that I would not have seen.</p>
+    <div>
 
+</main>
+<script src="{% static 'js/assets/scripts/home/index.bundle.js' %}" nonce="rAnd0m"></script>
+{% endblock about %}
