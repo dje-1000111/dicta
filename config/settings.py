@@ -11,22 +11,22 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
+import logging
+import raven
+import sentry_sdk
 
-# import raven
-# import sentry_sdk
-
-# sentry_sdk.init(
-#     dsn=os.getenv("SENTRY_DSN"),
-#     # integrations=[DjangoIntegration()],
-#     # enable_tracing=True,
-#     # Set traces_sample_rate to 1.0 to capture 100%
-#     # of transactions for performance monitoring.
-#     traces_sample_rate=1.0,
-#     # Set profiles_sample_rate to 1.0 to profile 100%
-#     # of sampled transactions.
-#     # We recommend adjusting this value in production.
-#     profiles_sample_rate=1.0,
-# )
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN"),
+    # integrations=[DjangoIntegration()],
+    # enable_tracing=True,
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
 
 from pathlib import Path
 import psycopg2.extensions
@@ -51,12 +51,14 @@ if DEBUG:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 else:
     ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split()
+    CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split()
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     EMAIL_HOST = os.getenv("DJANGO_EMAIL_HOST")
     EMAIL_PORT = os.getenv("DJANGO_EMAIL_PORT")
     EMAIL_USE_TLS = os.getenv("DJANGO_EMAIL_USE_TLS")
     EMAIL_HOST_USER = os.getenv("DJANGO_EMAIL_HOST_USER")
     EMAIL_HOST_PASSWORD = os.getenv("DJANGO_EMAIL_HOST_PASSWORD")
+    DOMAIN = os.getenv("DJANGO_DOMAIN")
 
 # Application definition
 
@@ -76,9 +78,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    # "csp.middleware.CSPMiddleware",
+    "csp.middleware.CSPMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    # "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -171,25 +172,66 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-# STATIC_URL = "static/"
 STATIC_URL = "/static/"
-
-# STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 STATICFILES_DIRS = [BASE_DIR / "static"]
-
-# STATIC_ROOT = "staticfiles/"
-STATIC_ROOT = "/var/www/dictatube/static"
+STATIC_ROOT = os.getenv("STATIC_ROOT")
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
 
-
 # STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-# CSRF_COOKIE_SECURE = True
-# CSRF_COOKIE_HTTPONLY = True
-# SESSION_COOKIE_SECURE = True
-# SESSION_COOKIE_HTTPONLY = True
-# SECURE_HSTS_SECONDS = False
+
+
+# Core Settings
+# https://docs.djangoproject.com/en/5.0/ref/settings/
+
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+
+# Content Security Policy
+# https://django-csp.readthedocs.io/en/latest/
+
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_BASE_URI = ("'self'",)
+CSP_STYLE_SRC = (
+    "'self'",
+    "cdn.jsdelivr.net/",
+    "cdnjs.cloudflare.com/",
+    "fonts.googleapis.com/",
+)
+CSP_FONT_SRC = (
+    "'self'",
+    "https://fonts.gstatic.com/",
+    "https://fonts.googleapis.com/",
+    "https://cdnjs.cloudflare.com/",
+)
+
+CSP_SCRIPT_SRC = (
+    "'self'",
+    "'strict-dynamic'",
+    "'unsafe-inline'",
+    "https://www.youtube.com/",
+    "cdn.jsdelivr.net/",
+    "cdnjs.cloudflare.com/",
+)
+CSP_INCLUDE_NONCE_IN = ["script-src"]
+CSP_IMG_SRC = ("'self'", "img.youtube.com", "i.ytimg.com/", "data:")
+CSP_MEDIA_SRC = ("'self'", "https://www.youtube.com/")
+CSP_FRAME_SRC = (
+    "'self'",
+    "https://www.youtube.com/embed/",
+    "https://www.youtube.com/iframe_api",
+)
+CSP_OBJECT_SRC = ("'none'",)
+CSP_FRAME_ANCESTORS = "'self'"
+# CSP_REQUIRE_TRUSTED_TYPES_FOR = ("'script'",)
+
 
 LOGIN_URL = "/auth/accounts/login"
 
@@ -230,53 +272,52 @@ PONCTUATION = [
     "`",
 ]
 
-# RAVEN_CONFIG = {
-#     "dsn": os.getenv("SENTRY_DSN"),
-#     # If you are using git, you can also automatically configure the
-#     # release based on the git info.
-#     # 'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
-# }
+RAVEN_CONFIG = {
+    "dsn": os.getenv("SENTRY_DSN"),
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    # 'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
+}
 
-# LOGGING = {
-#     "version": 1,
-#     "disable_existing_loggers": True,
-#     "root": {
-#         "level": "INFO",  # WARNING by default. Change this to capture more than warnings.
-#         "handlers": ["sentry"],
-#     },
-#     "formatters": {
-#         "verbose": {
-#             "format": "%(levelname)s %(asctime)s %(module)s "
-#             "%(process)d %(thread)d %(message)s"
-#         },
-#     },
-#     "handlers": {
-#         "sentry": {
-#             "level": "INFO",  # To capture more than ERROR, change to WARNING, INFO, etc.
-#             "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
-#             "tags": {"custom-tag": "x"},
-#         },
-#         "console": {
-#             "level": "DEBUG",
-#             "class": "logging.StreamHandler",
-#             "formatter": "verbose",
-#         },
-#     },
-#     "loggers": {
-#         "django.db.backends": {
-#             "level": "ERROR",
-#             "handlers": ["console"],
-#             "propagate": False,
-#         },
-#         "raven": {
-#             "level": "DEBUG",
-#             "handlers": ["console"],
-#             "propagate": False,
-#         },
-#         "sentry.errors": {
-#             "level": "DEBUG",
-#             "handlers": ["console"],
-#             "propagate": False,
-#         },
-#     },
-# }
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "root": {
+        "level": "INFO",
+        "handlers": ["sentry"],
+    },
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}"
+        },
+    },
+    "handlers": {
+        "sentry": {
+            "level": "INFO",
+            "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
+            "tags": {"custom-tag": "x"},
+        },
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django.db.backends": {
+            "level": "ERROR",
+            "handlers": ["console"],
+            "propagate": False,
+        },
+        "raven": {
+            "level": "DEBUG",
+            "handlers": ["console"],
+            "propagate": False,
+        },
+        "sentry.errors": {
+            "level": "DEBUG",
+            "handlers": ["console"],
+            "propagate": False,
+        },
+    },
+}
