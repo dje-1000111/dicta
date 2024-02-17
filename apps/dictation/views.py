@@ -1,21 +1,15 @@
 """Views."""
+
 import json
 
 from typing import Any, Dict
 
-# from typing import NamedTuple
-
 from django.shortcuts import render
-from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
-from django.template.loader import get_template
-from django.template.context import RequestContext
 from django.http.response import JsonResponse
 from django.http import (
     HttpResponse,
     HttpRequest,
-    HttpResponseNotFound,
-    HttpResponseForbidden,
 )
 from django.utils.safestring import mark_safe
 from django.views.generic.list import ListView
@@ -25,7 +19,7 @@ from apps.dictation.models import (
     reveal_first_wrong_letter,
     Dictation,
     Practice,
-    get_word_definition,
+    WiktionaryAPI,
 )
 from apps.dictation.forms import DictationForm
 
@@ -76,12 +70,12 @@ class HomeView(ListView):
         return context
 
 
-class TopicView(ListView):
+class TopicView(DetailView):
     """Topic View."""
 
     template_name: str = "pages/topic.html"
 
-    def get_queryset(self) -> QuerySet[Any]:
+    def get_object(self, queryset=None):
         practice = Practice()
         self.dictation = get_object_or_404(Dictation, slug=self.kwargs["slug"])
         if self.request.user.is_authenticated:
@@ -99,12 +93,14 @@ class TopicView(ListView):
         context.update(
             {
                 "form": DictationForm(),
-                "dictation_id": self.dictation.pk
-                if self.request.user.is_authenticated
-                else None,
-                "star_rating": self.note.user_rating
-                if self.request.user.is_authenticated
-                else None,
+                "dictation_id": (
+                    self.dictation.pk if self.request.user.is_authenticated else None
+                ),
+                "star_rating": (
+                    self.note.user_rating
+                    if self.request.user.is_authenticated
+                    else None
+                ),
                 "line_nb": self.line_nb if self.request.user.is_authenticated else 0,
                 "topic_name": self.kwargs["slug"],
                 "b64_img": self.dictation.thumbail_to_b64(self.dictation.video_id),
@@ -146,7 +142,7 @@ class AjaxDetailView(DetailView):
 
         tot_lines = dictation.total_lines(filename)
         reference = dictation.read_segment(filename, line_nb + 1, tot_lines)
-        corrected, state, attempts = correction(
+        corrected, lengthened, state, attempts = correction(
             dictation.read_segment(filename, line_nb + 1, tot_lines),
             textarea_content,
             new_page,
@@ -174,9 +170,11 @@ class AjaxDetailView(DetailView):
                 practice.update_is_done(
                     user=self.request.user, dictation_id=dictation_id
                 )
+
         return JsonResponse(
             {
                 "result": corrected,
+                "lengthened_verif": lengthened,
                 "state": state,
                 "original": reference,
                 "reveal_attempts": attempts if reveal_status else attempts,
@@ -198,6 +196,14 @@ def post_user_rating(request: HttpRequest) -> HttpResponse:
 
 
 def post_request_definition(request):
-    data = json.loads(request.body)
-    definition = get_word_definition(data.strip())
-    return HttpResponse(status=204, headers={"definition": definition})
+    """Post the definition from wiki."""
+    term = json.loads(request.body)
+    print("what is term", term)
+    wiki = WiktionaryAPI()
+    data = wiki.extract_data(term)
+    if "en" in data:
+        definition = wiki.reduce_json(data)
+    else:
+        definition = {"no-result": "No definition found."}
+
+    return HttpResponse(status=204, headers={"definition": json.dumps(definition)})

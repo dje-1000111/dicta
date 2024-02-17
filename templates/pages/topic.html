@@ -1,36 +1,48 @@
 {% extends 'pages/base.html' %}
 {% load static %}
+{% load extra_filters %}
 {% load compress %}
-{% block title %}{{ topic_name|capfirst }} - {% endblock title %}
-{% block head_script %}<script src="{% static 'js/video.js' %}" nonce="{{request.csp_nonce}}"></script>{% endblock head_script %}
+{% block meta_description %}<meta name="description" content="Dictation based on YouTube video: {{ vid_title }}">{% endblock meta_description %}
+{% block title %} - {{ vid_title|capfirst }}{% endblock title %}
+{% get_cookie_consent as gcc %}
+{% block head_script %}{% endblock head_script %} 
 {% block css_container %}<div class="grid-topic-container" id="tcontainer">{% endblock css_container %}
 {% block index %}
 {% spaceless %}
+{% if gcc %} 
+    <script src="{% static 'js/video.js' %}" nonce="{{request.csp_nonce}}"></script>
+{% endif %}
     <div class="subhead" id="subh">
         {% if messages %}
             {% for message in messages %}
                 <div class="m-4 alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">{{ message }}</div>
             {% endfor %}
         {% endif %}
-        <h2>{{vid_title}} <span id="video-title"></span><i id="ivideo-title"></i></h2>
+        <div id="tt" class="dict-tt">
+            <span class=""><i class="fa-solid fa-lg fa-circle-exclamation"></i></span>
+            <span class="bg-info p-2 float-end mb-3 dict-tt-content">Double click on a word to get its definition</span>
+          </div> 
+        <h1>{{vid_title}} <span id="video-title"></span><i id="ivideo-title"></i></h1>
         {% if user.is_authenticated %}
             <div class="star-rating">
-                Level of difficulty : 
+                <span>Give your difficulty Level:</span> 
                 {% for star in stars %}
                     {% if star == star_rating %}
                         <input type="radio" id="{{dictation_id}}_{{star}}" name="rate" value="{{star}}" checked="">
-                        <label id="label-{{dictation_id}}_{{star}}" for="{{dictation_id}}_{{star}}" title="rating: {{star}}"></label>  
+                        <label data-tooltip="{{star|label_star}}"  id="label-{{dictation_id}}_{{star}}" for="{{dictation_id}}_{{star}}" title="rating: {{star}}"></label>  
                     {% else %}
                         <input type="radio" id="{{dictation_id}}_{{star}}" name="rate" value="{{star}}">
-                        <label id="label-{{dictation_id}}_{{star}}" for="{{dictation_id}}_{{star}}" title="rating: {{star}}"></label>  
+                        <label data-tooltip="{{star|label_star}}" id="label-{{dictation_id}}_{{star}}" for="{{dictation_id}}_{{star}}" title="rating: {{star|label_star}}"></label>  
                     {% endif %}    
                 {% endfor %} 
             </div>
-                <p>As a logged in user you can rate the difficulty of this dictation. You can also continue your progress where you left off last time.<br>Otherwise, you always start again at the beginning.</p>
+            <div class="d-flex justify-content-end mt-3">
         {% else %}
-            <span class="bg-info p-2 d-flex fitcontent mt-5">Save your progress<a class="ms-2 text-primary" href="{% url 'auth:login' %} ">Log in</a></span>
+            <div class="d-flex justify-content-between mt-5">
+                <span class="bg-info p-2 fitcontent">Save your progress<a class="ms-2 text-primary" href="{% url 'auth:login' %} ">Log in</a></span>
         {% endif %} 
-        {% comment %} <p>No need to pay attention to punctuation, you can concentrate on the words.</p> {% endcomment %}
+        <span class="p-2 fitcontent">You can omit the punctuation in order to focus only on the words.</span>
+            </div>
     </div>
     <div id="embvid" class="embeded-video">
         <div id="blur">
@@ -38,7 +50,6 @@
         </div>
     </div>
     <div id="text-area" class="text-area">
-        
         <div id="tip" class="tip"></div>
     <div id="counter-cont" class="d-flex justify-content-between counter-cont">
         <button type="button" title="previous" id="previous" class="btn btn-sm active border-0 mb-3 mt-3">
@@ -54,20 +65,20 @@
     {{form}}
     <div class="d-flex justify-content-between rounded bg-white mt-3">
         <div class="d-flex align-items-center p-2">
-            <button type="button" class="btn btn-danger ms-1 controls-tt" title="play" id="playstop"data-tooltip="Play/Stop"><i id="iplaystop" class="fa-solid fa-play w-ctrl"></i></button>
-            <button type="button" class="btn btn-success ms-1 controls-tt" title="check" id="check" data-tooltip="Check your answer step by step."><i class="fa-solid fa-check w-ctrl"></i></button>
+            <button type="button" class="btn btn-danger btn-yt ms-1 controls-tt" title="play" id="playstop"data-tooltip="Play/Stop"><i id="iplaystop" class="fa-solid fa-play w-ctrl"></i></button>
+            <button type="button" class="btn btn-success ms-1 controls-tt" title="check" id="check" data-tooltip="Verify the spelling step by step"><i class="fa-solid fa-check w-ctrl"></i></button>
             <button type="button" class="btn btn-warning ms-1 controls-tt" title="reveal first letter" id="reveal" data-tooltip="You can click 3 times by segment to get the very next letter."><i class="fa-solid fa-0 w-ctrl"></i></button>
             <button type="button" class="btn btn-outline-secondary ms-1 controls-tt" data-tooltip="If the video provides the text, click to blur it." title="Blur video" id="blur-btn" ><i id="iblur" class="fa-solid fa-droplet w-ctrl"></i></button>
         </div>            
             <span id="complete" class="d-flex p-2"></span>
     </div>
         <p> {{result}} </p>
-        <p>Correction:</p><br>
+        <p>Correction:<span id="lengthened" class="lengthened-tt float-end me-5" data-tooltip="Check here to see the correction without contractions."><i class="fas fa-question-circle"></i></span></p><br>
         <img id="imgb64" src='data:image/jpeg;base64,{{ b64_img }}' alt="poster" hidden>
         <div id="result_correction" class="text-entry"></div>
     </div>
     <div id="bonus-txt" class="bonus-txt">
-        <h4>The story until the last validated segment</h4>
+        <h2>The story until the last validated segment</h2>
         <div id="bonus-container" class="bonus-container">
             <div>
                 <ul id="story-segment"></ul>

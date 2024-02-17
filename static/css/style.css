@@ -25,6 +25,8 @@
         'header header header header'
         '. main main .'
         'footer footer footer footer';
+    background-size: 60px 60px;
+    background-image: radial-gradient(#9d9d9d .5px, rgb(255, 255, 255) 1px);
 }
 
 html,
@@ -34,7 +36,10 @@ body {
     padding: 0 0;
     margin: 0 auto;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-size: 60px 60px;
 }
+
+
 
 header {
 
@@ -43,12 +48,37 @@ header {
     height: 70px;
 }
 
+.gtag {
+    display: none;
+    visibility: hidden;
+}
+
 .applogo {
     grid-area: logo;
 }
 
+.logbtn {
+    background-color: #303030;
+}
+
+.logbtn:hover {
+    background-color: #4c4c4c;
+}
+
+.sigbtn {
+    background-color: #02335f;
+}
+
+.sigbtn:hover {
+    background-color: #073f6e;
+}
+
 .ydt {
     width: min(25vw, 135px);
+}
+
+.link-indent {
+    text-indent: 15px;
 }
 
 .appmenu {
@@ -63,29 +93,39 @@ header {
     width: 50px;
 }
 
+.info-div {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-content: center;
+}
+
 .dict-tt {
-    position: relative;
-    border-bottom: 1px dotted black;
     float: right;
+    font-size: 12px;
+    margin-left: auto;
+    cursor: pointer;
 }
 
 .dict-tt .dict-tt-content {
     position: absolute;
     visibility: hidden;
-    width: 120px;
-    background-color: #0dcaf0;
+    width: 106px;
     color: #000;
-    padding: 5px 0;
     border-radius: 6px;
+    font-size: 12px;
     z-index: 1;
-    top: 100%;
-    left: 50%;
-    margin-left: -60px;
+    margin-top: 15px;
+    margin-left: -120px;
 }
 
 .dict-tt:hover .dict-tt-content {
     visibility: visible;
 }
+
+
 
 .controls-tt {
     display: block;
@@ -110,6 +150,83 @@ header {
     transform: translate(-50%, -42px);
 }
 
+.lengthened-tt {
+    display: block;
+    cursor: pointer;
+    position: relative;
+    text-decoration: underline;
+}
+
+.lengthened-tt:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    color: #fff;
+    background: #1f2227;
+    border: 1px solid #071f33;
+    border-radius: 10px;
+    width: 300px;
+    padding: 10px;
+    opacity: 1;
+    transform: translate(-105%, 13px);
+}
+
+input.input-consent {
+    vertical-align: middle;
+    position: relative;
+    top: -3px;
+    left: 10px;
+    margin-right: 20px;
+}
+
+.cookie-consent-options {
+    margin-bottom: 10px;
+}
+
+.cookies-consent-container {
+    bottom: 2em;
+    left: 2em;
+    background-color: #044b3a;
+    z-index: 1;
+}
+
+.cookies-consent-container * {
+    color: white;
+}
+
+.cookies-consent-title {
+    letter-spacing: 0.4px;
+}
+
+.cookies-consent-info {
+    line-height: 1.4em;
+    letter-spacing: 0.4px;
+}
+
+#consent-popup {
+    transition: opacity 1s ease;
+}
+
+
+.e404s {
+    background: url(../img/e404_mire.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 100%;
+    height: 100%;
+}
+
+/* Centered text */
+.e404msg-ajusted {
+    position: absolute;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #605b5b;
+    padding: 0px 3px 3px 3px;
+}
+
+
 main {
     grid-area: main;
     background-color: #f5f5f5;
@@ -122,7 +239,7 @@ main {
     color: white;
     background-color: #f5f5f5;
     padding: 0 0 0 20px;
-    height: 440px;
+    height: auto;
 }
 
 #blur {
@@ -143,6 +260,7 @@ textarea {
     color: black;
     background-color: #f5f5f5;
     padding: 0px 20px 0px 0px;
+    height: 500px;
 }
 
 #counter {
@@ -171,7 +289,23 @@ textarea {
     border-radius: 20px;
 }
 
+.about-container {
+    background-color: #fff;
+    border-radius: 20px;
+}
+
+.light-about-cont {
+    background-color: #fff;
+    border-radius: 20px;
+}
+
+.dark-about-cont {
+    background-color: #0e304d;
+    border-radius: 20px;
+}
+
 .profile-container {
+    display: grid;
     background-color: #fff;
     min-height: 85%;
     border-radius: 20px;
@@ -199,28 +333,84 @@ textarea {
     width: 18px;
 }
 
-.deft {
-    position: relative;
-    font-weight: bold;
-    background-color: #0087ff;
-    width: 294px;
-    padding: 2px 0 2px 5px;
-    border: 1px solid #0087ff;
+.overlay {
+    position: fixed;
+    top: 150px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    visibility: hidden;
+    opacity: 0;
 }
 
-.winbox {
+.popup {
+    margin: 70px auto;
+    padding: 20px;
+    background: #cac6c6;
+    border-radius: 10px;
+    width: 30%;
+    position: relative;
+    transition: all 5s ease-in-out;
+    border: 10px solid aliceblue;
+    box-shadow: 0px 0px 7px 2px #000;
+}
+
+.popup .exit {
+    position: absolute;
+    top: 0px;
+    right: 5px;
+    transition: all 200ms;
+    font-size: larger;
+    font-weight: bold;
+    text-decoration: none;
+    color: #000;
+    cursor: pointer;
+}
+
+.popup .content {
+    max-height: 30%;
+    text-align: left;
+    overflow: auto;
+}
+
+
+.def li {
+    list-style-type: decimal;
+    text-indent: 15px;
+}
+
+.def li::marker {
+    color: rgb(0, 135, 255);
+    font-weight: bold;
+}
+
+.wikisource {
+    float: left !important;
+    margin-right: auto;
+    font-size: small;
+}
+
+ul.title {
+    background-color: chocolate;
+    text-indent: -20px;
+    color: white;
+    font-size: 15px;
+    margin: 5px -15px;
+}
+
+.no-winbox {
     background-color: #e9ecef;
     color: black;
     border: 1px solid #0087ff;
     min-height: 50px;
-    width: 294px;
+    width: 400px;
     padding: 5px;
     height: 150px;
     overflow: auto;
 }
 
-.winbox ul li {
-    list-style-type: decimal;
+.no-winbox ul li {
+    list-style-type: none;
     text-indent: 5px;
 }
 
@@ -231,7 +421,10 @@ textarea {
 }
 
 .cross::after {
-    content: "❌";
+    content: '\2a2f';
+    margin: 0 5px;
+    font-size: 29px;
+    line-height: 16px;
 }
 
 .def-container {
@@ -240,6 +433,7 @@ textarea {
     top: 80px;
     right: 50px;
     margin-left: 20px;
+    z-index: 10;
 }
 
 .w-play {
@@ -252,6 +446,12 @@ textarea {
 
 .w-tmb {
     width: 120px;
+}
+
+.btn-yt {
+    background-color: #f00;
+    color: white;
+    width: 50px;
 }
 
 .custom-nbar-container-bg {
@@ -289,7 +489,9 @@ textarea {
 
 .grid-home-container {
     .dark-mode {
-        background-color: rgb(92, 92, 92);
+        /* background-color: rgb(92, 92, 92); */
+        background-size: 60px 60px;
+        background-image: radial-gradient(#9d9d9d .5px, rgb(92, 92, 92) 1px);
     }
 
 }
@@ -300,15 +502,6 @@ textarea {
 
 .dark-bonus-cont {
     background-color: #0e304d;
-}
-
-.light-counter-cont {
-    background-color: #f5f5f5;
-    color: black;
-}
-
-.dark-counter-cont {
-    background-color: #071f33;
 }
 
 .light-profile-cont {
@@ -327,11 +520,17 @@ textarea {
 
 .dark {
     background-color: #071f33;
-    color: white;
+    color: whitesmoke;
 }
 
 .hdark {
-    background-color: rgb(92, 92, 92);
+    background-size: 60px 60px;
+    background-image: radial-gradient(#9d9d9d .5px, rgb(92, 92, 92) 1px);
+}
+
+.hlight {
+    background-size: 60px 60px;
+    background-image: radial-gradient(#9d9d9d .5px, rgb(255, 255, 255) 1px);
 }
 
 li {
@@ -349,6 +548,23 @@ header h1 {
 
 .table>tbody>tr>td>.progress {
     margin-bottom: 0px !important;
+}
+
+td {
+    position: relative;
+}
+
+td>.row-link {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-decoration: none;
+}
+
+table a:hover {
+    color: #501114 !important;
 }
 
 .hometd {
@@ -421,6 +637,13 @@ footer {
         'foo1 foo2 foo3 foo4 foo5'
 }
 
+footer a:link {
+    color: white;
+}
+
+footer a:visited {
+    color: white;
+}
 
 .nocop {
     display: grid;
@@ -439,7 +662,7 @@ footer {
     grid-area: foo1;
 }
 
-.lorem {
+.fabout {
     display: grid;
     grid-area: foo2;
 }
@@ -466,8 +689,25 @@ footer {
     padding: 10px;
 }
 
-h2,
+h1 {
+    font-size: 2rem;
+}
+
+h2 {
+    font-size: 1.75rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+}
+
 h4 {
+    font-size: 1.25rem;
+}
+
+h1,
+h2 {
+
     color: chocolate;
     font-family: 'New Century Schoolbook';
 }
@@ -494,6 +734,20 @@ h4 {
 
 .star-rating:not(:checked)>label:before {
     content: '★ ';
+}
+
+.star-rating>label:hover::after {
+    content: attr(data-tooltip);
+    font-size: small;
+    position: absolute;
+    color: #fff;
+    background: #6b80a3;
+    border: 1px solid #071f33;
+    border-radius: 10px;
+    text-align: center;
+    padding: 3px 5px;
+    opacity: 1;
+    transform: translate(-70%, -25px);
 }
 
 .star-rating>input:checked~label {

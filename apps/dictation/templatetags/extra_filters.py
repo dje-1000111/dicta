@@ -1,4 +1,5 @@
 """Extra filters."""
+
 from django import template
 from django.utils.safestring import mark_safe
 
@@ -9,6 +10,18 @@ register = template.Library()
 @register.filter(name="starize")
 def starize(level):
     return "⭐" * int(level)
+
+
+@register.filter(name="label_star")
+def label_star(level):
+    labels = {
+        "1": "Very easy",
+        "2": "Easy",
+        "3": "Normal",
+        "4": "Nightmare",
+        "5": "Hell",
+    }
+    return labels[level]
 
 
 @register.filter(name="duration")
@@ -47,3 +60,10 @@ def practice_status(is_done, user_current_line, total_line, lines):
         )
 
     return status
+
+
+@register.simple_tag(takes_context=True)
+def get_cookie_consent(context):
+    request = context["request"]
+    result = request.COOKIES.get("DT_CONSENT", "")
+    return True if result else False

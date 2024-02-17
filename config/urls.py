@@ -14,6 +14,8 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import os
+
 from django.utils.safestring import mark_safe
 from django.contrib import admin
 from django.urls import path, include
@@ -25,13 +27,13 @@ handler404 = "apps.dictation.views.not_found"
 handler500 = "apps.dictation.views.server_error"
 
 admin.site.site_title = "dictatube site admin"
-admin.site.site_header = "Site administration"
-admin.site.index_title = mark_safe(
+admin.site.site_header = mark_safe(
     "dictatube administration -> Run the management/command <span style='color: red;'>update_total_line</span> after adding a new dictation"
 )
+admin.site.index_title = "Site administration"
 
 urlpatterns = [
-    path("admin-entry-point-private-access/", admin.site.urls),
+    path(os.getenv("ADMIN_URL"), admin.site.urls),
     path("auth/", include("apps.dictation_auth.urls")),
     path("", include("apps.dictation.urls")),
 ]

@@ -1,22 +1,28 @@
 """Models."""
+
 import re
 import base64
 import math
 from typing import Any
 import requests
-import json
 
 from django.db import models
 from django.utils.safestring import mark_safe
-from django.contrib.auth import get_user_model
-
+from apps.dictation.contraction import lengthen_sentence
 from config import settings
 
 
 class Dictation(models.Model):
-    """Dictation model."""
+    """Dictation model.
+
+    New field: language
+    Goal: display a table who list all video by language.
+    Idea: I can make a container with 2 tabs, the English default tab
+        and the French tab.
+    """
 
     video_id = models.CharField(null=True, blank=True, max_length=50)
+    # language = models.CharField(null=True, blank=True, max_length=50)
     filename = models.CharField(null=True, blank=True, max_length=200)
     timestamps = models.JSONField()
     topic = models.CharField(max_length=200)
@@ -177,36 +183,6 @@ class Practice(models.Model):
         )
 
 
-def contraction(segment: str) -> str:
-    """Return converted contraction."""
-    irregular = ["bleed", "breed", "feed", "shed", "speed"]
-    segment_list = segment.split()
-    for i in range(len(segment_list)):
-        if segment_list[i + 1][-2:] != "ed" and segment_list[i + 1] not in irregular:
-            segment = segment.replace("'d", " would")
-        segment = segment.replace("'d", " had")
-
-    if "'s" in segment:
-        for word in segment_list:
-            if "let" in word:
-                segment = segment.replace("'s", " us")
-            segment = segment.replace("'s", " is")
-
-    if "n't" in segment:
-        segment = segment.replace("n't", " not")
-
-    if "'ll" in segment:
-        segment = segment.replace("'ll", " will")
-
-    if "'re" in segment:
-        segment = segment.replace("'re", " are")
-
-    if "'ve" in segment:
-        segment = segment.replace("'ve", " have")
-
-    return segment
-
-
 class Historic:
     """Historic class."""
 
@@ -281,15 +257,16 @@ def reveal_first_wrong_letter(
     return revealed_segment, attempts
 
 
-def correction(original_segment, new_segment, new_page: bool) -> tuple[str, bool, int]:
+def correction(
+    original_segment, new_segment, new_page: bool
+) -> tuple[str, str, bool, int]:
     """Return the corrected segment.
 
     The complete segment if is the same as the original.
     The first right part(s) eventually appened with stars of lenght
     of the missing words.
     """
-    # original_without_contraction = contraction(original_segment)
-    # owc = remove_punctuation(original_without_contraction)
+    original_with_punctuation = original_segment
 
     new_segment = remove_punctuation(new_segment)
     original_segment = remove_punctuation(original_segment)
@@ -321,7 +298,19 @@ def correction(original_segment, new_segment, new_page: bool) -> tuple[str, bool
     if new_page:
         historic.indexes = []
 
-    return " ".join(corrected), corrected == original_segment, len_indexes
+    lengthened = (
+        lengthen_sentence(original_with_punctuation)
+        if corrected == original_segment
+        and " ".join(original_segment) != lengthen_sentence(" ".join(corrected))
+        else ""
+    )
+
+    return (
+        " ".join(corrected),
+        lengthened,
+        corrected == original_segment,
+        len_indexes,
+    )
 
 
 def corrected_word(reference_word: str, new_word: str) -> str:
@@ -369,30 +358,73 @@ def remove_punctuation(segment: str) -> list:
     return segment.strip().split()
 
 
-def get_word_definition(word):
-    # breakpoint()
-    if word and word.isalpha():
-        url = f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}"
-        payload = {
-            "format": "json",
+class WiktionaryAPI:
+    """Wiktionary API."""
+
+    def __init__(self):
+        """Init."""
+        self.url = "https://en.wiktionary.org/api/rest_v1/page/definition/"
+        self.headers = {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
         }
-        response = requests.get(url, payload, timeout=3)
-        data = response.json()
-        if "title" in data:
-            result = [data["title"]]
-        else:
-            result = [
-                v[0]["definitions"]
-                for i in data
-                for k, v in i.items()
-                if k == "meanings"
-            ][0]
-            result = {k: i["definition"] for k, i in enumerate(result)}
-        # result = ""
-        # if "title" in data:
-        #     result = data["title"]
-        # else:
-        #     result += data[0]["meanings"][0]["definitions"][0]["definition"]
-    else:
-        result = []
-    return json.dumps(result)
+
+    def extract_data(self, word) -> str:
+        """Extract data from dict and return str."""
+        try:
+            word = word.lower()
+            req = requests.get(self.url + word, headers=self.headers)
+            data = req.json()
+            return data
+
+        except requests.exceptions.RequestException as error:
+            raise error
+
+    def rm_html(self, value):
+        """Remove HTML tags."""
+        if not isinstance(value, list):
+            return re.sub(r"<.*?>", "", value)
+
+    def reduce_json(self, jsonfile):
+        """Keep only the keys wanted."""
+        reduced_json = {
+            "Noun": {},
+            "Verb": {},
+            "Adjective": {},
+            "Pronoun": {},
+            "Adverb": {},
+            "Interjection": {},
+            "Preposition": {},
+            "Conjunction": {},
+        }
+        fields = [
+            "Noun",
+            "Verb",
+            "Adjective",
+            "Pronoun",
+            "Adverb",
+            "Preposition",
+            "Conjunction",
+        ]
+        inl = set()
+        count = 1
+
+        for field_index in range(len(jsonfile["en"])):
+            for field in fields:
+                if (
+                    jsonfile["en"][field_index]["partOfSpeech"] == field
+                    and jsonfile["en"][field_index]["definitions"]
+                ):
+                    for definition_index in range(
+                        len(jsonfile["en"][field_index]["definitions"])
+                    ):
+                        for key, value in jsonfile["en"][field_index]["definitions"][
+                            definition_index
+                        ].items():
+                            if self.rm_html(value):
+                                if field not in inl:
+                                    inl.add(field)
+                                    count = 1
+                                else:
+                                    count += 1
+                                reduced_json[field][count] = self.rm_html(value)
+        return reduced_json
