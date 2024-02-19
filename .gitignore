@@ -2,6 +2,10 @@
 
 # Project
 project_ignore/
+lsettings.py
+psettings.py
+prodsettings.py
+localsettings.py
 goodconfig.txt
 /assets/
 staticfiles/
