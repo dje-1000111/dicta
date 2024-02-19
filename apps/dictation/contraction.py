@@ -1,4 +1,5 @@
 """Contraction."""
+
 from .utils import ADVERBS, PAST_PARTICIPLES, PUNCTUATION, IRREGULAR
 
 
@@ -17,7 +18,7 @@ def is_past_perfect_with_adverb(index, segment_list):
 
 def past_perfect_with_adverb(index, segment_list):
     """Concatenate had to replace 'd."""
-    segment_list[index] = f"{segment_list[index].split("'")[0]} had"
+    segment_list[index] = segment_list[index].split("'")[0] + " had"
     return segment_list[index]
 
 
@@ -32,7 +33,7 @@ def past_perfect(index, segment_list):
     """Concatenate had to replace 'd."""
     if is_punctuation_after_targeted_segment(index, segment_list):
         segment_list = segment_list[:-1]
-    segment_list[index] = f"{segment_list[index].split("'")[0]} had"
+    segment_list[index] = segment_list[index].split("'")[0] + " had"
     return segment_list[index]
 
 
@@ -50,7 +51,7 @@ def would(index, segment_list):
     """Concatenate would to replace 'd."""
     if is_punctuation_after_targeted_segment(index, segment_list):
         segment_list = segment_list[:-1]
-    segment_list[index] = f"{segment_list[index].split("'")[0]} would"
+    segment_list[index] = segment_list[index].split("'")[0] + " would"
     return segment_list[index]
 
 
@@ -62,28 +63,30 @@ def put_back_punctuation(index, segment_list):
 def s_common_punctuation(index, segment_list):
     """Putback the punctuation removed before to the modified segment."""
     punctu = put_back_punctuation(index, segment_list)
-    new_segment = f"{segment_list[index].split("'")[0]} is"
+    new_segment = segment_list[index].split("'")[0] + " is"
     segment_list[index] = f"{new_segment}{punctu}" if punctu else new_segment
     return segment_list[index]
+
 
 def present_continuous(index, segment_list):
     """Concatenate is to 's in order to make present continuous tense."""
     punctu = put_back_punctuation(index, segment_list)
-    new_segment = f"{segment_list[index].split("'")[0]} is"
+    new_segment = segment_list[index].split("'")[0] + " is"
     segment_list[index] = f"{new_segment}{punctu}" if punctu else new_segment
     return segment_list[index]
+
 
 def present_perfect(index, segment_list):
     """Concatenate has."""
     punctu = put_back_punctuation(index, segment_list)
-    new_segment = f"{segment_list[index].split("'")[0]} has"
+    new_segment = segment_list[index].split("'")[0] + " has"
     segment_list[index] = f"{new_segment}{punctu}" if punctu else new_segment
     return segment_list[index]
 
 
 def is_present_continuous(index, segment_list) -> bool:
     """Check if it's present continuous.
-    
+
     from all_s_cases (only)
     """
     return (
@@ -100,7 +103,7 @@ def is_punctuation_after_targeted_segment(index, segment_list) -> bool:
 def bypass_punctuation_after_targeted_segment(index, segment_list):
     """Putback punctuation."""
     punctu = put_back_punctuation(index, segment_list)
-    segment_list[index] = f"{segment_list[index].split("'")[0]} is{punctu}"
+    segment_list[index] = segment_list[index].split("'")[0] + f" is{punctu}"
     return segment_list[index]
 
 
@@ -111,7 +114,7 @@ def is_let_before_s(index, segment_list) -> bool:
 
 def lets(index, segment_list):
     """Concatenate us after let."""
-    segment_list[index] = f"{segment_list[index].split("'")[0]} us"
+    segment_list[index] = segment_list[index].split("'")[0] + " us"
     return segment_list[index]
 
 
@@ -127,7 +130,7 @@ def is_to_be(index, segment_list) -> bool:
 def to_be(index, segment_list):
     """Return is case."""
     punctu = put_back_punctuation(index, segment_list)
-    new_segment = f"{segment_list[index].split("'")[0]} is"
+    new_segment = segment_list[index].split("'")[0] + " is"
     segment_list[index] = f"{new_segment}{punctu}" if punctu else new_segment
     return segment_list[index]
 
@@ -168,7 +171,7 @@ def is_demonstrative_before(index, segment_list):
 
 def demonstrative(index, segment_list):
     """Concatenate is."""
-    segment_list[index] = f"{segment_list[index].split("'")[0]} is"
+    segment_list[index] = segment_list[index].split("'")[0] + " is"
     return segment_list[index]
 
 
@@ -222,6 +225,7 @@ def all_s_cases(index, segment_list):
         else:
             general_is_case(index, segment_list)
 
+
 def all_negative_cases(index, segment_list):
     if is_wont_case(index, segment_list):
         negative_future(index, segment_list)
@@ -230,9 +234,17 @@ def all_negative_cases(index, segment_list):
     if is_can_case(index, segment_list):
         can_case(index, segment_list)
 
+
 def nt_case(index, segment_list):
     """Concatenate not."""
-    if index < len(segment_list) - 1 and segment_list[index + 1] in ["I", "you", "he", "she", "we", "they"]:
+    if index < len(segment_list) - 1 and segment_list[index + 1] in [
+        "I",
+        "you",
+        "he",
+        "she",
+        "we",
+        "they",
+    ]:
         item = segment_list[index].split("'")[0]
         segment_list[index] = item[:-1] if item.lower() != "will" else item
         segment_list.insert(index + 2, "not")
@@ -243,11 +255,14 @@ def nt_case(index, segment_list):
         segment_list[index] = f"{new_segment}{punctu}" if punctu else new_segment
         return segment_list[index]
 
+
 def is_wont_case(index, segment_list):
     return segment_list[index].split("'")[0].lower() == "won"
 
+
 def is_can_case(index, segment_list):
     return segment_list[index].split("'")[0].lower() == "can"
+
 
 def is_nt_case(index, segment_list):
     return segment_list[index].split("'")[0].lower() not in ["won", "can"]
@@ -256,37 +271,42 @@ def is_nt_case(index, segment_list):
 def future(index, segment_list):
     """Concatenate will."""
     punctu = put_back_punctuation(index, segment_list)
-    new_segment = f"{segment_list[index].split("'")[0]} will"
+    new_segment = segment_list[index].split("'")[0] + " will"
     segment_list[index] = f"{new_segment}{punctu}" if punctu else new_segment
     return segment_list[index]
+
 
 def negative_future(index, segment_list):
     punctu = put_back_punctuation(index, segment_list)
-    new_segment = f"{segment_list[index].split("'")[0][:-2]}ill"
+    new_segment = segment_list[index].split("'")[0] + "ill"
     segment_list[index] = f"{new_segment}{punctu}" if punctu else new_segment
     return segment_list[index]
 
+
 def can_case(index, segment_list):
     punctu = put_back_punctuation(index, segment_list)
-    new_segment = f"{segment_list[index].split("'")[0]}not"
+    new_segment = segment_list[index].split("'")[0] + "not"
     segment_list[index] = f"{new_segment}{punctu}" if punctu else new_segment
     return segment_list[index]
+
 
 def are_case(index, segment_list):
     """Concatenate are."""
     punctu = put_back_punctuation(index, segment_list)
-    new_segment = f"{segment_list[index].split("'")[0]} are"
+    new_segment = segment_list[index].split("'")[0] + " are"
     segment_list[index] = f"{new_segment}{punctu}" if punctu else new_segment
     return segment_list[index]
 
+
 def have_case(index, segment_list):
     """Concatenate have."""
-    segment_list[index] = f"{segment_list[index].split("'")[0]} have"
+    segment_list[index] = segment_list[index].split("'")[0] + " have"
     return segment_list[index]
+
 
 def am_case(index, segment_list):
     """Concatenate am."""
-    segment_list[index] = f"{segment_list[index].split("'")[0]} am"
+    segment_list[index] = segment_list[index].split("'")[0] + " am"
     return segment_list[index]
 
 
