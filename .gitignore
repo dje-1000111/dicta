@@ -59,3 +59,6 @@ webpack.common.js
 webpack.config.js
 webpack.dev.js
 webpack.prod.js
+
+# vscode
+.vscode
