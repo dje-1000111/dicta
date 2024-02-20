@@ -11,22 +11,23 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
-import logging
-import raven
-import sentry_sdk
 
-sentry_sdk.init(
-    dsn=os.getenv("SENTRY_DSN"),
-    # integrations=[DjangoIntegration()],
-    # enable_tracing=True,
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    traces_sample_rate=1.0,
-    # Set profiles_sample_rate to 1.0 to profile 100%
-    # of sampled transactions.
-    # We recommend adjusting this value in production.
-    profiles_sample_rate=1.0,
-)
+# import logging
+# import raven
+# import sentry_sdk
+
+# sentry_sdk.init(
+#     dsn=os.getenv("SENTRY_DSN"),
+#     # integrations=[DjangoIntegration()],
+#     # enable_tracing=True,
+#     # Set traces_sample_rate to 1.0 to capture 100%
+#     # of transactions for performance monitoring.
+#     traces_sample_rate=1.0,
+#     # Set profiles_sample_rate to 1.0 to profile 100%
+#     # of sampled transactions.
+#     # We recommend adjusting this value in production.
+#     profiles_sample_rate=1.0,
+# )
 
 from pathlib import Path
 import psycopg2.extensions
@@ -44,7 +45,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 if DEBUG:
     ALLOWED_HOSTS = []
@@ -78,7 +79,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "csp.middleware.CSPMiddleware",
+    # "csp.middleware.CSPMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -295,52 +296,52 @@ PONCTUATION = [
     "`",
 ]
 
-RAVEN_CONFIG = {
-    "dsn": os.getenv("SENTRY_DSN"),
-    # If you are using git, you can also automatically configure the
-    # release based on the git info.
-    # 'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
-}
+# RAVEN_CONFIG = {
+#     "dsn": os.getenv("SENTRY_DSN"),
+#     # If you are using git, you can also automatically configure the
+#     # release based on the git info.
+#     # 'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
+# }
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "root": {
-        "level": "INFO",
-        "handlers": ["sentry"],
-    },
-    "formatters": {
-        "verbose": {
-            "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
-        },
-    },
-    "handlers": {
-        "sentry": {
-            "level": "INFO",
-            "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
-            "tags": {"custom-tag": "x"},
-        },
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
-    },
-    "loggers": {
-        "django.db.backends": {
-            "level": "ERROR",
-            "handlers": ["console"],
-            "propagate": False,
-        },
-        "raven": {
-            "level": "DEBUG",
-            "handlers": ["console"],
-            "propagate": False,
-        },
-        "sentry.errors": {
-            "level": "DEBUG",
-            "handlers": ["console"],
-            "propagate": False,
-        },
-    },
-}
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "root": {
+#         "level": "INFO",
+#         "handlers": ["sentry"],
+#     },
+#     "formatters": {
+#         "verbose": {
+#             "format": "%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s"
+#         },
+#     },
+#     "handlers": {
+#         "sentry": {
+#             "level": "INFO",
+#             "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
+#             "tags": {"custom-tag": "x"},
+#         },
+#         "console": {
+#             "level": "DEBUG",
+#             "class": "logging.StreamHandler",
+#             "formatter": "verbose",
+#         },
+#     },
+#     "loggers": {
+#         "django.db.backends": {
+#             "level": "ERROR",
+#             "handlers": ["console"],
+#             "propagate": False,
+#         },
+#         "raven": {
+#             "level": "DEBUG",
+#             "handlers": ["console"],
+#             "propagate": False,
+#         },
+#         "sentry.errors": {
+#             "level": "DEBUG",
+#             "handlers": ["console"],
+#             "propagate": False,
+#         },
+#     },
+# }
