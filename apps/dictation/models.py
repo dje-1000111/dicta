@@ -372,7 +372,7 @@ class WiktionaryAPI:
         """Extract data from dict and return str."""
         try:
             word = word.lower()
-            req = requests.get(self.url + word, headers=self.headers)
+            req = requests.get(self.url + word, headers=self.headers, timeout=5)
             data = req.json()
             return data
 
@@ -381,8 +381,9 @@ class WiktionaryAPI:
 
     def rm_html(self, value):
         """Remove HTML tags."""
-        if not isinstance(value, list):
-            return re.sub(r"<.*?>", "", value)
+        if isinstance(value, list):
+            return None
+        return re.sub(r"<.*?>", "", value)
 
     def reduce_json(self, jsonfile):
         """Keep only the keys wanted."""
@@ -390,6 +391,7 @@ class WiktionaryAPI:
             "Noun": {},
             "Verb": {},
             "Adjective": {},
+            "Determiner": {},
             "Pronoun": {},
             "Adverb": {},
             "Interjection": {},
@@ -400,31 +402,21 @@ class WiktionaryAPI:
             "Noun",
             "Verb",
             "Adjective",
+            "Determiner",
             "Pronoun",
             "Adverb",
+            "Interjection",
             "Preposition",
             "Conjunction",
         ]
-        inl = set()
-        count = 1
 
-        for field_index in range(len(jsonfile["en"])):
-            for field in fields:
-                if (
-                    jsonfile["en"][field_index]["partOfSpeech"] == field
-                    and jsonfile["en"][field_index]["definitions"]
-                ):
-                    for definition_index in range(
-                        len(jsonfile["en"][field_index]["definitions"])
-                    ):
-                        for key, value in jsonfile["en"][field_index]["definitions"][
-                            definition_index
-                        ].items():
-                            if self.rm_html(value):
-                                if field not in inl:
-                                    inl.add(field)
-                                    count = 1
-                                else:
-                                    count += 1
-                                reduced_json[field][count] = self.rm_html(value)
+        for data in jsonfile["en"]:
+            if data["partOfSpeech"] in fields:
+                count = 1
+                for field in data["definitions"]:
+                    if field["definition"]:
+                        reduced_json[data["partOfSpeech"]].update(
+                            {count: self.rm_html(field["definition"])}
+                        )
+                        count += 1
         return reduced_json

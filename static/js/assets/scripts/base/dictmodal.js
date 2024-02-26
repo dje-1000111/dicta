@@ -1,1 +1,8 @@
-const dictmod = new bootstrap.Modal(document.getElementById("dictmod"), { keyboard: !1 }); var dictmodElem = document.getElementById("dictmod"); dictmodElem.addEventListener("hidden.bs.modal", function () { document.getElementById("dico-content") && document.getElementById("dico-content").remove() });
+const dictmod = new bootstrap.Modal(document.getElementById('dictmod'), {
+    keyboard: false
+})
+var dictmodElem = document.getElementById('dictmod')
+dictmodElem.addEventListener('hidden.bs.modal', function () {
+    if (document.getElementById("dictionary-content")) document.getElementById("dictionary-content").remove()
+})
+

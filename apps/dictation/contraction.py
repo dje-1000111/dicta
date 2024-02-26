@@ -227,6 +227,7 @@ def all_s_cases(index, segment_list):
 
 
 def all_negative_cases(index, segment_list):
+    """Handle all negative cases."""
     if is_wont_case(index, segment_list):
         negative_future(index, segment_list)
     if is_nt_case(index, segment_list):
@@ -257,14 +258,17 @@ def nt_case(index, segment_list):
 
 
 def is_wont_case(index, segment_list):
+    """Concatenate won."""
     return segment_list[index].split("'")[0].lower() == "won"
 
 
 def is_can_case(index, segment_list):
+    """Concatenate can."""
     return segment_list[index].split("'")[0].lower() == "can"
 
 
 def is_nt_case(index, segment_list):
+    """Check if it's a n't case."""
     return segment_list[index].split("'")[0].lower() not in ["won", "can"]
 
 
@@ -277,13 +281,15 @@ def future(index, segment_list):
 
 
 def negative_future(index, segment_list):
+    """Handle negative future case."""
     punctu = put_back_punctuation(index, segment_list)
-    new_segment = segment_list[index].split("'")[0] + "ill"
+    new_segment = segment_list[index].split("'")[0][:-2] + "ill"
     segment_list[index] = f"{new_segment}{punctu}" if punctu else new_segment
     return segment_list[index]
 
 
 def can_case(index, segment_list):
+    """Handle can't case."""
     punctu = put_back_punctuation(index, segment_list)
     new_segment = segment_list[index].split("'")[0] + "not"
     segment_list[index] = f"{new_segment}{punctu}" if punctu else new_segment
