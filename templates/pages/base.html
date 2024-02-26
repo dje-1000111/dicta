@@ -64,7 +64,7 @@ gtag('config', 'G-Q13MGW1JFP');
     const prde = "{% url 'dictation:ajax_post_request_definition' %}";
   </script>
   <div id="consent-popup"></div>
-  {% comment %} {% spaceless %} {% endcomment %}
+  {% spaceless %}
   {% block css_container %}{% endblock css_container %}
   {% include 'pages/dictionary_modal.html' %}
   <header>
@@ -142,7 +142,7 @@ gtag('config', 'G-Q13MGW1JFP');
     <span class="fabout"><a href="{% url 'dictation:about' %}">About</a></span>
   </footer>
   </div>
-  {% comment %} {% endspaceless %} {% endcomment %}
+  {% endspaceless %}
   <div id="cc"></div>  
   <script src="{% static 'js/assets/scripts/base/dictmodal.js' %}" nonce="{{request.csp_nonce}}"></script>
   <script src="{% static 'js/assets/scripts/base/index.bundle.js' %}" nonce="{{request.csp_nonce}}"></script>
