@@ -246,6 +246,7 @@ CSP_IMG_SRC = (
 CSP_MEDIA_SRC = ("'self'", "https://www.youtube.com/")
 CSP_FRAME_SRC = (
     "'self'",
+    "https://www.youtube-nocookie.com/",
     "https://www.youtube.com/embed/",
     "https://www.youtube.com/iframe_api",
     "https://www.googletagmanager.com/",
@@ -325,13 +326,6 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
-        "gunicorn": {
-            "level": "DEBUG",
-            "class": "logging.handlers.RotatingFileHandler",
-            "formatter": "verbose",
-            "filename": "/opt/djangoprojects/reports/bin/gunicorn.errors",
-            "maxBytes": 1024 * 1024 * 100,  # 100 mb
-        },
         "file": {
             "level": "DEBUG",
             "class": "logging.FileHandler",
@@ -347,11 +341,6 @@ LOGGING = {
         "django": {
             "handlers": ["file"],
             "level": "DEBUG",
-            "propagate": True,
-        },
-        "gunicorn.errors": {
-            "level": "DEBUG",
-            "handlers": ["gunicorn"],
             "propagate": True,
         },
         "raven": {
