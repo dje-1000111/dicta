@@ -1,17 +1,17 @@
 {% extends 'pages/base.html' %}
 {% load static %}
 {% load extra_filters %}
-{% comment %} {% load compress %} {% endcomment %}
+{% load compress %}
 {% block meta_description %}<meta name="description" content="Dictation based on YouTube video: {{ vid_title }}">{% endblock meta_description %}
 {% block title %}Practice your English with video: {{ vid_title|capfirst }}{% endblock title %}
-{% get_cookie_consent as gcc %}
+{% comment %} {% get_cookie_consent as gcc %} {% endcomment %}
 {% block head_script %}{% endblock head_script %} 
 {% block css_container %}<div class="grid-topic-container" id="tcontainer">{% endblock css_container %}
 {% block index %}
-{% comment %} {% spaceless %} {% endcomment %}
-{% if gcc %} 
+{% spaceless %}
+{% comment %} {% if gcc %}  {% endcomment %}
     <script src="{% static 'js/video.js' %}" nonce="{{request.csp_nonce}}"></script>
-{% endif %}
+{% comment %} {% endif %} {% endcomment %}
     <div class="subhead" id="subh">
         {% if messages %}
             {% for message in messages %}
@@ -89,7 +89,7 @@
         <script nonce="{{request.csp_nonce}}">const dictation_id = null;</script>
         {% endif %}
     </div>
-    {% comment %} {% endspaceless %} {% endcomment %}
+    {% endspaceless %}
     <script nonce="{{request.csp_nonce}}">
         const aptc = "{% url 'dictation:ajax_post_textarea_content' %}",
             aprr = "{% url 'dictation:ajax_post_request_rating' %}",
