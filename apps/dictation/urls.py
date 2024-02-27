@@ -33,4 +33,10 @@ urlpatterns = [
             template_name="sitemap.xml", content_type="text/xml; charset='utf-8'"
         ),
     ),
+    path(
+        "BingSiteAuth.xml",
+        TemplateView.as_view(
+            template_name="BingSiteAuth.xml", content_type="text/xml; charset='utf-8'"
+        ),
+    ),
 ]
