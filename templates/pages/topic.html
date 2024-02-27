@@ -2,16 +2,13 @@
 {% load static %}
 {% load extra_filters %}
 {% load compress %}
-{% block meta_description %}<meta name="description" content="Dictation based on YouTube video: {{ vid_title }}">{% endblock meta_description %}
-{% block title %}Practice your English with video: {{ vid_title|capfirst }}{% endblock title %}
-{% comment %} {% get_cookie_consent as gcc %} {% endcomment %}
+{% block meta_description %}<meta name="description" content="Free dictations based on YouTube videos to practice your English">{% endblock meta_description %}
+{% block title %} {{ vid_title|capfirst }}{% endblock title %}
 {% block head_script %}{% endblock head_script %} 
 {% block css_container %}<div class="grid-topic-container" id="tcontainer">{% endblock css_container %}
 {% block index %}
 {% spaceless %}
-{% comment %} {% if gcc %}  {% endcomment %}
     <script src="{% static 'js/video.js' %}" nonce="{{request.csp_nonce}}"></script>
-{% comment %} {% endif %} {% endcomment %}
     <div class="subhead" id="subh">
         {% if messages %}
             {% for message in messages %}
