@@ -23,6 +23,7 @@ class Dictation(models.Model):
 
     video_id = models.CharField(null=True, blank=True, max_length=50)
     # language = models.CharField(null=True, blank=True, max_length=50)
+    change_date = models.DateTimeField(auto_now=True)
     filename = models.CharField(null=True, blank=True, max_length=200)
     timestamps = models.JSONField()
     topic = models.CharField(max_length=200)
@@ -35,6 +36,9 @@ class Dictation(models.Model):
     def __str__(self):
         """Return str representation."""
         return self.topic
+
+    def get_absolute_url(self):
+        return f"/topic/{self.slug}"
 
     def total_lines(self, filename: str = None) -> int:
         """Return the total number of lines."""

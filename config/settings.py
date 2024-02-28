@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     "apps.dictation.templatetags.extra_filters",
     "apps.dictation.templatetags.adjusted_elided_page",
     "raven.contrib.django.raven_compat",
+    "django.contrib.sitemaps",
 ]
 
 MIDDLEWARE = [
