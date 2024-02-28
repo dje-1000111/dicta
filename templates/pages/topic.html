@@ -2,16 +2,13 @@
 {% load static %}
 {% load extra_filters %}
 {% load compress %}
-{% block meta_description %}<meta name="description" content="Dictation based on YouTube video: {{ vid_title }}">{% endblock meta_description %}
-{% block title %} - {{ vid_title|capfirst }}{% endblock title %}
-{% get_cookie_consent as gcc %}
+{% block meta_description %}<meta name="description" content="Free dictations based on YouTube videos to practice your English">{% endblock meta_description %}
+{% block title %} {{ topic_title|capfirst }}{% endblock title %}
 {% block head_script %}{% endblock head_script %} 
 {% block css_container %}<div class="grid-topic-container" id="tcontainer">{% endblock css_container %}
 {% block index %}
 {% spaceless %}
-{% if gcc %} 
     <script src="{% static 'js/video.js' %}" nonce="{{request.csp_nonce}}"></script>
-{% endif %}
     <div class="subhead" id="subh">
         {% if messages %}
             {% for message in messages %}
@@ -19,13 +16,13 @@
             {% endfor %}
         {% endif %}
         <div id="tt" class="dict-tt">
-            <span class=""><i class="fa-solid fa-lg fa-circle-exclamation"></i></span>
+            <span class=""><i class="fas fa-question-circle"></i></span>
             <span class="bg-info p-2 float-end mb-3 dict-tt-content">Double click on a word to get its definition</span>
           </div> 
         <h1>{{vid_title}} <span id="video-title"></span><i id="ivideo-title"></i></h1>
         {% if user.is_authenticated %}
             <div class="star-rating">
-                <span>Give your difficulty Level:</span> 
+                <span>How would you describe this exercise:</span> 
                 {% for star in stars %}
                     {% if star == star_rating %}
                         <input type="radio" id="{{dictation_id}}_{{star}}" name="rate" value="{{star}}" checked="">
@@ -41,7 +38,6 @@
             <div class="d-flex justify-content-between mt-5">
                 <span class="bg-info p-2 fitcontent">Save your progress<a class="ms-2 text-primary" href="{% url 'auth:login' %} ">Log in</a></span>
         {% endif %} 
-        <span class="p-2 fitcontent">You can omit the punctuation in order to focus only on the words.</span>
             </div>
     </div>
     <div id="embvid" class="embeded-video">
@@ -73,7 +69,7 @@
             <span id="complete" class="d-flex p-2"></span>
     </div>
         <p> {{result}} </p>
-        <p>Correction:<span id="lengthened" class="lengthened-tt float-end me-5" data-tooltip="Check here to see the correction without contractions."><i class="fas fa-question-circle"></i></span></p><br>
+        <p>Correction:<span id="lengthened" class="lengthened-tt float-end" data-tooltip="Check here to see the correction without contractions."><i class="fas fa-question-circle"></i></span></p><br>
         <img id="imgb64" src='data:image/jpeg;base64,{{ b64_img }}' alt="poster" hidden>
         <div id="result_correction" class="text-entry"></div>
     </div>

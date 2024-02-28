@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "apps.dictation.templatetags.extra_filters",
     "apps.dictation.templatetags.adjusted_elided_page",
     "raven.contrib.django.raven_compat",
+    "django.contrib.sitemaps",
 ]
 
 MIDDLEWARE = [
@@ -244,6 +245,7 @@ CSP_IMG_SRC = (
 CSP_MEDIA_SRC = ("'self'", "https://www.youtube.com/")
 CSP_FRAME_SRC = (
     "'self'",
+    "https://www.youtube-nocookie.com/",
     "https://www.youtube.com/embed/",
     "https://www.youtube.com/iframe_api",
     "https://www.googletagmanager.com/",

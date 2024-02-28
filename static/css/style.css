@@ -104,7 +104,6 @@ header {
 
 .dict-tt {
     float: right;
-    font-size: 12px;
     margin-left: auto;
     cursor: pointer;
 }
@@ -118,14 +117,22 @@ header {
     font-size: 12px;
     z-index: 1;
     margin-top: 15px;
-    margin-left: -120px;
+    margin-left: -125px;
 }
 
 .dict-tt:hover .dict-tt-content {
     visibility: visible;
 }
 
+.missing {
+    text-decoration-line: line-through;
+    font-size: small;
+}
 
+.hidemodal {
+    display: none;
+    visibility: hidden;
+}
 
 .controls-tt {
     display: block;
@@ -864,6 +871,10 @@ h2 {
         height: 440px;
     }
 
+    .bonus-container {
+        min-height: 83%;
+    }
+
     .light {
         background-color: #f5f5f5;
         color: black;
@@ -909,6 +920,10 @@ h2 {
         padding: 0px 20px 0px 20px;
     }
 
+    /* .bonus-container {
+        min-height: 75%;
+    } */
+
     .light {
         background-color: #f5f5f5;
         color: black;
@@ -923,10 +938,18 @@ h2 {
         grid-template-columns: 0.5fr 1fr 0.5fr;
         grid-template-rows: 1fr;
         grid-template-areas:
-            'foo1  foo3  foo5';
+            'foo2  foo3';
     }
 
     .lorem {
         visibility: hidden;
     }
+}
+
+@media screen and (max-width: 500px) {
+
+    .bonus-container {
+        min-height: 75%;
+    }
+
 }

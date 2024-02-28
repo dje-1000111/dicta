@@ -2,9 +2,10 @@
 {% load static %}
 {% load extra_filters %}
 {% block title %}Sign up - {% endblock title %}
-{% block style %}
+{% block robots %}<meta name="robots" content="noindex,nofollow">{% endblock robots %}
+{% comment %} {% block style %}
 <link href="{% static 'css/home.css' %}" rel="stylesheet">
-{% endblock style %}
+{% endblock style %} {% endcomment %}
 {% block css_container %}<div class="grid-home-container" id="hcontainer">{% endblock css_container %}
 {% block signup %}
 <main id="prof">

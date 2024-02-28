@@ -1,4 +1,5 @@
 """Model Admin."""
+
 from django.contrib import admin
 
 
@@ -12,6 +13,7 @@ class DictationAdmin(admin.ModelAdmin):
     list_display = [
         "topic",
         "in_production",
+        "change_date",
     ]
 
 

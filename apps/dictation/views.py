@@ -111,6 +111,7 @@ class TopicView(DetailView):
                 "lines": self.lines if self.request.user.is_authenticated else [],
                 "help": self.dictation.tip,
                 "stars": ["5", "4", "3", "2", "1"],
+                "topic_title": self.dictation.topic,
             }
         )
         return context

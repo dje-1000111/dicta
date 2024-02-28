@@ -1,7 +1,7 @@
 {% block dictmod %}
 {% load i18n %}
 {% spaceless %}
-<div class="container mt-3" id="modal-container">
+{% comment %} <div class="container mt-3" id="modal-container"> {% endcomment %}
     <div class="modal" id="dictmod">
         <div class="modal-dialog">
             <div class="modal-content modal-bg">
@@ -22,6 +22,6 @@
             </div>
         </div>
     </div>
-</div>
+{% comment %} </div> {% endcomment %}
 {% endspaceless %}
 {% endblock dictmod %}

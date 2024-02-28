@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 import os
 
 from django.utils.safestring import mark_safe
@@ -28,7 +29,10 @@ handler500 = "apps.dictation.views.server_error"
 
 admin.site.site_title = "dictatube site admin"
 admin.site.site_header = mark_safe(
-    "dictatube administration -> Run the management/command <span style='color: red;'>update_total_line</span> after adding a new dictation"
+    (
+        "dictatube administration -> Run the management/command",
+        "<span style='color: red;'>update_total_line</span> after adding a new dictation",
+    )
 )
 admin.site.index_title = "Site administration"
 
