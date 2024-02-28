@@ -179,7 +179,8 @@ class AjaxDetailView(DetailView):
                 "state": state,
                 "original": reference,
                 "reveal_attempts": attempts if reveal_status else attempts,
-            }
+            },
+            headers={"X-Robots-Tag": "noindex"},
         )
 
 
@@ -193,7 +194,7 @@ def post_user_rating(request: HttpRequest) -> HttpResponse:
     practice.update_rating(
         user=request.user, dictation_id=dictation_id, new_rating=star_rating
     )
-    return HttpResponse(status=201)
+    return HttpResponse(status=201, headers={"X-Robots-Tag": "noindex"})
 
 
 def post_request_definition(request):
@@ -207,4 +208,7 @@ def post_request_definition(request):
     else:
         definition = {"no-result": "No definition found."}
 
-    return HttpResponse(status=204, headers={"definition": json.dumps(definition)})
+    return HttpResponse(
+        status=204,
+        headers={"definition": json.dumps(definition), "X-Robots-Tag": "noindex"},
+    )
