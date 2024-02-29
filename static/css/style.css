@@ -81,6 +81,10 @@ header {
     text-indent: 15px;
 }
 
+.custom-facp {
+    color: #a8bb24;
+}
+
 .appmenu {
     grid-area: appmenu;
     margin: 8px;
@@ -920,10 +924,6 @@ h2 {
         padding: 0px 20px 0px 20px;
     }
 
-    /* .bonus-container {
-        min-height: 75%;
-    } */
-
     .light {
         background-color: #f5f5f5;
         color: black;
@@ -944,6 +944,20 @@ h2 {
     .lorem {
         visibility: hidden;
     }
+}
+
+@media screen and (max-width: 575px) {
+
+    .table>tbody>tr>td {
+        vertical-align: middle !important;
+        text-align: center;
+    }
+
+    .table>tbody>tr>th {
+        vertical-align: middle !important;
+        text-align: center;
+    }
+
 }
 
 @media screen and (max-width: 500px) {

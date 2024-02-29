@@ -3,7 +3,7 @@
 {% load adjusted_elided_page %}
 {% load extra_filters %}
 {% block meta_description %}<meta name="Description" content="Free dictations based on YouTube videos to practice your English">{% endblock meta_description %}
-{% block title %} List of topics{% endblock title %}
+{% block title %}List of dictations{% endblock title %}
 {% block css_container %}<div class="grid-home-container" id="hcontainer">{% endblock css_container %}
 {% block home %}
 <main>
@@ -15,31 +15,28 @@
     </ul>
     {% endif %} 
     <div class="mb-5">
-        <h1>Improve your listening, enrich your vocabulary, your grammar, learn new words using dictation</h1>
+        <h1>Free dictations to improve your English</h1>
     </div>    
     <div id="tt" class="dict-tt">
         <i class="fas fa-question-circle"></i>
         <span class="bg-info p-2 float-end mb-3 dict-tt-content">Double click on a word to get its definition</span>
       </div> 
     <h3>Select your topic</h3>
-    <p>You can choose a topic just below and start a new dictation from a YouTube video.<br>Each sentence is not too long but just in case, if you are struggling with the sound,
-        there is a little help:<br> when you check your spelling and if what you wrote is right, you can then click on the reveal button three times by sentence to display the very next letter.<br>
-        Of course, it's not the purpose of using the help to write the text all along by this way, it's a real dictation so you have to play the game.
-    </p><p>To make sure you don't see the sentence written in the video, you can blur it (and omit the punctuation in order to focus only on the words).</p>
+    <p>You can choose a topic just below and start a new dictation from a YouTube video.</p>
     <table class="table table-hover">
         <tr>
-            <th class="w-tmb">Thumbnail</th>
-            <th>Topic</th>
-            <th>Video duration</th>
-            <th>Average difficulty</th>
+            <th class="w-tmb"></th>
+            <th class="d-none d-sm-table-cell">Topic</th>
+            <th>duration</th>
+            <th>difficulty</th>
         {% if user.is_authenticated %}<th>Personal status</th>{% endif %}
         </tr>        
         {% for item in page_obj %}
             <tr>
-                <td class="hometd p-0"><a href="{% url 'dictation:topic' item.slug %}"><img class="w-tmb" src="https://img.youtube.com/vi/{{item.video_id}}/0.jpg" alt="Thumbnail of the YouTube video: {{item.topic}}"></a></td>
-                <td><a href="{% url 'dictation:topic' item.slug %}" aria-label="{{ item|capfirst }}" tabindex="-1" class="row-link"></a><a class="d-flex align-items-center link-wrap link-indent link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="{% url 'dictation:topic' item.slug %}"> {{ item|capfirst }}</a></td>
-                <td>about {{item|duration}} mn</td>
-                <td>{{item.level|starize}}</td> 
+                <td class="hometd p-0"><a href="{% url 'dictation:topic' item.slug %}"><img class="w-tmb" src="https://img.youtube.com/vi/{{item.video_id}}/0.jpg" alt=""></a></td>
+                <td class="d-none d-sm-table-cell"><a href="{% url 'dictation:topic' item.slug %}" aria-label="{{ item|capfirst }}" tabindex="-1" class="row-link"></a><a class="d-flex align-items-center link-wrap link-indent link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="{% url 'dictation:topic' item.slug %}"> {{ item|capfirst }}</a></td>
+                <td>about {{item|duration}} mn<a href="{% url 'dictation:topic' item.slug %}" aria-label="{{ item|capfirst }}" tabindex="-1" class="row-link"></a><a class="d-flex align-items-center link-wrap link-indent link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="{% url 'dictation:topic' item.slug %}"></a></td>
+                <td>{{item.level|starize}}<a href="{% url 'dictation:topic' item.slug %}" aria-label="{{ item|capfirst }}" tabindex="-1" class="row-link"></a><a class="d-flex align-items-center link-wrap link-indent link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="{% url 'dictation:topic' item.slug %}"></a></td> 
                 {% if user.is_authenticated %}<td>
                     {% for dictation in practice %} 
                         {% if dictation.dictation_id == item.id %} 

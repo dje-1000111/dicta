@@ -1,16 +1,11 @@
 {% extends 'pages/base.html' %}
 {% load static %}
 {% load extra_filters %}
-{% block title %}Sign up - {% endblock title %}
+{% block title %}Sign up{% endblock title %}
 {% block robots %}<meta name="robots" content="noindex,nofollow">{% endblock robots %}
-{% comment %} {% block style %}
-<link href="{% static 'css/home.css' %}" rel="stylesheet">
-{% endblock style %} {% endcomment %}
 {% block css_container %}<div class="grid-home-container" id="hcontainer">{% endblock css_container %}
 {% block signup %}
 <main id="prof">
-   
-
     {% if messages %}
         <div id="profile-container" class="profile-container h-100">
         <ul class="d-contents float-start p-0 w-100">
@@ -21,8 +16,6 @@
     {% else %}
         <div id="profile-container" class="profile-container h-100 p-5">
     {% endif %} 
-
-
         <div class="d-flex justify-content-center align-items-center align-content-center mt-5 mb-5">
             <div class="input-group mb-3 d-flex justify-content-center bg-light rounded p-3 shad w-300">
                 <form method="post">{% csrf_token %}
