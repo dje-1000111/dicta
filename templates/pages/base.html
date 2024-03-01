@@ -20,14 +20,14 @@
   <link rel="icon" type="image/png" sizes="16x16"  href="{% static 'img/favicon-16.png' %}">
   <link rel="icon" type="image/svg+xml" href="{% static 'img/dicpen.svg' %}">
   <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/apple-touch-icon.png' %}">
-  <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}"/>
+  <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
   <link href="{% static 'css/style.css' %}" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
   <script type="module" src="{% static 'js/cookieconsent.js' %}" nonce="{{request.csp_nonce}}"></script>
   <script nonce="{{request.csp_nonce}}">
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-    
+
     if(localStorage.getItem('consentMode') === null){
         gtag('consent', 'default', {
             'ad_storage': 'denied',
@@ -83,7 +83,7 @@ gtag('config', 'G-Q13MGW1JFP');
         </button>
         <a class="navbar-brand" href="{% url 'dictation:home' %}">
           <div class="applogo">
-            <img class="ydt" src="{% static 'img/diclogo.svg' %}" alt="Logo">
+            <img class="ydt" src="{% static 'img/diclogo.svg' %}" alt="Logo representing the website name.">
           </div>
         </a>
         <button id="ligbtn" data-light="light" class="light-button btn ms-auto me-0 order-lg-last w-dl" title="light"
@@ -147,7 +147,7 @@ gtag('config', 'G-Q13MGW1JFP');
   </footer>
   </div>
   {% endspaceless %}
-  <div id="cc"></div>  
+  <div id="cc"></div>
   <script src="{% static 'js/assets/scripts/base/dictmodal.js' %}" nonce="{{request.csp_nonce}}"></script>
   <script src="{% static 'js/assets/scripts/base/index.bundle.js' %}" nonce="{{request.csp_nonce}}"></script>
 <!-- Google Tag Manager (noscript) -->

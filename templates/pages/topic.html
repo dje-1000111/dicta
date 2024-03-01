@@ -61,7 +61,7 @@
     {{form}}
     <div class="d-flex justify-content-between rounded bg-white mt-3">
         <div class="d-flex align-items-center p-2">
-            <button type="button" class="btn btn-danger btn-yt ms-1 controls-tt" title="play" id="playstop"data-tooltip="Play/Stop"><i id="iplaystop" class="fa-solid fa-play w-ctrl"></i></button>
+            <button type="button" class="btn btn-danger btn-yt ms-1 controls-tt" title="play" id="playstop" data-tooltip="Play/Stop"><i id="iplaystop" class="fa-solid fa-play w-ctrl"></i></button>
             <button type="button" class="btn btn-success ms-1 controls-tt" title="check" id="check" data-tooltip="Verify the spelling step by step"><i class="fa-solid fa-check w-ctrl"></i></button>
             <button type="button" class="btn btn-warning ms-1 controls-tt" title="reveal first letter" id="reveal" data-tooltip="You can click 3 times by segment to get the very next letter."><i class="fa-solid fa-0 w-ctrl"></i></button>
             <button type="button" class="btn btn-outline-secondary ms-1 controls-tt" data-tooltip="If the video provides the text, click to blur it." title="Blur video" id="blur-btn" ><i id="iblur" class="fa-solid fa-droplet w-ctrl"></i></button>
@@ -69,7 +69,8 @@
             <span id="complete" class="d-flex p-2"></span>
     </div>
         <p> {{result}} </p>
-        <p>Correction:<span id="lengthened" class="lengthened-tt float-end" data-tooltip="Check here to see the correction without contractions."><i class="fas fa-question-circle"></i></span></p><br>
+        {% comment %} <span id="lengthened" class="lengthened-tt float-end" data-tooltip="Check here to see the correction without contractions."><i class="fas fa-question-circle"></i></span> {% endcomment %}
+        <p>Correction:</p><br>
         <img id="imgb64" src='data:image/jpeg;base64,{{ b64_img }}' alt="poster" hidden>
         <div id="result_correction" class="text-entry"></div>
     </div>
