@@ -52,7 +52,7 @@ class Dictation(models.Model):
         with open(f"{settings.TXT_DIR / filename}", "r", encoding="utf-8") as f:
             if index - 1 <= max_lines:
                 line += f.readlines()[index - 1]
-        return line
+        return line.rstrip("\n")
 
     def get_video_title(self, video_id: str) -> Any:
         """Get the original video title from YouTube."""
@@ -376,7 +376,7 @@ class WiktionaryAPI:
         """Extract data from dict and return str."""
         try:
             word = word.lower()
-            req = requests.get(self.url + word, headers=self.headers, timeout=5)
+            req = requests.get(self.url + word, headers=self.headers, timeout=15)
             data = req.json()
             return data
 

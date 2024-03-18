@@ -200,7 +200,6 @@ def post_user_rating(request: HttpRequest) -> HttpResponse:
 def post_request_definition(request):
     """Post the definition from wiki."""
     term = json.loads(request.body)
-    print("what is term", term)
     wiki = WiktionaryAPI()
     data = wiki.extract_data(term)
     if "en" in data:
