@@ -1,7 +1,9 @@
 """Item Auth forms."""
 
 from django_recaptcha.fields import ReCaptchaField
-from django_recaptcha.widgets import ReCaptchaV3
+
+# from django_recaptcha.widgets import ReCaptchaV3
+from apps.dictation_auth.widget import CustomReCaptchaV3
 
 from django import forms
 from django.contrib.auth import forms as auth_forms
@@ -72,7 +74,7 @@ class SignupForm(auth_forms.UserCreationForm):
         ),
     )
 
-    captcha = ReCaptchaField(widget=ReCaptchaV3(action="signup"))
+    captcha = ReCaptchaField(widget=CustomReCaptchaV3(action="signup"))
 
     class Meta:
         """InscriptForm meta class."""
@@ -112,7 +114,7 @@ class LoginForm(auth_forms.AuthenticationForm):
         ),
     )
 
-    captcha = ReCaptchaField(widget=ReCaptchaV3(action="login"))
+    captcha = ReCaptchaField(widget=CustomReCaptchaV3(action="login"))
 
     password = forms.CharField(
         label=_("Password"),
@@ -154,7 +156,7 @@ class CustomPasswordResetForm(PasswordResetForm):
         ),
     )
 
-    captcha = ReCaptchaField(widget=ReCaptchaV3(action="password_reset"))
+    captcha = ReCaptchaField(widget=CustomReCaptchaV3(action="password_reset"))
 
 
 class CustomSetPasswordForm(SetPasswordForm):

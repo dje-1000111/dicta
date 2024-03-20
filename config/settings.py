@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.forms",
     "compressor",
     "apps.dictation",
     "apps.dictation_auth",
@@ -109,6 +110,8 @@ TEMPLATES = [
         },
     },
 ]
+
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 WSGI_APPLICATION = "config.wsgi.application"
 
@@ -237,6 +240,8 @@ CSP_SCRIPT_SRC = (
     "https://www.googletagmanager.com/",
     "https://www.googletagmanager.com/gtm.js",
     "https://www.googletagmanager.com/gtag/js",
+    "https://www.google.com/recaptcha/",
+    "https://www.gstatic.com/recaptcha/",
 )
 CSP_INCLUDE_NONCE_IN = ["script-src"]
 CSP_IMG_SRC = (
@@ -255,6 +260,8 @@ CSP_FRAME_SRC = (
     "https://www.youtube.com/iframe_api",
     "https://www.googletagmanager.com/",
     "https://googleads.g.doubleclick.net/",
+    "https://www.google.com/recaptcha/",
+    "https://recaptcha.google.com/recaptcha/",
 )
 CSP_OBJECT_SRC = ("'none'",)
 CSP_FRAME_ANCESTORS = "'self'"
