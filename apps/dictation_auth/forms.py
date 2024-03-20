@@ -1,4 +1,8 @@
 """Item Auth forms."""
+
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV3
+
 from django import forms
 from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model
@@ -11,17 +15,6 @@ from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from apps.dictation_auth.models import User
 
 UserModel = get_user_model()
-# from EmailModelBackend import authenticate
-
-
-# from django import forms
-# from django.contrib.auth.forms import UserCreationForm
-# from .models import CustomUser
-
-# class CustomUserCreationForm(UserCreationForm):
-#     class Meta(UserCreationForm.Meta):
-#         model = CustomUser
-#         fields = UserCreationForm.Meta.fields + ('email',)
 
 
 class UserCreationForm(auth_forms.UserCreationForm):
@@ -45,7 +38,6 @@ class SignupForm(auth_forms.UserCreationForm):
                 "autocomplete": "off",
                 "class": "form-control me-2",
                 "input_type": "email",
-                # "placeholder": _("Email"),
                 "data-email": "",
             }
         ),
@@ -56,7 +48,6 @@ class SignupForm(auth_forms.UserCreationForm):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control me-2",
-                # "placeholder": "Username",
             }
         ),
     )
@@ -67,7 +58,6 @@ class SignupForm(auth_forms.UserCreationForm):
             attrs={
                 "class": "form-control me-2",
                 "input_type": "password",
-                # "placeholder": "Type your password",
             }
         ),
     )
@@ -78,10 +68,11 @@ class SignupForm(auth_forms.UserCreationForm):
             attrs={
                 "class": "form-control me-2",
                 "input_type": "password",
-                # "placeholder": "Retype your password",
             }
         ),
     )
+
+    captcha = ReCaptchaField(widget=ReCaptchaV3(action="signup"))
 
     class Meta:
         """InscriptForm meta class."""
@@ -120,6 +111,8 @@ class LoginForm(auth_forms.AuthenticationForm):
             }
         ),
     )
+
+    captcha = ReCaptchaField(widget=ReCaptchaV3(action="login"))
 
     password = forms.CharField(
         label=_("Password"),
@@ -161,6 +154,8 @@ class CustomPasswordResetForm(PasswordResetForm):
         ),
     )
 
+    captcha = ReCaptchaField(widget=ReCaptchaV3(action="password_reset"))
+
 
 class CustomSetPasswordForm(SetPasswordForm):
     def __init__(self, *args, **kwargs):
@@ -201,19 +196,6 @@ class UpdateProfileForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["username"]
-        # exclude = (
-        #     "username",
-        #     "password",
-        #     "last_login",
-        #     "is_superuser",
-        #     "is_staff",
-        #     "is_active",
-        #     "date_joined",
-        #     "email_confirmed",
-        #     "groups",
-        #     "user_permissions",
-        #     "email",
-        # )
 
 
 class CustomPasswordChangeForm(SetPasswordForm):
