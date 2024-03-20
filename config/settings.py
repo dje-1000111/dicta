@@ -40,6 +40,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+RECAPTCHA_PUBLIC_KEY = os.getenv("RECAPTCHA_PUBLIC_KEY")
+RECAPTCHA_PRIVATE_KEY = os.getenv("RECAPTCHA_PRIVATE_KEY")
+SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
+RECAPTCHA_REQUIRED_SCORE = 0.85
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -74,6 +78,7 @@ INSTALLED_APPS = [
     "apps.dictation.templatetags.adjusted_elided_page",
     "raven.contrib.django.raven_compat",
     "django.contrib.sitemaps",
+    "django_recaptcha",
 ]
 
 MIDDLEWARE = [
