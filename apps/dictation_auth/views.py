@@ -1,4 +1,5 @@
 """Dictation auth views."""
+
 from typing import Any, Dict
 
 from django.contrib.sites.shortcuts import get_current_site
@@ -12,7 +13,7 @@ from django.shortcuts import render, redirect
 from django.shortcuts import render, redirect
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import authenticate, logout
-from django.views.generic import FormView, DeleteView
+from django.views.generic import FormView, DeleteView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import SignupForm, LoginForm
 from django.urls import reverse_lazy
@@ -34,8 +35,10 @@ from apps.dictation_auth.forms import (
 )
 from apps.dictation_auth.utils import account_activation_token
 from config import settings
+from csp.decorators import csp_exempt
 
 
+@csp_exempt
 def login(request):
     """Login view."""
     if request.method == "POST":
@@ -53,6 +56,7 @@ def login(request):
     return render(request, "registration/login.html", {"form": form})
 
 
+@csp_exempt
 def signup(request):
     if request.method == "POST":
         form = SignupForm(request.POST)
@@ -240,6 +244,10 @@ class CustomPasswordResetView(SuccessMessageMixin, PasswordResetView):
  If you don't receive an email, please make sure you've entered the address you registered with,\
  and check your spam folder."
     )
+
+    @csp_exempt
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     def get_success_message(self, cleaned_data):
         return self.success_message % dict(cleaned_data)

@@ -30,7 +30,7 @@ handler500 = "apps.dictation.views.server_error"
 admin.site.site_title = "dictatube site admin"
 admin.site.site_header = mark_safe(
     (
-        "dictatube administration -> Run the management/command",
+        "Administration -> Run the management/command",
         "<span style='color: red;'>update_total_line</span> after adding a new dictation",
     )
 )

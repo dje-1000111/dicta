@@ -251,6 +251,7 @@ CSP_IMG_SRC = (
     "region1.google-analytics.com/",
     "www.googletagmanager.com",
     "data:",
+    "blob:",
 )
 CSP_MEDIA_SRC = ("'self'", "https://www.youtube.com/")
 CSP_FRAME_SRC = (

@@ -1,4 +1,5 @@
 """Auth urls."""
+
 from django.urls import path, include
 
 from django.contrib.auth.views import (
