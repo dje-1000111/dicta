@@ -2,106 +2,148 @@
 {% load static %}
 {% load extra_filters %}
 {% load compress %}
-{% block meta_description %}<meta name="description" content="Free dictations based on YouTube videos to practice your English">{% endblock meta_description %}
+{% block meta_description %}
+<meta name="description" content="Free dictations based on YouTube videos to practice your English">
+{% endblock meta_description %}
 {% block title %}Dictation: {{ topic_title|capfirst }}{% endblock title %}
-{% block head_script %}{% endblock head_script %} 
+{% block head_script %}{% endblock head_script %}
 {% block css_container %}<div class="grid-topic-container" id="tcontainer">{% endblock css_container %}
-{% block index %}
-{% spaceless %}
+    {% block index %}
+    {% spaceless %}
     <script src="{% static 'js/video.js' %}" nonce="{{request.csp_nonce}}"></script>
     <div class="subhead" id="subh">
         {% if messages %}
-            {% for message in messages %}
-                <div class="m-4 alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">{{ message }}</div>
-            {% endfor %}
+        {% for message in messages %}
+        <div class="m-4 alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">{{ message }}</div>
+        {% endfor %}
         {% endif %}
         <div id="tt" class="dict-tt">
             <span class=""><i class="fas fa-question-circle"></i></span>
             <span class="bg-info p-2 float-end mb-3 dict-tt-content">Double click on a word to get its definition</span>
-          </div> 
+        </div>
         <h1>{{vid_title}} <span id="video-title"></span><i id="ivideo-title"></i></h1>
         {% if user.is_authenticated %}
-            <div class="star-rating">
-                <span>How would you describe this exercise:</span> 
-                {% for star in stars %}
-                    {% if star == star_rating %}
-                        <input type="radio" id="{{dictation_id}}_{{star}}" name="rate" value="{{star}}" checked="">
-                        <label data-tooltip="{{star|label_star}}"  id="label-{{dictation_id}}_{{star}}" for="{{dictation_id}}_{{star}}" title="rating: {{star}}"></label>  
-                    {% else %}
-                        <input type="radio" id="{{dictation_id}}_{{star}}" name="rate" value="{{star}}">
-                        <label data-tooltip="{{star|label_star}}" id="label-{{dictation_id}}_{{star}}" for="{{dictation_id}}_{{star}}" title="rating: {{star|label_star}}"></label>  
-                    {% endif %}    
-                {% endfor %} 
-            </div>
-            <div class="d-flex justify-content-end mt-3">
-        {% else %}
+        <div class="star-rating">
+            <span>How would you describe this exercise:</span>
+            {% for star in stars %}
+            {% if star == star_rating %}
+            <input type="radio" id="{{dictation_id}}_{{star}}" name="rate" value="{{star}}" checked="">
+            <label data-tooltip="{{star|label_star}}" id="label-{{dictation_id}}_{{star}}"
+                for="{{dictation_id}}_{{star}}" title="rating: {{star}}"></label>
+            {% else %}
+            <input type="radio" id="{{dictation_id}}_{{star}}" name="rate" value="{{star}}">
+            <label data-tooltip="{{star|label_star}}" id="label-{{dictation_id}}_{{star}}"
+                for="{{dictation_id}}_{{star}}" title="rating: {{star|label_star}}"></label>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <div class="d-flex justify-content-end mt-3">
+            {% else %}
             <div class="d-flex justify-content-between mt-5">
-                <span class="border border-info p-2 fitcontent">Save your progress<a class="ms-2 text-primary" href="{% url 'auth:login' %} ">Log in</a></span>
-        {% endif %} 
-            </div>
-    </div>
-    <div id="embvid" class="embeded-video">
-        <div id="blur">
-            <div id="player"></div>
-        </div>
-    </div>
-    <div id="text-area" class="text-area">
-        <div id="tip" class="tip"></div>
-    <div id="counter-cont" class="d-flex justify-content-between counter-cont">
-        <button type="button" title="previous" id="previous" class="btn btn-sm active border-0 mb-3 mt-3">
-            <i class="fa-solid fa-left-long custom-transform-arrow choco"></i>
-        </button>                
-        <div class="d-flex align-content-center align-items-center rounded mb-3 mt-3">
-            <strong><span id="counter">{{ line_nb }}</span>&nbsp;/&nbsp;{{total_lines}}</strong>
-        </div>
-        <button type="button" title="next" id="go-next" class="btn btn-sm active border-0 mb-3 mt-3">
-            <i class="fa-solid fa-right-long custom-transform-arrow choco"></i>
-        </button>                
-    </div> 
-    {{form}}
-    <div class="d-flex justify-content-between rounded bg-white mt-3">
-        <div class="d-flex align-items-center p-2">
-            <button type="button" class="btn btn-danger btn-yt ms-1 controls-tt" title="play" id="playstop" data-tooltip="Play/Stop"><i id="iplaystop" class="fa-solid fa-play w-ctrl"></i></button>
-            <button type="button" class="btn btn-success ms-1 controls-tt" title="check" id="check" data-tooltip="Verify the spelling step by step"><i class="fa-solid fa-check w-ctrl"></i></button>
-            <button type="button" class="btn btn-warning ms-1 controls-tt" title="reveal first letter" id="reveal" data-tooltip="You can click 3 times by segment to get the very next letter."><i class="fa-solid fa-0 w-ctrl"></i></button>
-            <button type="button" class="btn btn-outline-secondary ms-1 controls-tt" data-tooltip="If the video provides the text, click to blur it." title="Blur video" id="blur-btn" ><i id="iblur" class="fa-solid fa-droplet w-ctrl"></i></button>
-        </div>            
-            <span id="complete" class="d-flex p-2"></span>
-    </div>
-        <p> {{result}} </p>
-        {% comment %} <span id="lengthened" class="lengthened-tt float-end" data-tooltip="Check here to see the correction without contractions."><i class="fas fa-question-circle"></i></span> {% endcomment %}
-        <p>Correction:</p><br>
-        <img id="imgb64" src='data:image/jpeg;base64,{{ b64_img }}' alt="poster" hidden>
-        <div id="result_correction" class="text-entry"></div>
-    </div>
-    <div id="bonus-txt" class="bonus-txt">
-        <h2>The story until the last validated segment</h2>
-        <div id="bonus-container" class="bonus-container">
-            <div>
-                <ul id="story-segment"></ul>
+                <span class="border border-info p-2 fitcontent">Save your progress<a class="ms-2 text-primary"
+                        href="{% url 'auth:login' %} ">Log in</a></span>
+                {% endif %}
             </div>
         </div>
-        {% if user.is_authenticated %}
-        <script nonce="{{request.csp_nonce}}">const dictation_id = {{ dictation_id }};</script>
-        {% else %}
-        <script nonce="{{request.csp_nonce}}">const dictation_id = null;</script>
-        {% endif %}
-    </div>
-    {% endspaceless %}
-    <script nonce="{{request.csp_nonce}}">
-        const aptc = "{% url 'dictation:ajax_post_textarea_content' %}",
-            aprr = "{% url 'dictation:ajax_post_request_rating' %}",
-            topicname = '{{ topic_name }}',
-            vid = '{{ video_id }}',
-            b64_img = '{{ b64_img }}',
-            totl = {{ total_lines }},
+        <div id="embvid" class="embeded-video">
+            <div id="blur">
+                <div id="player"></div>
+            </div>
+        </div>
+        <div id="text-area" class="text-area">
+            <div id="tip" class="tip"></div>
+            <div id="counter-cont" class="d-flex justify-content-between counter-cont">
+                <button type="button" title="previous" id="previous" class="btn btn-sm active border-0 mb-3 mt-3">
+                    <i class="fa-solid fa-left-long custom-transform-arrow choco"></i>
+                </button>
+                <div class="d-flex align-content-center align-items-center rounded mb-3 mt-3">
+                    <strong><span id="counter">{{ line_nb }}</span>&nbsp;/&nbsp;{{total_lines}}</strong>
+                </div>
+                <button type="button" title="next" id="go-next" class="btn btn-sm active border-0 mb-3 mt-3">
+                    <i class="fa-solid fa-right-long custom-transform-arrow choco"></i>
+                </button>
+            </div>
+            {% if user.is_authenticated %}
+                <button id="btn-board" class="btn btn-outline-info btn-sm mb-3">Show progress</button>
+                <div id="board" class="board">
+                    {% for list in lol %}
+                        <table class="tled">
+                        {% if forloop.last %}
+                            <table class="tledlast">
+                        {% endif %}
+                        {% for rl in list %}
+                            <th class="thwled"> {{rl}} </th>
+                        {% endfor %}
+                        <tr>
+                        {% for realine in list %}
+                            {% if realine in lines %}
+                                <td class="tdwled">
+                                    <div class="green led"></div>
+                                </td>
+                            {% else %}
+                                <td id="{{realine}}" class="tdwled">
+                                    <div class="red led"></div>
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                        <tr>
+                        </table>
+                    {% endfor %}
+                </div>
+                <br>
+            {% endif %}
+            {{form}}
+            <div class="d-flex justify-content-between rounded bg-white mt-3">
+                <div class="d-flex align-items-center p-2">
+                    <button type="button" class="btn btn-danger btn-yt ms-1 controls-tt" title="play" id="playstop"
+                        data-tooltip="Play/Stop"><i id="iplaystop" class="fa-solid fa-play w-ctrl"></i></button>
+                    <button type="button" class="btn btn-success ms-1 controls-tt" title="check" id="check"
+                        data-tooltip="Verify the spelling step by step"><i
+                            class="fa-solid fa-check w-ctrl"></i></button>
+                    <button type="button" class="btn btn-warning ms-1 controls-tt" title="reveal first letter"
+                        id="reveal" data-tooltip="You can click 3 times by segment to get the very next letter."><i
+                            class="fa-solid fa-0 w-ctrl"></i></button>
+                    <button type="button" class="btn btn-outline-secondary ms-1 controls-tt"
+                        data-tooltip="If the video provides the text, click to blur it." title="Blur video"
+                        id="blur-btn"><i id="iblur" class="fa-solid fa-droplet w-ctrl"></i></button>
+                </div>
+                <span id="complete" class="d-flex p-2"></span>
+            </div>
+            <p> {{result}} </p>
+            <p>Correction:</p>
+            <img id="imgb64" src='data:image/jpeg;base64,{{ b64_img }}' alt="poster" hidden>
+            <div id="result_correction" class="text-entry"></div>
+        </div>
+        <div id="bonus-txt" class="bonus-txt">
+            <h2>The story until the last validated segment</h2>
+            <div id="bonus-container" class="bonus-container">
+                <div>
+                    <ul id="story-segment"></ul>
+                </div>
+            </div>
+            <script nonce="{{request.csp_nonce}}">const dictation_id = {{ dictation_id }};</script>
+        </div>
+        {% endspaceless %}
+        <script nonce="{{request.csp_nonce}}">
+            const aptc = "{% url 'dictation:ajax_post_textarea_content' %}",
+                aprr = "{% url 'dictation:ajax_post_request_rating' %}",
+                topicname = '{{ topic_name }}',
+                vid = '{{ video_id }}',
+                b64_img = '{{ b64_img }}',
+                totl = {{ total_lines }},
             ts = {{ timestamps }},
-            tips = {{ help|safe }};
-        var lineNb = {{ line_nb }},
+            tips = {{ help | safe }};
+            var lineNb = {{ line_nb }},
             implines = {{ lines }},
-            lines = [];
-        lines = implines 
-    </script>
-    <script src="{% static 'js/topic.js' %}" nonce="{{request.csp_nonce}}"></script>
-    <script src="{% static 'js/assets/scripts/topic/index.bundle.js' %}" nonce="{{request.csp_nonce}}"></script>
-{% endblock index %}
+            lines = [],
+            lines = implines,
+            realLines = {{ real_lines }},
+            reds = {{ reds }},
+            backhomeUrl = "{% url 'dictation:home' %}",
+            uia = {% if user.is_authenticated %} true {% else %} false {% endif %},  
+            rmEvent = false, 
+            np = false
+        </script>
+        <script src="{% static 'js/topic.js' %}" nonce="{{request.csp_nonce}}"></script>
+        <script src="{% static 'js/assets/scripts/topic/index.bundle.js' %}" nonce="{{request.csp_nonce}}"></script>
+        {% endblock index %}

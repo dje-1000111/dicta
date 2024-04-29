@@ -4,11 +4,11 @@ import re
 import base64
 import math
 from typing import Any
+from django.http import HttpRequest
 import requests
 
 from django.db import models
 from django.utils.safestring import mark_safe
-from apps.dictation.contraction import lengthen_sentence
 from config import settings
 
 
@@ -43,13 +43,18 @@ class Dictation(models.Model):
     def total_lines(self, filename: str = None) -> int:
         """Return the total number of lines."""
         filename = filename if filename else self.filename
-        with open(settings.TXT_DIR / filename, "r", encoding="utf-8") as f:
-            return len(f.readlines()) - 1
+        filepath = settings.TXT_DIR / filename
+        total = 0
+        with open(filepath, encoding="utf-8") as f:
+            # total = sum(1 for _ in f)
+            total = len(f.readlines()) - 1
+        return total
 
     def read_segment(self, filename: str, index: int, max_lines: int) -> str:
         """Return the line at the given index."""
         line = ""
-        with open(f"{settings.TXT_DIR / filename}", "r", encoding="utf-8") as f:
+        filepath = settings.TXT_DIR / filename
+        with open(filepath, encoding="utf-8") as f:
             if index - 1 <= max_lines:
                 line += f.readlines()[index - 1]
         return line.rstrip("\n")
@@ -99,7 +104,7 @@ class Practice(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     dictation = models.ForeignKey(Dictation, on_delete=models.CASCADE)
     user_current_line = models.IntegerField(null=True, blank=True)
-    lines = models.JSONField(default=lines_default)
+    lines = models.JSONField(null=True, blank=True, default=lines_default)
     user_rating = models.CharField(null=True, blank=True, max_length=1)
     is_done = models.BooleanField("is_dictation_done", default=False)
 
@@ -132,6 +137,14 @@ class Practice(models.Model):
         if not Practice.objects.filter(user=user, dictation=dictation).exists():
             Practice.objects.create(user=user, dictation=dictation)
 
+    def delete_practice(self, user, dictation):
+        """Delete practice."""
+        if Practice.objects.filter(user=user, dictation=dictation).exists():
+            practice = Practice.objects.filter(user=user, dictation=dictation).update(
+                lines=lines_default(), user_current_line=0, is_done=False
+            )
+            return practice
+
     def save_dication_progress(self, user, dictation_id, current_line):
         """Save the number of the last line wherre the user stopped."""
         if Practice.objects.filter(user=user, dictation=dictation_id).exists():
@@ -143,6 +156,9 @@ class Practice(models.Model):
         """Update the list of good answers."""
         if line_nb - 1 not in practice.lines["data"] and new_page:
             practice.lines["data"].append(line_nb - 1)
+            practice.save()
+        if line_nb not in practice.lines["data"] and not new_page:
+            practice.lines["data"].append(line_nb)
             practice.save()
         return practice.lines["data"]
 
@@ -161,12 +177,8 @@ class Practice(models.Model):
 
     def saved_position(self, user, dictation_id):
         """Return the last number of line in order to initiate the video at that point."""
-        practice = Practice.objects.filter(user=user, dictation=dictation_id)
-        return (
-            practice.first().user_current_line
-            if practice.first().user_current_line
-            else 0
-        )
+        practice = Practice.objects.filter(user=user, dictation=dictation_id).first()
+        return practice.user_current_line if practice.user_current_line else 0
 
     def get_lines(self, user, dictation):
         """Return the lines list."""
@@ -187,49 +199,252 @@ class Practice(models.Model):
         )
 
 
-class Historic:
-    """Historic class."""
-
-    def __init__(self):
-        self.line_numbers = [-1]
-        self.indexes = [-1]
-
-    def re_init(self, line_number: int) -> Any:
-        """Empty the lists when the line number change.
-
-        Except for the first previous.
-        There is a trick to get more than 3 reveal letters:
-        you click on the right arrow (the forced next), then you click reveal once.
-        And then you click on the left arrow so you have 3 new helps...
-        But it's not a competition and there is no advantage to do that.
-        The pure goal is to improve your listenning, comprehension, vocabulary, etc...
-        """
-        if self.line_numbers[-1] < line_number:
-            self.indexes = []
-        if self.line_numbers[-1] > line_number:
-            line_number = self.line_numbers[:-1]
-            self.indexes = []
-        return self.indexes
-
-    def tmp(self):
-        """Tmp."""
+def convert_segment_to_b64(reference: str) -> str:
+    """Convert a sentence to a b64 in order to hide the original in the local storage."""
+    token = "{token}".format(token=reference).encode("ascii")
+    token = base64.b64encode(token)
+    return str(token, encoding="utf-8")
 
 
-historic = Historic()
+def re_init_session_data(line_number: int, request) -> Any:
+    """Empty the lists when the line number change."""
+
+    if request.session["line_numbers"][-1] != line_number:
+        if not request.user.is_authenticated:
+            # a global version for offline users
+            request.session["indexes"] = []
+        request.session["current_dictation"] = [-1]
+        request.session["line_numbers"] = [-1]
+    return request.session["current_dictation"]
+
+
+def free_initiate_new_session(request: HttpRequest) -> Any:
+    """Create the first list to receive json structure for non connected users."""
+    if "historic" not in request.session:
+        request.session["historic"] = {"revealed_line": []}
+    return request.session
+
+
+def free_create_first_session_page(
+    request: HttpRequest, dictation_id: int, line_nb: int = 0
+):
+    """Create the first session json structure for non connected users."""
+    historic_for_current_line = [
+        item
+        for item in request.session["historic"]["revealed_line"]
+        if item["dict ID"] == dictation_id and item["line"] == line_nb
+    ]
+    if not historic_for_current_line:
+        request.session["historic"]["revealed_line"].append(
+            {
+                "dict ID": dictation_id,
+                "line": line_nb,
+                "attempts": 0,
+                "indexes": [],
+                "help_used": False,
+                "user_segment": "",
+            }
+        )
+
+    return request.session
+
+
+def initiate_new_session_in_view(
+    request: HttpRequest, dictation_id: int, lines: list, line_nb: int
+):
+    """Initiate a json structure to keep the historic of validation."""
+    if not "historic" in request.session:
+        request.session["historic"] = {"revealed_line": []}
+        create_first_session_page(request, dictation_id, line_nb, 0)
+    else:
+        if any(
+            item["dict ID"] == dictation_id
+            for item in request.session["historic"]["revealed_line"]
+        ):
+            # if a dictionary entry in historic persists while the line is in the database,
+            # we need to delete it (at the load of the page).
+            for line in lines:
+                for x, l in enumerate(request.session["historic"]["revealed_line"]):
+                    if l["line"] == line:
+                        del request.session["historic"]["revealed_line"][x]
+
+        chk_line = lines[-1] if len(lines) > 0 else line_nb
+
+        if not any(
+            item["dict ID"] == dictation_id and item["line"] == chk_line
+            for item in request.session["historic"]["revealed_line"]
+        ):
+            request.session["new_pages"] = list()
+            request.session["current_dictation"] = [dictation_id]
+            request.session["indexes"] = list()
+            request.session["line_numbers"] = [-1]
+            create_first_session_page(request, dictation_id, line_nb, attempts=0)
+
+
+def delete_session_historic_in_view(
+    request: HttpRequest, dictation_id: int, lines: list
+):
+    """Delete the entry for a specific page."""
+    if any(
+        item["dict ID"] == dictation_id
+        for item in request.session["historic"]["revealed_line"]
+    ):
+        for x, l in enumerate(request.session["historic"]["revealed_line"]):
+            if l["line"] == lines[-1]:
+                del request.session["historic"]["revealed_line"][x]
+                request.session.modified = True
+
+
+def update_current_dictation(dictation_id, request_session):
+    """Update the current dictation."""
+    request_session["current_dictation"][0] = dictation_id
+
+
+def create_first_session_page(
+    request: HttpRequest, dictation_id: int, line_number: int, attempts: int
+):
+    """Append the first entry to the session."""
+
+    historic_for_current_line = [
+        item
+        for item in request.session["historic"]["revealed_line"]
+        if item["dict ID"] == dictation_id and item["line"] == line_number
+    ]
+    if not historic_for_current_line:
+        request.session["historic"]["revealed_line"].append(
+            {
+                "dict ID": dictation_id,
+                "line": line_number,
+                "attempts": attempts,
+                "indexes": [],
+                "help_used": False,
+            }
+        )
+    return request.session
+
+
+def append_indexes(
+    request: HttpRequest, dictation_id: int, line_number: int, index: int
+):
+    """Append the index to the indexes list."""
+    for x, item in enumerate(request.session["historic"]["revealed_line"]):
+        if (
+            item["dict ID"] == dictation_id
+            and item["line"] == line_number
+            and item["attempts"] < 3
+            and index not in item["indexes"]
+        ):
+            item["indexes"].append(index)
+    request.session.modified = True
+    return request.session["historic"]["revealed_line"]
+
+
+def save_user_segment_per_page_in_view(
+    request, dictation_id, line_number, user_segment
+):
+    """Save the part of segment entered in the textarea before leaving it incomplete.
+
+    In order to give back the help used before for a dedicated segment.
+    """
+    for item in request.session["historic"]["revealed_line"]:
+        if item["dict ID"] == dictation_id and item["line"] == line_number:
+            item["user_segment"] = user_segment
+    request.session.modified = True
+    return request.session["historic"]["revealed_line"]
+
+
+def display_user_segment_per_page(request, dictation_id, line_number):
+    """Return the part of segment saved before leaving the line without validation."""
+    user_segment = ""
+    for item in request.session["historic"]["revealed_line"]:
+        if item["dict ID"] == dictation_id and item["line"] == line_number:
+            user_segment = item["user_segment"]
+    return user_segment
+
+
+def get_attempts_per_page(
+    request: HttpRequest, dictation_id: int, line_number: int
+) -> int:
+    len_indexes = 0
+    for item in request.session["historic"]["revealed_line"]:
+        if item["dict ID"] == dictation_id and item["line"] == line_number:
+            len_indexes = len(item["indexes"])
+            item["attempts"] = len(item["indexes"])
+    request.session.modified = True
+    return len_indexes
+
+
+def update_session_page_validated(
+    request: HttpRequest, dictation_id: int, line_number: int, attempts: int = 0
+):
+    if any(
+        item["dict ID"] == dictation_id
+        for item in request.session["historic"]["revealed_line"]
+    ):
+        for item in request.session["historic"]["revealed_line"]:
+            if (
+                item["line"] == line_number
+                and item["attempts"] < 3
+                and not item["help_used"]
+            ):
+                item.update(
+                    {
+                        "dict ID": dictation_id,
+                        "line": line_number,
+                        "attempts": attempts,
+                        "indexes": [i for i in range(attempts)],
+                        "help_used": True if attempts == 3 else False,
+                    }
+                )
+            elif not any(
+                item["dict ID"] == dictation_id and item["line"] == line_number
+                for item in request.session["historic"]["revealed_line"]
+            ):
+                request.session["historic"]["revealed_line"].append(
+                    {
+                        "dict ID": dictation_id,
+                        "line": line_number,
+                        "attempts": attempts,
+                        "indexes": [],
+                        "help_used": False,
+                    }
+                )
+    else:
+        create_first_session_page(request, dictation_id, line_number, attempts)
+
+
+def check_help_used(request: HttpRequest, dictation_id: int, line_number: int) -> bool:
+    used = False
+    if any(
+        l["dict ID"] == dictation_id
+        for l in request.session["historic"]["revealed_line"]
+    ):
+        for x, l in enumerate(request.session["historic"]["revealed_line"]):
+            if l["line"] == line_number and l["help_used"]:
+                used = True
+    return used
 
 
 def reveal_first_wrong_letter(
-    segment,
-    original_segment,
+    segment: str,
+    original_segment: str,
     line_number: int,
     reveal_status: bool,
+    new_page: bool,
+    dictation_id: int,
+    request: HttpRequest,
 ) -> tuple[str, int]:
     """Return the wrong segment with the first wrong letter replaced by the correct one.
 
     The rest is potentially finished with stars.
     31 = len("<span class='spelling'>* or [a-z]</span>")
     """
-    historic.re_init(line_number)
+    if new_page:
+        request.session["new_pages"].append(0)
+        if request.user.is_authenticated:
+            create_first_session_page(request, dictation_id, line_number, attempts=0)
+        else:
+            free_create_first_session_page(request, dictation_id, line_number)
 
     spelling = "<span class='spelling'>"
     star = "*"
@@ -242,27 +457,58 @@ def reveal_first_wrong_letter(
         elif star in segment:
             index = segment.index(star)
 
-        if line_number > max(set(historic.line_numbers)):
-            historic.line_numbers.append(line_number)
-            historic.indexes = []
+        if request.user.is_authenticated:
+            if line_number > max(set(request.session["line_numbers"])):  # why set() ???
+                if line_number not in request.session["line_numbers"]:
+                    request.session["line_numbers"].append(line_number)
+                    request.session.modified = True
 
-        revealed_segment = (
-            segment.replace(segment[index : 31 + index], original_segment[index], 1)
-            if len(historic.indexes) < 3 and reveal_status
-            else segment
-        )
+        if request.user.is_authenticated:
+            if not check_help_used(request, dictation_id, line_number):
+                revealed_segment = (
+                    segment.replace(
+                        segment[index : 31 + index], original_segment[index], 1
+                    )
+                    if get_attempts_per_page(request, dictation_id, line_number) < 3
+                    and reveal_status
+                    else segment
+                )
+            else:
+                revealed_segment = segment
 
-        if len(set(historic.indexes)) < 3 and index not in historic.indexes:
-            historic.indexes.append(index)
+            if not check_help_used(request, dictation_id, line_number):
+                # TODO: Save (in session) the part of segment left in the textarea before leaving the page
+                # so that we can display it in the textarea when we come back to it.
+                if get_attempts_per_page(request, dictation_id, line_number) < 3:
+                    append_indexes(request, dictation_id, line_number, index)
+        else:
+            # non connected user
+            revealed_segment = (
+                segment.replace(segment[index : 31 + index], original_segment[index], 1)
+                if get_attempts_per_page(request, dictation_id, line_number) < 3
+                and reveal_status
+                else segment
+            )
+            if get_attempts_per_page(request, dictation_id, line_number) < 3:
+                append_indexes(request, dictation_id, line_number, index)
     else:
         revealed_segment = segment
 
-    attempts = len(set(historic.indexes))
+    attempts = get_attempts_per_page(request, dictation_id, line_number)
+    request.session["new_pages"] = [0]
+
+    if request.user.is_authenticated:
+        update_session_page_validated(request, dictation_id, line_number, attempts)
+
     return revealed_segment, attempts
 
 
 def correction(
-    original_segment, new_segment, new_page: bool
+    original_segment: str,
+    new_segment: str,
+    dictation_id: int,
+    line_number: int,
+    request: HttpRequest,
 ) -> tuple[str, str, bool, int]:
     """Return the corrected segment.
 
@@ -270,7 +516,10 @@ def correction(
     The first right part(s) eventually appened with stars of lenght
     of the missing words.
     """
-    original_with_punctuation = original_segment
+
+    if dictation_id != request.session["current_dictation"][0]:
+        update_current_dictation(dictation_id, request.session)
+        re_init_session_data(line_number, request)
 
     new_segment = remove_punctuation(new_segment)
     original_segment = remove_punctuation(original_segment)
@@ -298,20 +547,10 @@ def correction(
         for _ in range(len_original_segment - len(corrected)):
             corrected.append("*" * len(original_segment[len(corrected)]))
 
-    len_indexes = len(historic.indexes) if not -1 in historic.indexes else 0
-    if new_page:
-        historic.indexes = []
-
-    lengthened = (
-        lengthen_sentence(original_with_punctuation)
-        if corrected == original_segment
-        and " ".join(original_segment) != lengthen_sentence(" ".join(corrected))
-        else ""
-    )
+    len_indexes = get_attempts_per_page(request, dictation_id, line_number)
 
     return (
         " ".join(corrected),
-        lengthened,
         corrected == original_segment,
         len_indexes,
     )

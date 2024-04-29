@@ -6,12 +6,13 @@ from django import forms
 from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-from django.utils.safestring import mark_safe
 from django.contrib.auth import authenticate
 
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from apps.dictation_auth.models import User
+
+from apps.dictation_auth.widget import CustomReCaptchaV3
 
 UserModel = get_user_model()
 
@@ -27,6 +28,11 @@ class UserCreationForm(auth_forms.UserCreationForm):
 
 class SignupForm(auth_forms.UserCreationForm):
     """Inscription form."""
+
+    def __init__(self, *args, **kwargs):
+        csp_nonce = kwargs.pop("csp_nonce", None)
+        super().__init__(*args, **kwargs)
+        self.fields["captcha"].widget.attrs["csp_nonce"] = csp_nonce
 
     email = forms.CharField(
         label=_("Email address"),
@@ -73,7 +79,7 @@ class SignupForm(auth_forms.UserCreationForm):
         ),
     )
 
-    captcha = ReCaptchaField(widget=ReCaptchaV3(action="signup"))
+    captcha = ReCaptchaField(widget=CustomReCaptchaV3(action="signup"))
 
     class Meta:
         """InscriptForm meta class."""
@@ -86,7 +92,9 @@ class LoginForm(auth_forms.AuthenticationForm):
     """Login form."""
 
     def __init__(self, *args, **kwargs):
+        csp_nonce = kwargs.pop("csp_nonce", None)
         super().__init__(*args, **kwargs)
+        self.fields["captcha"].widget.attrs["csp_nonce"] = csp_nonce
 
         self.invalid_login = ""
         for field in self.fields.values():

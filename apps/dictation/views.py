@@ -16,7 +16,13 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from apps.dictation.models import (
     correction,
+    convert_segment_to_b64,
     reveal_first_wrong_letter,
+    free_initiate_new_session,
+    free_create_first_session_page,
+    delete_session_historic_in_view,
+    initiate_new_session_in_view,
+    save_user_segment_per_page_in_view,
     Dictation,
     Practice,
     WiktionaryAPI,
@@ -64,6 +70,9 @@ class HomeView(ListView):
         context.update(
             {
                 "practice": self.practice if is_auth else None,
+                "list_of_practices": (
+                    [i.dictation_id for i in self.practice] if is_auth else None
+                ),
             }
         )
 
@@ -77,7 +86,9 @@ class TopicView(DetailView):
 
     def get_object(self, queryset=None):
         practice = Practice()
+
         self.dictation = get_object_or_404(Dictation, slug=self.kwargs["slug"])
+        self.real_lines = [i for i in range(0, self.dictation.total_lines() + 1)]
         if self.request.user.is_authenticated:
             practice.create_dictation(self.request.user, self.dictation)
             self.line_nb = practice.saved_position(self.request.user, self.dictation)
@@ -85,17 +96,33 @@ class TopicView(DetailView):
                 user=self.request.user, dictation_id=self.dictation.pk
             )
             self.lines = practice.get_lines(self.request.user, self.dictation)
+            self.lines = self.lines[1:] if -1 in self.lines else self.lines
+            self.reds = [i for i in self.real_lines if i not in sorted(self.lines)]
+
         return self.dictation
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         """Get context data."""
+        # self.request.session["historic"]["revealed_line"] = []
+        if self.request.user.is_authenticated:
+            self.request.session["current_dictation"] = [self.dictation.pk]
+            self.request.session["new_pages"] = list()
+            self.request.session["line_numbers"] = [-1]
+            initiate_new_session_in_view(
+                self.request, self.dictation.pk, self.lines, self.line_nb
+            )
+        else:
+            free_initiate_new_session(self.request)
+            free_create_first_session_page(self.request, self.dictation.pk)
+            self.request.session["new_pages"] = list()
+            self.request.session["current_dictation"] = [self.dictation.pk]
+            self.request.session.modified = True
+
         context = super().get_context_data(**kwargs)
         context.update(
             {
                 "form": DictationForm(),
-                "dictation_id": (
-                    self.dictation.pk if self.request.user.is_authenticated else None
-                ),
+                "dictation_id": (self.dictation.pk),
                 "star_rating": (
                     self.note.user_rating
                     if self.request.user.is_authenticated
@@ -108,10 +135,18 @@ class TopicView(DetailView):
                 "total_lines": self.dictation.total_lines,
                 "video_id": self.dictation.video_id,
                 "timestamps": mark_safe(self.dictation.timestamps["data"]),
-                "lines": self.lines if self.request.user.is_authenticated else [],
+                "lines": (
+                    sorted(self.lines) if self.request.user.is_authenticated else []
+                ),
                 "help": self.dictation.tip,
                 "stars": ["5", "4", "3", "2", "1"],
                 "topic_title": self.dictation.topic,
+                "real_lines": self.real_lines,
+                "lol": [
+                    self.real_lines[i : i + 30]
+                    for i in range(0, len(self.real_lines), 30)
+                ],
+                "reds": self.reds if self.request.user.is_authenticated else [],
             }
         )
         return context
@@ -126,32 +161,54 @@ class AjaxDetailView(DetailView):
         """Post."""
         data = json.loads(request.body)
         (
+            reset,
             line_nb,
             textarea_content,
             topicname,
             reveal_status,
             new_page,
             dictation_id,
+            validated,
         ) = data.values()
+
+        practice = Practice()
 
         if self.request.user.is_authenticated:
             dictation = Dictation.objects.filter(pk=dictation_id).first()
             filename = dictation.filename
+
+            lines = practice.get_lines(request.user, dictation)
+
+            if validated:
+                delete_session_historic_in_view(request, dictation_id, lines)
+                initiate_new_session_in_view(request, dictation_id, lines, line_nb)
+            if reset:
+                self.request.session["historic"]["revealed_line"] = []
+                self.request.session.modified = True
+                practice.delete_practice(self.request.user, dictation_id)
         else:
             dictation = Dictation()
             filename = dictation.get_filename(topicname)
 
         tot_lines = dictation.total_lines(filename)
         reference = dictation.read_segment(filename, line_nb + 1, tot_lines)
-        corrected, lengthened, state, attempts = correction(
+        corrected, state, attempts = correction(
             dictation.read_segment(filename, line_nb + 1, tot_lines),
             textarea_content,
-            new_page,
+            dictation_id,
+            line_nb,
+            request,
         )
 
         if reveal_status:
             corrected, attempts = reveal_first_wrong_letter(
-                corrected, reference, line_nb + 1, reveal_status
+                corrected,
+                reference,
+                line_nb,
+                reveal_status,
+                new_page,
+                dictation_id,
+                request,
             )
 
         if self.request.user.is_authenticated:
@@ -159,7 +216,7 @@ class AjaxDetailView(DetailView):
                 user=self.request.user, dictation_id=dictation_id
             )
 
-            if not "*" in corrected or "<" in corrected:
+            if not "*" in corrected and not "<" in corrected:
                 practice.update_answered_lines(practice, line_nb, new_page)
 
                 Practice().save_dication_progress(
@@ -172,10 +229,25 @@ class AjaxDetailView(DetailView):
                     user=self.request.user, dictation_id=dictation_id
                 )
 
+        else:
+            if reset:
+                self.request.session["historic"]["revealed_line"] = []
+                self.request.session.modified = True
+            if new_page:
+                free_create_first_session_page(request, dictation_id, line_nb)
+                save_user_segment_per_page_in_view(
+                    request, dictation_id, line_nb, textarea_content
+                )
+            else:
+                save_user_segment_per_page_in_view(
+                    request, dictation_id, line_nb, textarea_content
+                )
+
+        reference = convert_segment_to_b64(reference)
+
         return JsonResponse(
             {
                 "result": corrected,
-                "lengthened_verif": lengthened,
                 "state": state,
                 "original": reference,
                 "reveal_attempts": attempts if reveal_status else attempts,

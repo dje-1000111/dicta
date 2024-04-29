@@ -13,7 +13,7 @@ from django.shortcuts import render, redirect
 from django.shortcuts import render, redirect
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import authenticate, logout
-from django.views.generic import FormView, DeleteView, CreateView
+from django.views.generic import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import SignupForm, LoginForm
 from django.urls import reverse_lazy
@@ -26,7 +26,7 @@ from django.contrib.auth.views import (
 )
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.mail import send_mail
-
+from django.http import QueryDict
 
 from apps.dictation_auth.models import User
 from apps.dictation_auth.forms import (
@@ -35,14 +35,12 @@ from apps.dictation_auth.forms import (
 )
 from apps.dictation_auth.utils import account_activation_token
 from config import settings
-from csp.decorators import csp_exempt
 
 
-@csp_exempt
 def login(request):
     """Login view."""
     if request.method == "POST":
-        form = LoginForm(None, request.POST)
+        form = LoginForm(request.POST, csp_nonce=request.csp_nonce)
         email = request.POST.get("email")
         password = request.POST.get("password")
         user = authenticate(request, email=email, password=password)
@@ -52,14 +50,13 @@ def login(request):
             )
             return redirect("dictation:home")
     else:
-        form = LoginForm()
+        form = LoginForm(csp_nonce=request.csp_nonce)
     return render(request, "registration/login.html", {"form": form})
 
 
-@csp_exempt
 def signup(request):
     if request.method == "POST":
-        form = SignupForm(request.POST)
+        form = SignupForm(request.POST, csp_nonce=request.csp_nonce)
         if form.is_valid():
             user = form.save(commit=False)
             # Deactivate the user until email confirmation
@@ -75,7 +72,7 @@ def signup(request):
                 "registration/account_activation_email.html",
                 {
                     "user": user,
-                    "domain": current_site.domain,  # settings.DOMAIN,  #
+                    "domain": current_site.domain,
                     "uid": urlsafe_base64_encode(force_bytes(user.pk)),
                     "token": account_activation_token.make_token(user),
                 },
@@ -93,7 +90,7 @@ def signup(request):
 
             return redirect("auth:signup")
     else:
-        form = SignupForm()
+        form = SignupForm(csp_nonce=request.csp_nonce)
     return render(request, "registration/signup.html", {"form": form})
 
 
@@ -245,7 +242,6 @@ class CustomPasswordResetView(SuccessMessageMixin, PasswordResetView):
  and check your spam folder."
     )
 
-    @csp_exempt
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 

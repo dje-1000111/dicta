@@ -45,8 +45,7 @@ producing a more complex integrated circuit at each step.
 To create conducting paths between the components
 a thin layer of metal such as aluminum is overlaid onto the chip
 and the etching process is used to remove everything except the thin conducting pathways.
-Several layers of conductors separated by glass insulators can be
-laid down.
+Several layers of conductors separated by glass insulators can be laid down.
 Each chip on the wafer is then tested for performance
 before it's separated from other chips on the wafer by a saw.
 Since microchips are essentially circuits built on an incredibly small scale
@@ -56,9 +55,9 @@ Resistors help control the electrical current.
 Transistors can either amplify or switch the electrical signals passing through.
 For more advanced chips like those found on high-end graphics cards,
 there can be upwards of 28 billion transistors on board.
-More transistors on microchips allow them to send out more instructions, increasing the computational power.
-Moore's law predicts that computer chip manufacturing would advance at a steady
-rate
+More transistors on microchips allow them to send out more instructions,
+increasing the computational power.
+Moore's law predicts that computer chip manufacturing would advance at a steady rate
 allowing transistor counts to double every two years.
 Based on the sheer power of the technology we use on a day-to-day basis
 this decade's old prediction seems to still be mostly true.

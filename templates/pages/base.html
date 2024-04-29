@@ -23,7 +23,7 @@
   <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
   <link href="{% static 'css/style.css' %}" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
-  <script type="module" src="{% static 'js/cookieconsent.js' %}" nonce="{{request.csp_nonce}}"></script>
+  {% comment %} <script type="module" src="{% static 'js/cookieconsent.js' %}" nonce="{{request.csp_nonce}}"></script> {% endcomment %}
   <script nonce="{{request.csp_nonce}}">
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
@@ -40,7 +40,7 @@
         gtag('consent', 'default', JSON.parse(localStorage.getItem('consentMode')));
     }
 </script>
-
+{% block recaptcha %}{% endblock recaptcha %}
 <!-- Google Tag Manager -->
 <script nonce="{{request.csp_nonce}}">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -59,7 +59,6 @@ gtag('js', new Date());
 gtag('config', 'G-Q13MGW1JFP');
 </script>
   {% block head_script %}{% endblock head_script %}
-  {% get_cookie_consent as gcc %}
 </head>
 <body>
   {% csrf_token %}
@@ -97,9 +96,8 @@ gtag('config', 'G-Q13MGW1JFP');
           {% if user.is_authenticated %}
           <ul class="navbar-nav col-lg-6 justify-content-lg-start">
             <li class="nav-item dropdown mt-2 mb-2">
-              <a class="dropdown-toggle btn btn-secondary" href="#" role="button" data-bs-toggle="dropdown"
-                aria-expanded="false">
-                Menu
+              <a class="dropdown-toggle btn btn-outline-secondary" href="#" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false"><i class="fa-solid fa-user"></i>
               </a>
               <ul class="dropdown-menu mb-2">
                 <li><a class="dropdown-item" href="{% url 'auth:profile' %}">Profile</a></li>
@@ -124,7 +122,6 @@ gtag('config', 'G-Q13MGW1JFP');
       </div>
     </nav>
   </header>
-
   {% block index %}{% endblock %}
   {% block home %}{% endblock %}
   {% block about %}{% endblock %}
@@ -140,7 +137,6 @@ gtag('config', 'G-Q13MGW1JFP');
   {% block 403 %}{% endblock %}
   {% block 404 %}{% endblock %}
   {% block 500 %}{% endblock %}
-
   <footer>
     <span class="nocop">dictatube 2024</span>
     <span class="fabout"><a href="{% url 'dictation:about' %}">About</a></span>

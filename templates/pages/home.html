@@ -7,6 +7,7 @@
 {% block css_container %}<div class="grid-home-container" id="hcontainer">{% endblock css_container %}
 {% block home %}
 <main>
+<script src="{% static 'js/assets/scripts/home/index.bundle.js' %}" nonce="{{request.csp_nonce}}"></script>
     {% if messages %}
     <ul class="d-block float-start p-0 w-100">
         {% for message in messages %}
@@ -16,6 +17,19 @@
     {% endif %} 
     <div class="mb-5">
         <h1>Free dictations to improve your English</h1>
+        This tool is here to help you throughout your journey with the English language.
+        The goal is to provide you with the bare minimum to remain independent of AI and do your own business.
+        No translators but access to a dictionary (wiktionary). Double-click on a word and a modal shows you the definitions.
+        There are different types of topics to have a lot of vocabulary.
+        <p>You can use offline access for your training, but if you leave the page or refresh it, you lose your progress.
+        With connected access, you save your progress and see where you left off, what you've completed, and what you haven't touched yet.</p>
+        
+        It is a simple tool which can be complementary to your studies but it is not there to teach you anything.
+        To make writing easier, you can avoid punctuation (which is given to you when you validate a segment).
+        But you should capitalize words that start a sentence, even if they're in the middle.
+        
+        A help feature is implemented, you can click the reveal button to get the very next letter but you
+        can only use it three times per segment.
     </div>    
     <div id="tt" class="dict-tt">
         <i class="fas fa-question-circle"></i>
@@ -37,12 +51,22 @@
                 <td class="d-none d-sm-table-cell"><a href="{% url 'dictation:topic' item.slug %}" aria-label="{{ item|capfirst }}" tabindex="-1" class="row-link"></a><a class="d-flex align-items-center link-wrap link-indent link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="{% url 'dictation:topic' item.slug %}"> {{ item|capfirst }}</a></td>
                 <td>about {{item|duration}} mn<a href="{% url 'dictation:topic' item.slug %}" aria-label="{{ item|capfirst }}" tabindex="-1" class="row-link"></a><a class="d-flex align-items-center link-wrap link-indent link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="{% url 'dictation:topic' item.slug %}"></a></td>
                 <td>{{item.level|starize}}<a href="{% url 'dictation:topic' item.slug %}" aria-label="{{ item|capfirst }}" tabindex="-1" class="row-link"></a><a class="d-flex align-items-center link-wrap link-indent link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="{% url 'dictation:topic' item.slug %}"></a></td> 
-                {% if user.is_authenticated %}<td>
-                    {% for dictation in practice %} 
-                        {% if dictation.dictation_id == item.id %} 
-                            {% practice_status dictation.is_done dictation.user_current_line dictation.dictation.total_line dictation.lines %}  
+                {% if user.is_authenticated %}
+                    {% for exercise in practice %} 
+                        {% if exercise.dictation_id == item.id  %} 
+                        <td id="your-progress-{{exercise.dictation_id}}" class="your-progress">
+                            <script nonce="{{request.csp_nonce}}">
+                                {% comment %} args: dictationProgress, dictationId, lines, isDone{% endcomment %}
+                                window.statusbar(
+                                    "{% practice_status exercise.dictation.total_line exercise.lines %}%",
+                                    {{exercise.dictation_id}},
+                                    {{exercise.lines.data|length}}, 
+                                    {{exercise.is_done|lower}}
+                                    )
+                            </script>
                         {% endif %} 
-                    {% endfor %}</td>
+                     {% endfor %}
+                    {% if item.id not in list_of_practices %}<td></td>{% else %}</td>{% endif %}                         
                 {% endif %}
             </tr>
         {% endfor %}
@@ -73,5 +97,4 @@
         {% endif %}
     </ul>
 </main>
-<script src="{% static 'js/assets/scripts/home/index.bundle.js' %}" nonce="{{request.csp_nonce}}"></script>
 {% endblock home %}

@@ -1,8 +1,6 @@
 """Extra filters."""
 
 from django import template
-from django.utils.safestring import mark_safe
-
 
 register = template.Library()
 
@@ -18,8 +16,8 @@ def label_star(level):
         "1": "Very easy",
         "2": "Easy",
         "3": "Normal",
-        "4": "Nightmare",
-        "5": "Hell",
+        "4": "Hard",
+        "5": "Very hard",
     }
     return labels[level]
 
@@ -32,38 +30,9 @@ def get_duration(dictation):
 
 
 @register.simple_tag(name="practice_status")
-def practice_status(is_done, user_current_line, total_line, lines):
-    """Return the progress status for a given dictation.
-
-    In order to have 2 arguments: @register.simple_tag
-    https://docs.djangoproject.com/en/5.0/howto/custom-template-tags/#simple-tags
-
-
-    If you click on the right arrow to the last sentence and then answer it (as your first answer),
-    the progress bar will display 100% which is because the calcul is just from user_current_line.
-    If each answer is recorded in list, it's possible to count the lenght of that list of answered
-    to make the avaerage based on the number of answer, no matter the user_current_line.
-    So we have to save that list intead of a simple integer. the user_current_line will be the last entry.
-    """
-    percent_progress = (
-        round((len(lines["data"]) / total_line) * 100) if len(lines["data"]) > 0 else 0
+def practice_status(total_line, lines):
+    return (
+        round((len(lines["data"]) / (total_line)) * 100)
+        if len(lines["data"]) > 0
+        else 0
     )
-    if user_current_line == 0 or not user_current_line:
-        status = mark_safe('<i class="fa-solid fa-eye"></i>')
-    elif is_done:
-        status = mark_safe('<i class="fa-solid fa-check text-success"></i>')
-    else:
-        status = mark_safe(
-            '<div class="progress" role="progressbar" aria-label="Basic example" '
-            + 'aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">'
-            + f'<div class="progress-bar" style="width: {percent_progress}%">{percent_progress}%</div></div>'
-        )
-
-    return status
-
-
-@register.simple_tag(takes_context=True)
-def get_cookie_consent(context):
-    request = context["request"]
-    result = request.COOKIES.get("DT_CONSENT", "")
-    return True if result else False
