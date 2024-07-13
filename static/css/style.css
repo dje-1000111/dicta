@@ -6,7 +6,8 @@
 .grid-topic-container {
     display: grid;
     grid-template-columns: 0.5fr 1fr 1fr 0.5fr;
-    grid-template-rows: 0fr 0.1fr 0.1fr 1fr 0fr;
+    /* grid-template-rows: 0fr 0.1fr 0.1fr 1fr 0fr; */
+    grid-template-rows: 0fr 0fr 0fr 1fr 0fr;
     min-height: 100%;
     grid-template-areas:
         'header header header header'
@@ -259,6 +260,10 @@ input.input-consent {
     padding: 0px 3px 3px 3px;
 }
 
+.nve {
+    display: block;
+    color: red;
+}
 
 main {
     grid-area: main;
@@ -334,6 +339,21 @@ textarea {
 }
 
 .dark-about-cont {
+    background-color: #0e304d;
+    border-radius: 20px;
+}
+
+.lab-container {
+    background-color: #fff;
+    border-radius: 20px;
+}
+
+.light-lab-cont {
+    background-color: #fff;
+    border-radius: 20px;
+}
+
+.dark-lab-cont {
     background-color: #0e304d;
     border-radius: 20px;
 }
@@ -785,6 +805,11 @@ footer a:visited {
 .fabout {
     display: grid;
     grid-area: foo2;
+}
+
+.tstadd {
+    display: grid;
+    grid-area: foo5;
 }
 
 .d-contents {

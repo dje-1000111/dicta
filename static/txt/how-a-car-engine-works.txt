@@ -1,0 +1,68 @@
+I'm Jake O'Neal, creator of Animagraffs. And this is how a Car Engine works.
+Let's start at a single piston, the powerhouse of the engine, and work our way outwards.
+The four stroke cycle
+When a piston travels to the end of its range, whether up or down, that's a stroke.
+Car engines use a four stroke cycle, and it goes like this:
+First, intake. The piston descends, sucking an air-fuel mixture into the cylinder
+through the intake port, with both intake valves open.
+Next, compression. With all valves closed the piston comes back up,
+compressing the fuel and air mixture for more powerful combustion.
+Then, the power stroke. An electrical spark ignites the compressed fuel and air mixture,
+and the resulting combustion forces the piston to the bottom of the cylinder again.
+A connecting rod transfers this power to the crankshaft.
+Finally, exhaust. The piston comes back up,
+pushing the spent mixture out through open exhaust valves and the exhaust port.
+Connecting multiple pistons
+For smooth power delivery, pistons take turns firing. The firing order for this engine
+is 1-3-4-2. Camshafts with specially shaped cams push spring-loaded valves open in turn.
+Cam gears and a timing belt or chain links everything to the crankshaft,
+and it all spins together.
+The crankshaft translates piston power out of the engine.
+It has counterweights to balance against the pistons for perfectly smooth revolutions.
+This is what RPM means -- we're counting the number of full crankshaft revolutions per minute.
+The engine block holds the crankshaft and cylinders, and the cylinder
+head holds valves, ports, cams, etc. A geared flywheel sits at one side of the
+crankshaft for connection to a transmission. It's also where the starter connects to the system.
+This engine has four cylinders arranged in a single row.
+But there are many other possible configurations, like six cylinders with three on each side, angled
+in a V shape. Or eight. Despite different design goals, the basic engine parts are all there.
+Now let's look at the other systems that support this combustion process.
+Air intake Air comes in through an air filter,
+and then into the intake manifold where it mixes with fuel before being sucked
+into individual cylinders through intake ports.
+Fuel The fuel pump carries gas from the tank,
+through a fuel filter, to the engine
+where fuel injectors emit a precisely timed spray of gas into the intake port.
+Cooling Engines get very hot during operation
+and require a cooling system. Coolant channels around the cylinders and through the cylinder
+heads carry a special liquid called "anti-freeze" to keep temperatures within safe operating range.
+(It's called anti-freeze because it won't freeze in icy weather).
+After cooling hot engine parts, coolant circulates through the radiator.
+The radiator has a network of small tubes and fins. Coolant passes through these channels while
+air (pulled in by the radiator fan) flows by the tubes, cooling the hot liquid for recirculation.
+A water pump keeps the coolant system flowing and properly pressurized.
+The thermostat regulates coolant temperature by either routing coolant back
+through the engine or to the radiator for further cooling.
+Electrical
+The spark plug delivers the electrical spark that ignites the fuel-air mixture for combustion.
+The metal core is insulated from the outer metal casing with porcelain.
+The spark jumps between these conductive surfaces. The coil pack delivers electrical current to the
+spark plugs as directed by the ECM (engine control module). The ECM is a computer that
+directs many core engine functions like spark timing, valve timing, air to fuel ratio, etc.
+The alternator works like a power generator, converting the engine's mechanical energy into
+electricity to charge the battery or run other electrical systems while the engine is running.
+The battery provides power to the starter for engine start.
+Oil Motor oil is used to lubricate,
+clean, prevent corrosion, improve sealing, and cool the engine by carrying heat away from moving
+parts. Rings around the top of the piston head keep oil out of the combustion process while
+otherwise allowing the cylinder to be lubricated. Oil galleries are channels through the
+engine block and cylinder head that carry oil to various engine parts.
+Oil flows through the engine and back to the oil pan for recirculation.
+The oil pump keeps oil properly pressurized and flowing.
+Oil rests in the oil pan when not in circulation. The oil filter keeps oil clean from contaminants.
+Exhaust
+The exhaust manifold collects gases from multiple cylinders into one pipe.
+Exhaust flows through the catalytic converter, which captures toxic chemicals in engine exhaust.
+And then out through a muffler that reduces exhaust noise.
+Full model And finally,
+here's the full functioning engine with all the basic systems we've discussed.

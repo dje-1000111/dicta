@@ -1,0 +1,81 @@
+Imagine, the year is 1905.
+One day, the clock on the tower in Berne, Switzerland,
+is a little late.
+Two minutes late, to be more precise.
+For that reason, a man who lives near the tower does not
+wake up at the same time that he usually wakes up to
+go to work.
+Realising the mistake, he becomes a little nervous.
+It takes him a little longer to
+get dressed, drink some coffee and leave the house.
+He leaves five minutes later than usual. He is about to
+cross the street.
+Meanwhile, a banker gets into his new car without
+knowing that it has a problem with the brakes.
+Our man crosses the street and doesn't see the car.
+The man is run over and dies.
+This man is no less than Albert Einstein.
+That year Einstein should have published four works
+that would become the basis of modern physics.
+Innovations like GPS, TV screens, the semiconductors
+that allowed us to create laptops, never happen.
+The computer, the laptop, the mobile you are watching this
+video on never come into existence.
+And this video... doesn't exist either.
+This sequence of events is an example of what is known as
+the butterfly effect, 
+a manifestation of Chaos Theory.
+For many centuries, the world was explained through the laws of Isaac Newton and classical physics.
+According to these laws, 
+if the current state of an object is known, its future behaviour
+can be predicted with relative ease.
+Chaos Theory questions this deterministic vision: 
+not everything is predictable anymore, nor does it work like clockwork.
+Since the 1800s,
+mathematicians have raised the idea that not all
+phenomena could be predicted by Newtonian laws.
+But a meteorologist named Edward Lorenz made chaos
+theory a visible phenomenon.
+It all started in 1961 when he was working on a
+mathematical model to forecast the weather.
+Lorenz entered data such as temperature, humidity,
+pressure, and wind direction into his computer.
+His computer would draw a graph modelling what the
+weather would be like,
+not always accurate, but very close to reality.
+One morning, Lorenz decided to verify some results.
+He stopped the computer, to save time, entered the numbers himself, and went to grab a coffee.
+When he returned, the chart was incredibly different from
+the original.
+At the beginning it started out pretty similar, but in the middle it presented a completely different trajectory.
+Surprised, he checked the numbers.
+He found that the number he had entered was three tenths
+less than the number used by the computer.
+That difference, which altered the trajectory so much, is equivalent
+to a particle of dust on the Eiffel Tower, or one less feather in the weight of a duck.
+Lorenz deduced that this experiment was not a special case,
+that there were other systems in which tiny
+differences produced, over time, monumental changes,
+making everything seem unpredictable... that the flapping of a butterfly 
+in Brazil could, in theory, cause enough of a disturbance to spark a tornado in Texas.
+Even though we have a good idea of how the universe
+works, there are no measurements that allow us to determine the exact
+position and speed of every atom in the universe.
+And this "inaccuracy" in our calculations makes predictions difficult,
+one of the reasons why long-term prediction is impossible.
+But chaos is not the same as disorder.
+Although chaos makes predictions difficult, 
+the universe is not random and effects still follow causes.
+And no matter how chaotic it may seem, a system always follows a trajectory towards a certain point.
+For example, in the calculations Lorenz used for his model, the trajectory created a pattern that resembled the wings of a butterfly.
+Understanding these patterns of chaos has practical applications.
+In the stock market it reminds us that a slight fluctuation can cause a crisis in the market
+and that is why we cannot speak of predictions but of probabilities.
+In the human body, it allows us to understand the chaotic behaviour of a heart with cardiac arrhythmia.
+Even in human behaviour, the butterfly effect can be used to analyse social phenomena. 
+For example, how trolling on social networks can be triggered by a single negative comment.
+Our universe continues to obey the laws of cause and effect.
+The sun will continue to rise every morning.
+The planes we build will keep flying.
+Ultimately, chaos theory introduces an element of uncertainty into our reading of the Universe.
+It reveals the limit of our knowledge.

@@ -9,8 +9,6 @@ from django.utils.encoding import force_bytes, force_str
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-
-from django.shortcuts import render, redirect
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import authenticate, logout
 from django.views.generic import FormView
@@ -26,7 +24,6 @@ from django.contrib.auth.views import (
 )
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.mail import send_mail
-from django.http import QueryDict
 
 from apps.dictation_auth.models import User
 from apps.dictation_auth.forms import (

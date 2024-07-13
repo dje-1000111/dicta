@@ -6,12 +6,14 @@ from typing import Any, Dict
 
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect  # , Http404
+from django.contrib import messages
+from django.utils.safestring import mark_safe
 from django.http.response import JsonResponse
 from django.http import (
     HttpResponse,
     HttpRequest,
 )
-from django.utils.safestring import mark_safe
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from apps.dictation.models import (
@@ -27,7 +29,7 @@ from apps.dictation.models import (
     Practice,
     WiktionaryAPI,
 )
-from apps.dictation.forms import DictationForm
+from apps.dictation.forms import DictationForm, AutoDictationForm
 
 
 def bad_request(request, exception=None, template_name="400.html"):
@@ -46,12 +48,45 @@ def server_error(request, exception=None, template_name="500.html"):
     return render(request, "pages/500.html", status=500)
 
 
+def auto_dictation_form_view(request):
+    """Get the youtube video id from a form on a page.
+
+    This form should be only for the staff.
+    The users can make a suggestion via another form.
+    """
+    dictation = Dictation()
+    if request.method == "POST":
+        form = AutoDictationForm(request.POST)
+        if form.is_valid():
+            video_id = form.cleaned_data["video_id"]
+            if (
+                dictation.is_transcriptable(video_id)
+                and dictation.is_manually_transcripted(video_id)
+                and dictation.is_length_enough(video_id)
+            ):
+                yttrans = dictation.yt_get_transcript(video_id)
+                autodictation = dictation.create_dictation_data(video_id, yttrans)
+                return HttpResponseRedirect(f"/topic/{autodictation[0].slug}/")
+            else:
+                messages.info(
+                    request,
+                    mark_safe(
+                        "Sorry, either the subtitles are <br>auto generated,<br>disabled <br>or not in English<br>\
+                            or the video ID is invalid<br>or the possible dication is too long (more than 6/7 mn).",
+                    ),
+                )
+    else:
+        form = AutoDictationForm()
+
+    return render(request, "pages/autodictation.html", {"addform": form})
+
+
 class HomeView(ListView):
     """IndexView."""
 
     template_name: str = "pages/home.html"
     paginate_by: int = 8
-    queryset = Dictation.objects.filter(in_production=True).order_by("-level")
+    queryset = Dictation.objects.filter(in_production=True).order_by("level", "topic")
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         """Get context data."""
@@ -103,7 +138,6 @@ class TopicView(DetailView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         """Get context data."""
-        # self.request.session["historic"]["revealed_line"] = []
         if self.request.user.is_authenticated:
             self.request.session["current_dictation"] = [self.dictation.pk]
             self.request.session["new_pages"] = list()
@@ -216,7 +250,7 @@ class AjaxDetailView(DetailView):
                 user=self.request.user, dictation_id=dictation_id
             )
 
-            if not "*" in corrected and not "<" in corrected:
+            if "*" not in corrected and "<" not in corrected:
                 practice.update_answered_lines(practice, line_nb, new_page)
 
                 Practice().save_dication_progress(

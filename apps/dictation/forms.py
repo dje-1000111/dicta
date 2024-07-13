@@ -1,4 +1,5 @@
 from django import forms
+from apps.dictation.models import Dictation
 
 
 class DictationForm(forms.Form):
@@ -28,3 +29,23 @@ class DictationForm(forms.Form):
         cleaned_data = super().clean()
         data = cleaned_data.get("textarea")
         return data
+
+
+class AutoDictationForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["video_id"].required = True
+
+    class Meta:
+        model = Dictation
+        fields = ["video_id"]
+        labels = {"video_id": ""}
+        widgets = {
+            "video_id": forms.TextInput(
+                attrs={
+                    "class": "form-control",
+                    "id": "id_video_id",
+                    "placeholder": "Video ID",
+                },
+            )
+        }

@@ -3,9 +3,17 @@
 import re
 import base64
 import math
+import requests
+import json
+
 from typing import Any
 from django.http import HttpRequest
-import requests
+from youtube_transcript_api import (
+    YouTubeTranscriptApi,
+    NoTranscriptFound,
+    TranslationLanguageNotAvailable,
+    TranscriptsDisabled,
+)
 
 from django.db import models
 from django.utils.safestring import mark_safe
@@ -23,22 +31,178 @@ class Dictation(models.Model):
 
     video_id = models.CharField(null=True, blank=True, max_length=50)
     # language = models.CharField(null=True, blank=True, max_length=50)
+    # to sort a videos by topic, we need a new field like "genre"
+    # for short story, climate, history, biopic, reportage, science, etc...
+    # On the page there would be a button
+
     change_date = models.DateTimeField(auto_now=True)
-    filename = models.CharField(null=True, blank=True, max_length=200)
+    filename = models.CharField(null=True, blank=True, max_length=200, unique=True)
     timestamps = models.JSONField()
     topic = models.CharField(max_length=200)
     level = models.IntegerField()
     tip = models.JSONField()
-    slug = models.SlugField(default="", null=False)
+    slug = models.SlugField(default="", null=False, max_length=100)
     total_line = models.IntegerField(default=0)
     in_production = models.BooleanField(default=False)
 
     def __str__(self):
-        """Return str representation."""
         return self.topic
 
     def get_absolute_url(self):
         return f"/topic/{self.slug}"
+
+    def get_video_data(self, video_id: str) -> Any:
+        """Get the original video title from YouTube."""
+        payload = {
+            "url": f"https://www.youtube.com/watch?v={video_id}",
+            "format": "json",
+        }
+        try:
+            r = requests.get("https://www.youtube.com/oembed", payload, timeout=3)
+        except requests.exceptions.RequestException:
+            print("Something went wrong")
+        return r.json()
+
+    def yt_get_transcript(
+        self, video_id: str, languages: list = ["en", "English", "en-GB", "en-US"]
+    ) -> Any:
+        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+        res = transcript_list.find_manually_created_transcript(languages)
+        return YouTubeTranscriptApi.get_transcript(
+            video_id, languages=(res.language_code,)
+        )
+
+    def sluggify_title(self, video_title: str) -> str:
+        video_title = re.sub(r"\W", " ", video_title)
+        return "-".join(video_title.split()).lower()
+
+    def create_timestamps(self, yt_transcript) -> list:
+        timestamps = []
+        for line in yt_transcript:
+            timestamps += [round(line["start"], 2)]
+        timestamps += [timestamps[-1] + 5]
+        return timestamps
+
+    def clean_text(self, yt_transcript) -> list:
+        reg = r"(\(.*\))|(\[.*\])"
+        cleaned_text = []
+        for line in yt_transcript:
+            line["text"] = re.sub(reg, "", line["text"])
+            cleaned_text += [
+                line["text"]
+                .replace("\ufeff", "")
+                .replace("\n", " ")
+                .replace("—", ", ")
+                .replace("\xa0", "")
+                .replace("\u2013", "-")
+                .replace("’", "'")
+                .replace("‘", "'")
+                .replace("“", '"')
+                .replace("”", '"')
+                .replace("…", "...")
+                .strip("-")
+                .strip()
+            ]
+
+        return cleaned_text
+
+    def generate_text(self, cleaned_text):
+        text = []
+        for line in cleaned_text:
+            if line.strip():
+                text += (
+                    [line[:-1]]
+                    if line.endswith("\u2014") or line.endswith("-")
+                    else [line]
+                )
+        return text
+
+    def is_transcriptable(self, video_id):
+        transcriptable = True
+        try:
+            self.yt_get_transcript(video_id)
+        except TranscriptsDisabled:
+            transcriptable = False
+        except NoTranscriptFound:
+            transcriptable = False
+        except TranslationLanguageNotAvailable:
+            transcriptable = False
+        return transcriptable
+
+    def is_manually_transcripted(self, video_id):
+        manually = True
+        try:
+            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+            print("transcript list", transcript_list)
+            transcript_list.find_manually_created_transcript(
+                ["en", "English", "en-GB", "en-US"]
+            )
+        except TranscriptsDisabled:
+            manually = False
+        except NoTranscriptFound:
+            manually = False
+        except TranslationLanguageNotAvailable:
+            manually = False
+        return manually
+
+    def get_current_language(self, video_id):
+
+        if self.is_manually_transcripted(video_id) == 0:
+            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+
+            langs = transcript_list.find_manually_created_transcript(
+                ["en", "English", "en-GB", "en-US"]
+            )
+        return (
+            langs.language_code
+            if self.is_manually_transcripted(video_id) == 0
+            else "en"
+        )
+
+    def create_dictation_data(self, video_id, yttrans):
+        data = self.get_video_data(video_id)
+        slug = self.sluggify_title(data["title"])
+        yt_transcript = json.dumps(yttrans)
+        yt_transcript = json.loads(yt_transcript)
+        timestamps = self.create_timestamps(yt_transcript)
+        cleaned_text = self.clean_text(yt_transcript)
+        cleaned_text = self.generate_text(cleaned_text)
+
+        if not Dictation.objects.filter(filename=f"{slug}.txt").exists():
+
+            with open(settings.TXT_DIR / f"{slug}.txt", "w", encoding="utf-8") as f:
+                for i in cleaned_text:
+                    f.write(f"{i}\n")
+
+            autodictation = Dictation.objects.get_or_create(
+                video_id=video_id,
+                topic=data["title"],
+                filename=f"{slug}.txt",
+                level=3,
+                slug=slug,
+                timestamps={"data": timestamps},
+                tip={"": ""},
+            )
+        else:
+            autodictation = [Dictation.objects.get(filename=f"{slug}.txt")]
+
+        self.update_total_line()
+        return autodictation
+
+    def is_length_enough(self, video_id):
+        yttrans = self.yt_get_transcript(video_id)
+        yt_transcript = json.dumps(yttrans)
+        yt_transcript = json.loads(yt_transcript)
+        return 10 < len(yt_transcript) <= 200
+
+    def update_total_line(self):
+        """Update the total_line field."""
+        dictation = Dictation()
+        filenames = [dictation.filename for dictation in Dictation.objects.all()]
+        for filename in filenames:
+            Dictation.objects.filter(filename=filename).update(
+                total_line=dictation.total_lines(filename)
+            )
 
     def total_lines(self, filename: str = None) -> int:
         """Return the total number of lines."""
@@ -201,7 +365,7 @@ class Practice(models.Model):
 
 def convert_segment_to_b64(reference: str) -> str:
     """Convert a sentence to a b64 in order to hide the original in the local storage."""
-    token = "{token}".format(token=reference).encode("ascii")
+    token = "{token}".format(token=reference).encode("utf-8")
     token = base64.b64encode(token)
     return str(token, encoding="utf-8")
 
@@ -253,7 +417,7 @@ def initiate_new_session_in_view(
     request: HttpRequest, dictation_id: int, lines: list, line_nb: int
 ):
     """Initiate a json structure to keep the historic of validation."""
-    if not "historic" in request.session:
+    if "historic" not in request.session:
         request.session["historic"] = {"revealed_line": []}
         create_first_session_page(request, dictation_id, line_nb, 0)
     else:

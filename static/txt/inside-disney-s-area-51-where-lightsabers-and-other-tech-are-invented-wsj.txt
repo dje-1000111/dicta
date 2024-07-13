@@ -1,0 +1,176 @@
+Playful droids.
+Electromagnetic eyes.
+And...
+Yeah, that's real.
+Pretty cool.
+These inventions represent
+Disney's most experimental technologies
+made here at its Research and Development lab.
+It's more like Area 51.
+And we've done a really good job of making sure
+that people don't understand
+what's happening inside of this building.
+Inventors here build creations
+that are crucial to drawing guests to Disney's parks.
+The centerpiece of the company's most profitable unit.
+Disney is facing increasing competition
+from rivals like Universal.
+And Lanny Smoot, the guy behind that lightsaber
+is Disney's most decorated inventor.
+If I see something that in the real world
+that is kind of quirky, maybe an illusion,
+and I can build a whole attraction out of that.
+With Disney about to embark on a major expansion of its theme park business
+and with competition in the industry intensifying.
+So, any direction.
+The company gave The Journal a behind the scenes look at the tech that could make its next attraction.
+This is my lab.
+I keep an inventory of the things that I need to do,
+prototypes that come about quickly,
+because an idea I think is fleeting.
+If you don't capture it and don't bring it out of your mind
+into the physical world, you can sometimes lose it.
+And I wanna be fast.
+Smoot is Disney's leader in patents.
+He's named on more than 70 with the company
+and more than a hundred throughout his career.
+This is the electromagnetic eye.
+The idea for it is to replace a lot of the mechanisms
+that would be inside of a robotic head.
+We call those the animatronics.
+This of course, is a much bigger version of it.
+There are magnets at the top, bottom, left and right
+of the inner eye.
+And these coils create a magnetic field
+that move the eye left and right, and up and down.
+In his 25 plus years at Disney,
+he helped create those eyeballs
+seen here in the chameleon Pascal.
+The floating head of Madame Leota
+inside the haunted mansion.
+Awaken the spirits.
+The water harps at EPCOT.
+And an X-Ray flashlight used to teach fire safety with tech.
+But that's not the focus.
+Story is king here.
+If you have technology,
+but it doesn't fit into a bigger picture,
+which is the story of "Star Wars"
+or the story of one of our characters, it's of no use.
+Some of those ideas
+take seemingly impossible things from the screen.
+A computer-generated lightsaber, for instance,
+and to make them real.
+Can someone get the lights?
+I'd like to show off my Jedi powers.
+We have to make something that a guest can wield
+or that they can see on the stage,
+and it has to look just like it does in the movies.
+This is what Smoot calls the Hero Lightsaber.
+The most realistic one Disney has ever come up with.
+It was used in performances
+at the company's immersive Star Wars Hotel
+before it closed in 2023.
+The key issue here was to have something that was both retractable
+but this had the same diameter along its blade,
+and it's really hard to do.
+According to the patent,
+a motor in the hilt activates two long plastic semi-cylinders
+which come together and extend, making the blade,
+which is then lit by a flexible strip of LEDs.
+This is just one of the lightsabers
+that Smoot has worked on.
+Another was used in displays.
+So, I have control of what we call the penumbra.
+The light that is sort of ephemerally attached to the saber.
+He's also helped develop technology
+for two more, one of which guests used
+in real life lightsaber training.
+I have a sort of a cottage industry in lightsabers.
+Each of those inventions is actually
+a completely technically different thing.
+The pressure is greater when a guest
+already is familiar with what this thing should be,
+and the challenge is to deliver on that belief.
+Getting the magic right
+is the kind of thing that can draw in new guests
+and turn them into repeat customers, which Disney needs.
+Its rival Universal plans to open a major expansion
+to its Florida theme park in 2025.
+Something Disney hasn't done there since 2019.
+And fans are clamoring for new experiences.
+Walt Disney Imagineering is in service
+of making the parks attractive.
+And if you can make something more fun,
+more amazing, more surprising, more people come,
+and that's part of our business.
+To make sure we have happy people
+and a lot of happy people in our parks.
+One recent edition was these BDX droids
+for Star Wars Land.
+But recreating the familiar isn't all Imagineering does.
+Sometimes Smoot's job is creating things
+no one has seen before, like the holotile.
+It's the world's first and only multi-directional,
+modular, multi-person holotile floor,
+which is a sort of an omni-directional treadmill
+for multiple people.
+Here's how it works.
+The floor is made up of tiles of small articulating discs
+that spin and tilt to undo walking
+or push items in any direction.
+In order for the floor to know where I am walking and to counteract my motion, we use lidar.
+Beams of light or circles of light are emitted from these devices
+and the reflected time of flight of light
+lets them know where my feet are on the floor.
+And knowing where my feet are and the strides I'm taking,
+we can use software to control the floor
+to undo my forward motion or my sideways motion.
+Smoot says holotile
+is one of his longest projects.
+He started on it almost seven years ago.
+I was inspired, I'm gonna go a little off brand,
+off the Disney brand to Star Trek,
+where they have a thing called a holodeck.
+And that allows people to walk around
+in a place that is physically small,
+but they can walk forever as anywhere they want.
+This woodland pattern is quite popular, sir.
+Disney hasn't announced plans for holotile yet,
+but in the future it could allow guests to harness the force.
+Yeah, look at this.
+Or make them feel like, they're physically moving through space while using VR.
+Oh wow. Okay.
+The work that Lanny Smoot has done on the holotile
+is an incredible contribution
+to both how we could potentially design
+new attractions in virtual reality, in mixed reality, in order to leverage that investment that we've made.
+Smoot's inventions at Disney have even been awarded outside of the company.
+Tonight we have the privilege of celebrating Lanny,
+whose work has taken us to places we could only imagine.
+In May, he was inducted into the National Inventors Hall of Fame.
+I must have been doing something right during my years at Disney.
+Making him the second person from Disney
+to receive the honor.
+The first, Walt himself.
+It's a wonderful honor, but it is also a responsibility
+to carry on the bringing of new people,
+many people who look like me
+into the field of science and engineering.
+When I was a kid, I didn't see Black engineers
+almost till the time I was one, right?
+I grew up in Brownsville, Brooklyn.
+It's not a wealthy area, I'll say that.
+And being able to be a role model for folks again
+that may not have believed that you could go into a field,
+it's wonderful.
+But Smoot's induction doesn't mark an ending.
+He's still tinkering.
+So, as I talk and my voice is louder or lower,
+I am making my little friend
+that's just a still image in eight places talk.
+I'm proud of the things
+that I've been able to do over my career,
+that on the technical side, are good technically and used.
+And on the fun side, at the Walt Disney Company, are technical and are used.
+So it's been a good, good time and I wanna keep going.

@@ -20,6 +20,7 @@ urlpatterns = [
     path(
         "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
     ),
+    path("experiment-lab/", views.auto_dictation_form_view, name="lab"),
     path(
         "aptc/",
         views.AjaxDetailView.as_view(),

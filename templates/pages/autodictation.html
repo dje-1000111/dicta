@@ -1,0 +1,41 @@
+{% extends 'pages/base.html' %}
+{% load static %}
+{% block meta_description %}
+<meta name="Description" content="Free dictations based on YouTube videos to practice your English">
+{% endblock meta_description %}
+{% block title %}Auto generate dictation{% endblock title %}
+{% block css_container %}<div class="grid-home-container" id="hcontainer">{% endblock css_container %}
+{% block lab %}
+    <main class="d-flex flex-column justify-content-center">
+        {% if messages %}
+        <ul class="d-block float-start p-0 w-100">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                {% endfor %}
+        </ul>
+        {% endif %}
+        <div id="tt" class="dict-tt">
+            <i class="fa-solid fa-lg fa-circle-exclamation"></i>
+            <span class="bg-info p-2 float-end mb-3 dict-tt-content">Double click on a word to get its definition</span>
+        </div>
+        <h1>Dictation Generator</h1>
+        <div id="lab" class="lab-container p-5">
+            <p>Choose a video on YouTube and get the ID (embed code)<br>
+                This is the XXX part in the example URL <code>https://www.youtube.com/watch?v=XXXXXXXXX</code></p>
+            <p>Auto-generated subtitles are blocked, you need to find a video that provides the subtitles written by the
+                author.
+                <br>And if they're in the right place on YouTube, it should work fine.<br>
+                It mainly depends on how the author made the subtitles and if every sentence is spoken, meaning all
+                lines are effectively timestamped.
+            </p>
+            <div class="input-group mb-3">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ addform }}
+                    <input type="submit" class="btn btn-outline-secondary mt-2" value="Submit">
+                </form>
+            </div>
+        </div>
+    </main>
+    <script src="{% static 'js/assets/scripts/home/index.bundle.js' %}" nonce="{{request.csp_nonce}}"></script>
+{% endblock lab %}

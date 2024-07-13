@@ -236,6 +236,7 @@ CSP_FONT_SRC = (
 
 CSP_SCRIPT_SRC = (
     "'self'",
+    "'strict-dynamic'",
     "https://www.youtube.com/",
     "cdn.jsdelivr.net/",
     "cdnjs.cloudflare.com/",
