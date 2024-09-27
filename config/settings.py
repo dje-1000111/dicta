@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.0.4/ref/settings/
 
 import os
 import sentry_sdk
+from pathlib import Path
+from dotenv import load_dotenv, find_dotenv  # type: ignore
+import psycopg2.extensions
 
 sentry_sdk.init(
     dsn=os.getenv("SENTRY_DSN"),
@@ -26,9 +29,6 @@ sentry_sdk.init(
     profiles_sample_rate=1.0,
 )
 
-from pathlib import Path
-import psycopg2.extensions
-from dotenv import load_dotenv, find_dotenv  # type: ignore
 
 load_dotenv(find_dotenv())
 
@@ -213,7 +213,7 @@ CSRF_COOKIE_NAME = "__Secure-csrftoken"
 
 CSP_DEFAULT_SRC = (
     "'self'",
-    "region1.google-analytics.com/",
+    "*.google-analytics.com/",
     "https://www.googletagmanager.com/",
     "https://www.googletagmanager.com/gtm.js",
     "https://www.googletagmanager.com/gtag/js",
@@ -240,7 +240,7 @@ CSP_SCRIPT_SRC = (
     "https://www.youtube.com/",
     "cdn.jsdelivr.net/",
     "cdnjs.cloudflare.com/",
-    "region1.google-analytics.com/",
+    "*.google-analytics.com/",
     "https://www.googletagmanager.com/",
     "https://www.googletagmanager.com/gtm.js",
     "https://www.googletagmanager.com/gtag/js",
@@ -252,11 +252,12 @@ CSP_IMG_SRC = (
     "'self'",
     "img.youtube.com",
     "i.ytimg.com/",
-    "region1.google-analytics.com/",
+    "*.google-analytics.com/",
     "www.googletagmanager.com",
     "data:",
     "blob:",
 )
+CSP_CONNECT_SRC = ("'self'", "www.googletagmanager.com", "*.google-analytics.com")
 CSP_MEDIA_SRC = ("'self'", "https://www.youtube.com/")
 CSP_FRAME_SRC = (
     "'self'",

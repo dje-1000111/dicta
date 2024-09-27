@@ -1,5 +1,6 @@
 """Dictation auth views."""
 
+import time
 from typing import Any, Dict
 
 from django.contrib.sites.shortcuts import get_current_site
@@ -24,6 +25,7 @@ from django.contrib.auth.views import (
 )
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.mail import send_mail
+from smtplib import SMTPDataError
 
 from apps.dictation_auth.models import User
 from apps.dictation_auth.forms import (
@@ -75,7 +77,12 @@ def signup(request):
                 },
             )
 
-            send_mail(subject, message, from_email, recipient_list)
+            try:
+                send_mail(subject, message, from_email, recipient_list)
+            except SMTPDataError:
+                # Log the error and implement a delay
+                time.sleep(10)  # Pause for 10 seconds before retrying
+                send_mail(subject, message, from_email, recipient_list)  # Retry sending
 
             messages.info(
                 request,

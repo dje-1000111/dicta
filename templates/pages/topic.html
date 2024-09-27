@@ -125,8 +125,7 @@
         </div>
         {% endspaceless %}
         <script nonce="{{request.csp_nonce}}">
-            const aptc = "{% url 'dictation:ajax_post_textarea_content' %}",
-                aprr = "{% url 'dictation:ajax_post_request_rating' %}",
+            const aprr = "{% url 'dictation:ajax_post_request_rating' %}",
                 topicname = '{{ topic_name }}',
                 vid = '{{ video_id }}',
                 b64_img = '{{ b64_img }}',

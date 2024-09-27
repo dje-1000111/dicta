@@ -1,2 +1,2 @@
-User-agent: *
-Disallow: /auth/*
+User-agent: ALittle Client
+Disallow: /

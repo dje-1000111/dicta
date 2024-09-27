@@ -10,10 +10,7 @@ from django.http import HttpResponseRedirect  # , Http404
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 from django.http.response import JsonResponse
-from django.http import (
-    HttpResponse,
-    HttpRequest,
-)
+from django.http import HttpResponse, HttpRequest, Http404
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from apps.dictation.models import (
@@ -33,18 +30,22 @@ from apps.dictation.forms import DictationForm, AutoDictationForm
 
 
 def bad_request(request, exception=None, template_name="400.html"):
+    """Bad request."""
     return render(request, "pages/400.html", status=400)
 
 
 def permission_denied(request, exception=None, template_name="403.html"):
+    """Permission denied."""
     return render(request, "pages/403.html", status=403)
 
 
 def not_found(request, exception=None, template_name="404.html"):
+    """Not found."""
     return render(request, "pages/404.html", status=404)
 
 
 def server_error(request, exception=None, template_name="500.html"):
+    """Server error."""
     return render(request, "pages/500.html", status=500)
 
 
@@ -67,14 +68,14 @@ def auto_dictation_form_view(request):
                 yttrans = dictation.yt_get_transcript(video_id)
                 autodictation = dictation.create_dictation_data(video_id, yttrans)
                 return HttpResponseRedirect(f"/topic/{autodictation[0].slug}/")
-            else:
-                messages.info(
-                    request,
-                    mark_safe(
-                        "Sorry, either the subtitles are <br>auto generated,<br>disabled <br>or not in English<br>\
-                            or the video ID is invalid<br>or the possible dication is too long (more than 6/7 mn).",
-                    ),
-                )
+            messages.info(
+                request,
+                mark_safe(
+                    "Sorry, either the subtitles are <br>auto generated,<br>\
+                        disabled <br>or not in English<br>or the video ID is \
+                            invalid<br>or the possible dication is too long (more than 6/7 mn)."
+                ),
+            )
     else:
         form = AutoDictationForm()
 
@@ -123,7 +124,7 @@ class TopicView(DetailView):
         practice = Practice()
 
         self.dictation = get_object_or_404(Dictation, slug=self.kwargs["slug"])
-        self.real_lines = [i for i in range(0, self.dictation.total_lines() + 1)]
+        self.real_lines = list(range(0, self.dictation.total_lines() + 1))
         if self.request.user.is_authenticated:
             practice.create_dictation(self.request.user, self.dictation)
             self.line_nb = practice.saved_position(self.request.user, self.dictation)
@@ -140,7 +141,7 @@ class TopicView(DetailView):
         """Get context data."""
         if self.request.user.is_authenticated:
             self.request.session["current_dictation"] = [self.dictation.pk]
-            self.request.session["new_pages"] = list()
+            self.request.session["new_pages"] = []
             self.request.session["line_numbers"] = [-1]
             initiate_new_session_in_view(
                 self.request, self.dictation.pk, self.lines, self.line_nb
@@ -148,7 +149,7 @@ class TopicView(DetailView):
         else:
             free_initiate_new_session(self.request)
             free_create_first_session_page(self.request, self.dictation.pk)
-            self.request.session["new_pages"] = list()
+            self.request.session["new_pages"] = []
             self.request.session["current_dictation"] = [self.dictation.pk]
             self.request.session.modified = True
 
@@ -190,6 +191,11 @@ class AjaxDetailView(DetailView):
     """Ajax post text area content."""
 
     model = Dictation
+
+    def get(self, request, *args, **kwargs):
+        if "pk" not in kwargs and "slug" not in kwargs:
+            raise Http404("Object not found")
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         """Post."""
@@ -292,15 +298,18 @@ class AjaxDetailView(DetailView):
 
 def post_user_rating(request: HttpRequest) -> HttpResponse:
     """Post the user rating from ajax."""
-    practice = Practice()
-    data = json.loads(request.body)
-    star_rating = data["star_rating"]
-    dictation_id = data["dictation_id"]
-    dictation_id = dictation_id[: dictation_id.index("_")]
-    practice.update_rating(
-        user=request.user, dictation_id=dictation_id, new_rating=star_rating
-    )
-    return HttpResponse(status=201, headers={"X-Robots-Tag": "noindex"})
+    try:
+        practice = Practice()
+        data = json.loads(request.body)
+        star_rating = data["star_rating"]
+        dictation_id = data["dictation_id"]
+        dictation_id = dictation_id[: dictation_id.index("_")]
+        practice.update_rating(
+            user=request.user, dictation_id=dictation_id, new_rating=star_rating
+        )
+        return HttpResponse(status=201, headers={"X-Robots-Tag": "noindex"})
+    except (KeyError, ValueError, Practice.DoesNotExist) as exc:
+        raise Http404("The requested resource was not found.") from exc
 
 
 def post_request_definition(request):
