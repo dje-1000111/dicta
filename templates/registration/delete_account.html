@@ -14,16 +14,16 @@
   </ul>
   {% endif %} 
 
-  <div id="profile-container" class="p-5 bonus-container h-100">
+  <div id="profile-container" class="p-3 bonus-container h-100">
     <h2>Confirm delete your account</h2><hr>
-        <div class="d-flex h-100 flex-column mt-2 mb-3">
+        <div class="d-flex h-75 flex-column mt-2 mb-3">
             {% if user.is_authenticated %}
             <p>Are you sure you want to delete your account?</p> 
             <p>You will permanently lose your progress, the only data concerning you (with your email).</p>
             {% else %}
             <p>Permission denied</p>
             {% endif %}
-            <div class="p-5 h-75 d-flex flex-row flex-nowrap justify-content-end align-items-end">
+            <div class="p-2 h-100 d-flex flex-row flex-nowrap justify-content-end align-items-end">
          <a class="btn btn-danger float-end me-3" href="{% url 'auth:delete_account_confirm' %}">Yes, I'm sure</a>
          <a href="{% url 'auth:profile' %}"
          class="btn btn-warning float-end">Cancel</a>         

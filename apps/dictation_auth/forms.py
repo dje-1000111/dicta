@@ -1,5 +1,7 @@
 """Item Auth forms."""
 
+import logging
+
 from django_recaptcha.fields import ReCaptchaField
 from django_recaptcha.widgets import ReCaptchaV3
 from django import forms
@@ -7,14 +9,17 @@ from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import authenticate
+from django.template import loader
 
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from apps.dictation_auth.models import User
 
+from apps.dictation_auth.utils import CustomEmailMessage
 from apps.dictation_auth.widget import CustomReCaptchaV3
 
 UserModel = get_user_model()
+logger = logging.getLogger("django.contrib.auth")
 
 
 class UserCreationForm(auth_forms.UserCreationForm):
@@ -165,7 +170,34 @@ class CustomPasswordResetForm(PasswordResetForm):
         ),
     )
 
-    captcha = ReCaptchaField(widget=ReCaptchaV3(action="password_reset"))
+    def send_mail(
+        self,
+        subject_template_name,
+        email_template_name,
+        context,
+        from_email,
+        to_email,
+        html_email_template_name=None,
+    ):
+        """
+        Send a django.core.mail.EmailMultiAlternatives to `to_email`.
+        """
+        subject = loader.render_to_string(subject_template_name, context)
+        # Email subject *must not* contain newlines
+        subject = "".join(subject.splitlines())
+        body = loader.render_to_string(email_template_name, context)
+
+        email_message = CustomEmailMessage(subject, body, from_email, [to_email])
+        if html_email_template_name is not None:
+            html_email = loader.render_to_string(html_email_template_name, context)
+            email_message.attach_alternative(html_email, "text/html")
+
+        try:
+            email_message.send()
+        except Exception:
+            logger.exception(
+                "Failed to send password reset email to %s", context["user"].pk
+            )
 
 
 class CustomSetPasswordForm(SetPasswordForm):

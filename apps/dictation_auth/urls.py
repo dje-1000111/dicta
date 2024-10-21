@@ -5,12 +5,11 @@ from django.urls import path, include
 from django.contrib.auth.views import (
     PasswordChangeView,
     PasswordResetDoneView,
-    PasswordResetConfirmView,
     PasswordResetCompleteView,
     PasswordChangeDoneView,
 )
 from apps.dictation_auth import views
-from apps.dictation_auth.forms import CustomPasswordResetForm, CustomSetPasswordForm
+from apps.dictation_auth.forms import CustomSetPasswordForm, CustomPasswordResetForm
 
 
 auth_patterns = (
@@ -86,7 +85,7 @@ urlpatterns = [
     ),
     path(
         "accounts/password-reset-confirm/<uidb64>/<token>/",
-        PasswordResetConfirmView.as_view(
+        views.CustomPasswordResetConfirmView.as_view(
             template_name="registration/password_reset_confirm.html",
             form_class=CustomSetPasswordForm,
         ),
@@ -99,5 +98,5 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
-    path("", include(auth_patterns)),
+    path("auth/", include(auth_patterns)),
 ]

@@ -73,7 +73,7 @@ def auto_dictation_form_view(request):
                 mark_safe(
                     "Sorry, either the subtitles are <br>auto generated,<br>\
                         disabled <br>or not in English<br>or the video ID is \
-                            invalid<br>or the possible dication is too long (more than 6/7 mn)."
+                            invalid<br>or the possible dictation is too long (more than 6/7 mn)."
                 ),
             )
     else:
@@ -182,6 +182,7 @@ class TopicView(DetailView):
                     for i in range(0, len(self.real_lines), 30)
                 ],
                 "reds": self.reds if self.request.user.is_authenticated else [],
+                "result": "",
             }
         )
         return context
@@ -314,6 +315,9 @@ def post_user_rating(request: HttpRequest) -> HttpResponse:
 
 def post_request_definition(request):
     """Post the definition from wiki."""
+    if not request.body:
+        return HttpResponse("No data provided", status=400)
+
     term = json.loads(request.body)
     wiki = WiktionaryAPI()
     data = wiki.extract_data(term)

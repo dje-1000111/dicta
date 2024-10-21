@@ -109,7 +109,8 @@
                 </div>
                 <span id="complete" class="d-flex p-2"></span>
             </div>
-            <p> {{result}} </p>
+            
+            <p> {% if result %}{{result}}{% endif %} </p>
             <p>Correction:</p>
             <img id="imgb64" src='data:image/jpeg;base64,{{ b64_img }}' alt="poster" hidden>
             <div id="result_correction" class="text-entry"></div>
@@ -125,23 +126,24 @@
         </div>
         {% endspaceless %}
         <script nonce="{{request.csp_nonce}}">
-            const aprr = "{% url 'dictation:ajax_post_request_rating' %}",
+            const aptc = "{% url 'dictation:ajax_post_textarea_content' %}",
+                aprr = "{% url 'dictation:ajax_post_request_rating' %}",
                 topicname = '{{ topic_name }}',
                 vid = '{{ video_id }}',
                 b64_img = '{{ b64_img }}',
                 totl = {{ total_lines }},
-            ts = {{ timestamps }},
-            tips = {{ help | safe }};
-            var lineNb = {{ line_nb }},
-            implines = {{ lines }},
-            lines = [],
-            lines = implines,
-            realLines = {{ real_lines }},
-            reds = {{ reds }},
-            backhomeUrl = "{% url 'dictation:home' %}",
-            uia = {% if user.is_authenticated %} true {% else %} false {% endif %},  
-            rmEvent = false, 
-            np = false
+                ts = {{ timestamps }},
+                tips = {{ help | safe }};
+                var lineNb = {{ line_nb }},
+                implines = {{ lines }},
+                lines = [],
+                lines = implines,
+                realLines = {{ real_lines }},
+                reds = {{ reds }},
+                backhomeUrl = "{% url 'dictation:home' %}",
+                uia = {% if user.is_authenticated %} true {% else %} false {% endif %},  
+                rmEvent = false, 
+                np = false
         </script>
         <script src="{% static 'js/topic.js' %}" nonce="{{request.csp_nonce}}"></script>
         <script src="{% static 'js/assets/scripts/topic/index.bundle.js' %}" nonce="{{request.csp_nonce}}"></script>

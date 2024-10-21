@@ -370,10 +370,16 @@ def convert_segment_to_b64(reference: str) -> str:
     return str(token, encoding="utf-8")
 
 
+def get_line_number_key(request, line_number):
+    """Return a boolean if weither or not the line_number key exists."""
+    if request.session.get("line_numbers") and request.session.get("line_numbers")[-1]:
+        return request.session["line_numbers"][-1] != line_number
+    return False
+
+
 def re_init_session_data(line_number: int, request) -> Any:
     """Empty the lists when the line number change."""
-
-    if request.session["line_numbers"][-1] != line_number:
+    if get_line_number_key(request, line_number):
         if not request.user.is_authenticated:
             # a global version for offline users
             request.session["indexes"] = []
@@ -673,7 +679,7 @@ def correction(
     dictation_id: int,
     line_number: int,
     request: HttpRequest,
-) -> tuple[str, str, bool, int]:
+) -> tuple[str, bool, int]:
     """Return the corrected segment.
 
     The complete segment if is the same as the original.

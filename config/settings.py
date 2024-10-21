@@ -60,6 +60,8 @@ else:
     EMAIL_USE_TLS = os.getenv("DJANGO_EMAIL_USE_TLS")
     EMAIL_HOST_USER = os.getenv("DJANGO_EMAIL_HOST_USER")
     EMAIL_HOST_PASSWORD = os.getenv("DJANGO_EMAIL_HOST_PASSWORD")
+    DEFAULT_FROM_EMAIL = os.getenv("DJANGO_DEFAULT_FROM_EMAIL")
+    DOMAIN_NAME = os.getenv("DJANGO_DOMAIN_NAME")
     DOMAIN = os.getenv("DJANGO_DOMAIN")
 
 # Application definition
@@ -324,8 +326,8 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "root": {
-        "level": "INFO",
-        "handlers": ["sentry"],
+        "level": "DEBUG",
+        "handlers": ["sentry", "console"],
     },
     "formatters": {
         "verbose": {
@@ -338,6 +340,12 @@ LOGGING = {
             "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
             "tags": {"custom-tag": "x"},
         },
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "debug.log",
+            "formatter": "verbose",
+        },
         "console": {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
@@ -345,6 +353,11 @@ LOGGING = {
         },
     },
     "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
         "django.db.backends": {
             "level": "ERROR",
             "handlers": ["console"],

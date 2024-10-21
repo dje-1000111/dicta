@@ -12,7 +12,7 @@
             {% endfor %}
         </ul>
     {% endif %}
-    <div id="profile-container" class="p-5 bonus-container h-100">
+    <div id="profile-container" class="p-3 bonus-container h-100">
         <h2>My account : 
             {% if request.user.is_authenticated %}
                 {{ user.username|capfirst }}
@@ -41,8 +41,8 @@
         {% comment %} <p>[] Valid this checkbox to receive automatically an email when new dictation are added.</p> {% endcomment %}
 
         <form id="delacc" method="post" class="del-account">{% csrf_token %}</form>
-        <div class="p-5 h-75 d-flex flex-row flex-nowrap justify-content-around align-items-end">
-  <a  class="btn btn-primary btn-sm " href="{% url 'auth:profile_password_change' %}">Change password</a>          
+        <div class="p-2 h-75 d-flex flex-row flex-nowrap justify-content-around align-items-end">
+  <a  class="btn btn-primary btn-sm me-2" href="{% url 'auth:profile_password_change' %}">Change password</a>          
             <a form="delacc" class="btn btn-primary btn-sm " href="{% url 'auth:delete_account' %}">
                 {% comment %} request.user.id {% endcomment %}
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash text-danger" viewBox="0 0 16 16">

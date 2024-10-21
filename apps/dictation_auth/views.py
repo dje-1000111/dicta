@@ -1,6 +1,8 @@
 """Dictation auth views."""
 
+import time
 from typing import Any, Dict
+from smtplib import SMTPDataError
 
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -21,16 +23,16 @@ from django.urls import reverse
 from django.contrib.auth.views import (
     PasswordChangeView,
     PasswordResetView,
+    PasswordResetConfirmView,
 )
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.mail import send_mail
 
 from apps.dictation_auth.models import User
 from apps.dictation_auth.forms import (
     UpdateProfileForm,
     CustomPasswordChangeForm,
 )
-from apps.dictation_auth.utils import account_activation_token
+from apps.dictation_auth.utils import account_activation_token, send_custom_email
 from config import settings
 
 
@@ -75,7 +77,17 @@ def signup(request):
                 },
             )
 
-            send_mail(subject, message, from_email, recipient_list)
+            try:
+                send_custom_email(subject, message, from_email, recipient_list)
+            except SMTPDataError:
+                # Implement a backoff strategy
+                for i in range(3):  # Retry up to 3 times
+                    time.sleep(2**i)  # Exponential backoff
+                    try:
+                        send_custom_email(subject, message, from_email, recipient_list)
+                        break  # Exit loop if successful
+                    except SMTPDataError:
+                        continue  # Try again if it fails
 
             messages.info(
                 request,
@@ -229,6 +241,7 @@ class CustomPasswordChangeView(SuccessMessageMixin, PasswordChangeView):
 
 
 class CustomPasswordResetView(SuccessMessageMixin, PasswordResetView):
+    template_name = "registration/password_reset.html"
     email_template_name = "registration/password_reset_email.html"
     subject_template_name = "registration/password_reset_subject.txt"
     success_url = reverse_lazy("auth:login")
@@ -244,3 +257,8 @@ class CustomPasswordResetView(SuccessMessageMixin, PasswordResetView):
 
     def get_success_message(self, cleaned_data):
         return self.success_message % dict(cleaned_data)
+
+
+class CustomPasswordResetConfirmView(SuccessMessageMixin, PasswordResetConfirmView):
+    success_url = reverse_lazy("auth:login")
+    success_message = mark_safe("Your new password has been set. You can now Log in")

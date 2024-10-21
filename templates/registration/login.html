@@ -8,13 +8,13 @@
 <main id="prof">
     {% if messages %}
         <div id="profile-container" class="profile-container h-100">
-        <ul class="d-contents float-start p-0 w-100">
+        <ul class="float-start p-0 w-100">
     {% for message in messages %}
         <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
     {% endfor %}
         </ul>
     {% else %}
-        <div id="profile-container" class="profile-container h-100 p-5">
+        <div id="profile-container" class="profile-container h-100 p-2">
     {% endif %} 
     <div class="d-flex justify-content-center align-items-center align-content-center mt-5 mb-5">
         <div class="input-group mb-3 d-flex justify-content-center bg-light rounded p-3 shad w-300">

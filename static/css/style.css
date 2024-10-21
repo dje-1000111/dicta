@@ -3,6 +3,17 @@
     outline: 0;
 }
 
+@font-face {
+    font-family: InkFree;
+    /* IE9 Compat Modes */
+    src: url('/static/fonts/Inkfree.eot');
+    /* IE6-IE8 */
+    src: url('/static/fonts/Inkfree.eot?#iefix') format('embedded-opentype'),
+        url('/static/fonts/Inkfree.ttf') format('truetype'),
+        url('/static/fonts/Inkfree.woff2') format('woff2'),
+        url('/static/fonts/Inkfree.woff') format('woff');
+}
+
 .grid-topic-container {
     display: grid;
     grid-template-columns: 0.5fr 1fr 1fr 0.5fr;
@@ -47,6 +58,10 @@ header {
     grid-area: header;
     background-color: rgb(31, 31, 31);
     height: 70px;
+}
+
+text {
+    font-family: InkFree;
 }
 
 .gtag {
@@ -132,6 +147,7 @@ header {
 .dict-tt {
     float: right;
     margin-left: auto;
+    font-size: 10px;
     cursor: pointer;
 }
 

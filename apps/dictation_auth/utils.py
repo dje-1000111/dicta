@@ -1,5 +1,8 @@
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from six import text_type
+from django.core.mail import EmailMessage
+from email.utils import make_msgid
+from config import settings
 
 
 class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
@@ -14,3 +17,18 @@ class AccountActivationTokenGenerator(PasswordResetTokenGenerator):
 
 
 account_activation_token = AccountActivationTokenGenerator()
+
+
+class CustomEmailMessage(EmailMessage):
+    def message(self):
+        msg = super().message()
+        if "Message-ID" in msg:
+            del msg["Message-ID"]
+        msg_id = make_msgid(domain=settings.DOMAIN_NAME)
+        msg["Message-ID"] = msg_id
+        return msg
+
+
+def send_custom_email(subject, body, from_email, to_list):
+    email = CustomEmailMessage(subject, body, from_email, to_list)
+    email.send()
