@@ -44,6 +44,7 @@ RECAPTCHA_PUBLIC_KEY = os.getenv("RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = os.getenv("RECAPTCHA_PRIVATE_KEY")
 SILENCED_SYSTEM_CHECKS = ["django_recaptcha.recaptcha_test_key_error"]
 RECAPTCHA_REQUIRED_SCORE = 0.85
+CSRF_FAILURE_VIEW = "apps.dictation.views.csrf_failure"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
@@ -215,18 +216,22 @@ CSRF_COOKIE_NAME = "__Secure-csrftoken"
 
 CSP_DEFAULT_SRC = (
     "'self'",
-    "*.google-analytics.com/",
+    "http://region1.google-analytics.com/",
     "https://www.googletagmanager.com/",
     "https://www.googletagmanager.com/gtm.js",
     "https://www.googletagmanager.com/gtag/js",
+    "http://cdn.jsdelivr.net/npm/",
+    "http://cdnjs.cloudflare.com/",
 )
 CSP_BASE_URI = ("'self'",)
 CSP_STYLE_SRC = (
     "'self'",
-    "cdn.jsdelivr.net/",
-    "cdnjs.cloudflare.com/",
-    "fonts.googleapis.com/",
+    "http://cdn.jsdelivr.net/npm/",
+    "http://cdnjs.cloudflare.com/",
+    "http://fonts.googleapis.com/",
     "https://www.googletagmanager.com/",
+    "https://www.googletagmanager.com/gtm.js",
+    "https://www.googletagmanager.com/gtag/js",
 )
 
 CSP_FONT_SRC = (
@@ -238,11 +243,10 @@ CSP_FONT_SRC = (
 
 CSP_SCRIPT_SRC = (
     "'self'",
-    "'strict-dynamic'",
     "https://www.youtube.com/",
-    "cdn.jsdelivr.net/",
-    "cdnjs.cloudflare.com/",
-    "*.google-analytics.com/",
+    "http://cdn.jsdelivr.net/npm/",
+    "http://cdnjs.cloudflare.com/",
+    "http://region1.google-analytics.com/",
     "https://www.googletagmanager.com/",
     "https://www.googletagmanager.com/gtm.js",
     "https://www.googletagmanager.com/gtag/js",

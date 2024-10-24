@@ -64,6 +64,7 @@ gtag('config', 'G-Q13MGW1JFP');
   {% csrf_token %}
   <script nonce="{{request.csp_nonce}}">
     var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    {% comment %} const csrftoken = Cookies.get('csrfmiddlewaretoken'); {% endcomment %}
     const prde = "{% url 'dictation:ajax_post_request_definition' %}";
   </script>
   <div id="consent-popup"></div>
@@ -82,21 +83,13 @@ gtag('config', 'G-Q13MGW1JFP');
         </button>
         <a class="navbar-brand" href="{% url 'dictation:home' %}">
           <div class="applogo">
-            {% comment %} <img class="ydt" src="{% static 'img/diclogo.svg' %}" alt="Logo representing the website name."> {% endcomment %}
             <svg width="140" height="45" viewBox="0 0 80 16" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <style type="text/css">
-                  <![CDATA[
-                  @import url('/static/css/style.css');
-                  ]]>
-                </style>
-              </defs>
-              <g style="display:inline">
-                <path fill="#d22222" style="display:inline;stroke-width:.357544" d="M4.902 108.426h12.574c3.155 0 9.379.932 7.796 2.74-5.703 6.515 2.227 2.894 2.227 4.666v1.245c0 4.103-4.47 7.405-10.023 7.405H4.902c40.345 0-10.023-22.834-10.023-7.405v-1.245c0-4.103 4.47-7.406 10.023-7.406z" transform="translate(19.924 -108.04)" />
+              <g> 
+                <path fill="#d22222" d="M4.902 108.426h12.574c3.155 0 9.379.932 7.796 2.74-5.703 6.515 2.227 2.894 2.227 4.666v1.245c0 4.103-4.47 7.405-10.023 7.405H4.902c40.345 0-10.023-22.834-10.023-7.405v-1.245c0-4.103 4.47-7.406 10.023-7.406z" transform="translate(19.924 -108.04)" />
               </g>
-              <g style="display:inline">
-                <text xml:space="preserve" fill="#fff" style="font-style:normal;font-weight:500;font-size:11.4422px;line-height:1.25;font-family:sans-serif;fill-opacity:1;stroke:none;stroke-width:.286058" x="-27" y="32" transform="matrix(1 -.03623 0 1 21.702 -17.382)">
-                  <tspan style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:1.5em;font-family:'Ink Free';-inkscape-font-specification:'Ink Free, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#fff;stroke-width:.286058" x="-27" y="32"> dictatube </tspan>
+              <g>
+                <text xml:space="preserve" fill="#fff"  x="-27" y="32" transform="matrix(1 -.03623 0 1 21.702 -17.382)">
+                  <tspan class="svglg" x="-27" y="32"> dictatube </tspan>
                 </text>
               </g>
             </svg>

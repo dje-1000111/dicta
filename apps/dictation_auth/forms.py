@@ -3,7 +3,6 @@
 import logging
 
 from django_recaptcha.fields import ReCaptchaField
-from django_recaptcha.widgets import ReCaptchaV3
 from django import forms
 from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model
@@ -127,7 +126,7 @@ class LoginForm(auth_forms.AuthenticationForm):
         ),
     )
 
-    captcha = ReCaptchaField(widget=ReCaptchaV3(action="login"))
+    captcha = ReCaptchaField(widget=CustomReCaptchaV3(action="login"))
 
     password = forms.CharField(
         label=_("Password"),
@@ -145,7 +144,7 @@ class LoginForm(auth_forms.AuthenticationForm):
         """LoginForm meta class."""
 
         model = get_user_model()
-        fields = ("email", "password")
+        fields = ("email", "password", "captcha")
 
     def clean(self):
         cleaned_data = super().clean()

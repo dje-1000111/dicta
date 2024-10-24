@@ -4,9 +4,9 @@ import json
 
 from typing import Any, Dict
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect  # , Http404
+from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 from django.http.response import JsonResponse
@@ -27,6 +27,19 @@ from apps.dictation.models import (
     WiktionaryAPI,
 )
 from apps.dictation.forms import DictationForm, AutoDictationForm
+
+
+def csrf_failure(request, reason=""):
+    messages.warning(
+        request,
+        mark_safe(
+            "Form validation failed. Please try again.<br>"
+            "If you have configured your browser to disable cookies, please "
+            "re-enable them, at least for this site, or for “same-origin” "
+            "requests.",
+        ),
+    )
+    return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
 def bad_request(request, exception=None, template_name="400.html"):

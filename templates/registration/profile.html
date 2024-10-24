@@ -12,7 +12,7 @@
             {% endfor %}
         </ul>
     {% endif %}
-    <div id="profile-container" class="p-3 bonus-container h-100">
+    <div id="profile-container" class="d-grid p-3 bonus-container h-100">
         <h2>My account : 
             {% if request.user.is_authenticated %}
                 {{ user.username|capfirst }}

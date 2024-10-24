@@ -98,5 +98,5 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
-    path("auth/", include(auth_patterns)),
+    path("", include(auth_patterns)),
 ]

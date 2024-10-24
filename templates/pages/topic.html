@@ -3,7 +3,7 @@
 {% load extra_filters %}
 {% load compress %}
 {% block meta_description %}
-<meta name="description" content="Free dictations based on YouTube videos to practice your English">
+<meta name="description" content="English dictation: {{ topic_title|capfirst }}">
 {% endblock meta_description %}
 {% block title %}Dictation: {{ topic_title|capfirst }}{% endblock title %}
 {% block head_script %}{% endblock head_script %}
