@@ -8,6 +8,7 @@ import json
 
 from typing import Any
 from django.http import HttpRequest
+from django.contrib.sites.models import Site
 from youtube_transcript_api import (
     YouTubeTranscriptApi,
     NoTranscriptFound,
@@ -44,6 +45,7 @@ class Dictation(models.Model):
     slug = models.SlugField(default="", null=False, max_length=100)
     total_line = models.IntegerField(default=0)
     in_production = models.BooleanField(default=False)
+    site = models.ForeignKey(Site, default=1, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.topic
@@ -133,7 +135,6 @@ class Dictation(models.Model):
         manually = True
         try:
             transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-            print("transcript list", transcript_list)
             transcript_list.find_manually_created_transcript(
                 ["en", "English", "en-GB", "en-US"]
             )
@@ -181,7 +182,7 @@ class Dictation(models.Model):
                 level=3,
                 slug=slug,
                 timestamps={"data": timestamps},
-                tip={"": ""},
+                tip=[{"": ""}],
             )
         else:
             autodictation = [Dictation.objects.get(filename=f"{slug}.txt")]
@@ -540,7 +541,7 @@ def get_attempts_per_page(
         if item["dict ID"] == dictation_id and item["line"] == line_number:
             len_indexes = len(item["indexes"])
             item["attempts"] = len(item["indexes"])
-    request.session.modified = True
+    # request.session.modified = True
     return len_indexes
 
 
@@ -765,9 +766,12 @@ def remove_punctuation(segment: str) -> list:
     Allow the users to avoid typing these (and limit the amount of mistakes).
     """
     segment = sanitize_longer(segment)
+    # segment = segment.replace(r"(?<=\w)\-(?=\w+)", " ", segment)
     segment = re.sub(r"\-(?=\w)|(?<=\w)\-", " ", segment)
     segment = segment.replace(" - ", " ")
+
     segment = "".join([i for i in segment if i not in settings.PONCTUATION])
+    segment = re.sub(r"(?<!\d)[^\w\s']|(?<!\d)\.(?!\d)|\.$", "", segment)
     return segment.strip().split()
 
 

@@ -17,33 +17,34 @@
         <div class="m-4 alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">{{ message }}</div>
         {% endfor %}
         {% endif %}
+        {% if not user.is_authenticated %}
+            <ul class="d-block float-start p-0 w-100">
+                <li class="info">To access personalized features and track your progress, consider logging in to your account.</li>
+            </ul>
+        {% endif %}
+
         <div id="tt" class="dict-tt">
             <span class=""><i class="fas fa-question-circle"></i></span>
             <span class="bg-info p-2 float-end mb-3 dict-tt-content">Double click on a word to get its definition</span>
         </div>
         <h1>{{vid_title}} <span id="video-title"></span><i id="ivideo-title"></i></h1>
         {% if user.is_authenticated %}
-        <div class="star-rating">
-            <span>How would you describe this exercise:</span>
-            {% for star in stars %}
-            {% if star == star_rating %}
-            <input type="radio" id="{{dictation_id}}_{{star}}" name="rate" value="{{star}}" checked="">
-            <label data-tooltip="{{star|label_star}}" id="label-{{dictation_id}}_{{star}}"
-                for="{{dictation_id}}_{{star}}" title="rating: {{star}}"></label>
-            {% else %}
-            <input type="radio" id="{{dictation_id}}_{{star}}" name="rate" value="{{star}}">
-            <label data-tooltip="{{star|label_star}}" id="label-{{dictation_id}}_{{star}}"
-                for="{{dictation_id}}_{{star}}" title="rating: {{star|label_star}}"></label>
-            {% endif %}
-            {% endfor %}
-        </div>
-        <div class="d-flex justify-content-end mt-3">
-            {% else %}
-            <div class="d-flex justify-content-between mt-5">
-                <span class="border border-info p-2 fitcontent">Save your progress<a class="ms-2 text-primary"
-                        href="{% url 'auth:login' %} ">Log in</a></span>
-                {% endif %}
+            <div class="star-rating">
+                <span>How would you describe this exercise:</span>
+                {% for star in stars %}
+                    {% if star == star_rating %}
+                        <input type="radio" id="{{dictation_id}}_{{star}}" name="rate" value="{{star}}" checked="">
+                        <label data-tooltip="{{star|label_star}}" id="label-{{dictation_id}}_{{star}}"
+                            for="{{dictation_id}}_{{star}}" title="rating: {{star}}"></label>
+                    {% else %}
+                        <input type="radio" id="{{dictation_id}}_{{star}}" name="rate" value="{{star}}">
+                        <label data-tooltip="{{star|label_star}}" id="label-{{dictation_id}}_{{star}}"
+                            for="{{dictation_id}}_{{star}}" title="rating: {{star|label_star}}"></label>
+                    {% endif %}
+                {% endfor %}
             </div>
+            <br>
+        {% endif %}
         </div>
         <div id="embvid" class="embeded-video">
             <div id="blur">
@@ -134,7 +135,7 @@
                 totl = {{ total_lines }},
                 ts = {{ timestamps }},
                 tips = {{ help | safe }};
-                var lineNb = {{ line_nb }},
+                lineNb = {{ line_nb }},
                 implines = {{ lines }},
                 lines = [],
                 lines = implines,

@@ -186,7 +186,7 @@ class TopicView(DetailView):
                 "lines": (
                     sorted(self.lines) if self.request.user.is_authenticated else []
                 ),
-                "help": self.dictation.tip,
+                "help": {str(v): k for d in self.dictation.tip for k, v in d.items()},
                 "stars": ["5", "4", "3", "2", "1"],
                 "topic_title": self.dictation.topic,
                 "real_lines": self.real_lines,

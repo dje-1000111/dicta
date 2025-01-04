@@ -1,8 +1,10 @@
 """Dictation auth views."""
 
+import os
 import time
 from typing import Any, Dict
 from smtplib import SMTPDataError
+from dotenv import load_dotenv, find_dotenv  # type: ignore
 
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -35,6 +37,8 @@ from apps.dictation_auth.forms import (
 from apps.dictation_auth.utils import account_activation_token, send_custom_email
 from config import settings
 
+load_dotenv(find_dotenv())
+
 
 def login(request):
     """Login view."""
@@ -65,7 +69,7 @@ def signup(request):
             # Send email confirmation
             current_site = get_current_site(request)
             subject = "Activate your account"
-            from_email = "contact@dictatube.com"
+            from_email = os.getenv("DJANGO_DEFAULT_FROM_EMAIL")
             recipient_list = [user.email]
             message = render_to_string(
                 "registration/account_activation_email.html",

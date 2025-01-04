@@ -7,23 +7,22 @@ Imagine two identical twin brothers.
 Their DNA is the same, but the way they live is very different.
 One leads a calm life, the other has a stressful job.
 One exercises more, but the other eats better.
-The twins start to acquire different characteristics
-or perhaps develop different diseases.
+The twins start to acquire different characteristics or perhaps develop different diseases.
 How can this be if their genome is exactly the same?
-The reason is that the human body has a natural way of turning some of
-our genes on or off in response to the environment and the lifestyle we lead.
+The reason is that the human body has a natural way of turning some of our genes
+on or off in response to the environment and the lifestyle we lead.
 And it does so without modifying the DNA.
 It's called epigenetics.
 And the set of chemicals that mark the genome and tell cells what to do is known as the epigenome.
 Think of DNA as an instruction manual for how the cell should work.
 Every cell in your body has one of these manuals.
-The epigenome is like someone picking up a pack of coloured
-markers to emphasise or cross out different parts of the manual.
+The epigenome is like someone picking up a pack of coloured markers
+to emphasise or cross out different parts of the manual.
 This part here, it's more important, accentuate it. This one, don't use it.
 And how does it do it?
 Every cell in your body contains almost two metres of DNA.
-In order for it to fit inside a cell, the genetic material is
-wrapped up in a set of proteins called histones to form a compact structure.
+In order for it to fit inside a cell, the genetic material
+is wrapped up in a set of proteins called histones to form a compact structure.
 But that means the cell doesn't always have easy access to the genes.
 This is where epigenetics comes into play.
 Epigenetic marks are chemical markers that act on this structure to give it
@@ -33,12 +32,11 @@ Epigenetic marks that decompress the DNA allow the cell to read the gene and tur
 This process starts as soon as the first cells of the human embryo begin to divide.
 That is why it is so important for the baby what its mother eats,
 her emotional and physical state, plus the medicines and vitamins she takes.
-All that information can be transmitted in the
-form of chemical signals to the baby through the blood.
+All that information can be transmitted in the form of chemical signals to the baby through the blood.
 If the mother's diet during pregnancy is poor, the baby could be more prone to obesity,
 since its epigenome has programmed it to store more calories every time it eats.
-This phenomenon has been tested in several studies with women who
-went through periods of prolonged famine during wars, for example.
+This phenomenon has been tested in several studies with women
+who went through periods of prolonged famine during wars, for example.
 But the role of the father is also important because he can transmit
 some of his epigenetic marks to his children.
 For example, if a father has been smoking heavily since adolescence,
@@ -46,18 +44,18 @@ this may result in a shorter life expectancy for his children and even for his g
 The epigenome acts on our body throughout our lives, not just in the embryonic phase.
 As in the example of the twins, our habits, our diet, our experiences,
 and the environment in which we live can turn our genes on or off.
-But it goes further: epigenetics shows that nature may have found
-a way to pass on trauma to subsequent generations.
+But it goes further: 
+epigenetics shows that nature may have found a way
+to pass on trauma to subsequent generations.
 In one experiment, scientists made male mice
 associate the smell of cherry blossom with pain caused by an electric shock.
-These mice procreated and their offspring also became nervous when they were presented with
-that smell, despite not having had contact with their parents during their upbringing.
+These mice procreated and their offspring also became nervous when they were presented with that smell,
+despite not having had contact with their parents during their upbringing.
 The third generation of mice, the grandchildren of the first,
 also showed greater sensitivity to that smell, more than any of the others.
 In their DNA, the scientists found epigenetic
 marks on a gene responsible for coding a protein that is a receptor for odours.
-They also had more neurons in their brains responsible
-for detecting the smell of cherry blossom.
+They also had more neurons in their brains responsible for detecting the smell of cherry blossom.
 But that does not mean that we are predestined to
 relive the emotions of our parents and grandparents.
 Scientists are still studying how this type of
@@ -65,12 +63,13 @@ epigenetic transmission of trauma can occur in humans.
 Even so, they already predict that it might be possible to reprogramme
 this same mechanism to make us healthier, since epigenetic changes are reversible.
 This opens up a huge universe of possibilities in the scientific world.
-For example, there are studies to create drugs that make it possible to reverse
-the epigenome markers that favour the appearance of certain tumours.
+For example, there are studies to create drugs
+that make it possible to reverse the epigenome markers 
+that favour the appearance of certain tumours.
 Epigenetics could also revolutionise the treatment
 of different diseases such as diabetes, lupus, Alzheimer's or even some addictions.
 The big challenge now is how to develop drugs that act only on the negative markers,
 without impacting the positive markers.
-Epigenetics proves that not everything is
-written in our genes and that we can positively influence our epigenome.
+Epigenetics proves that not everything
+is written in our genes and that we can positively influence our genome.
 Something that can not only benefit us in the present, but also our future generations.

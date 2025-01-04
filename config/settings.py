@@ -80,10 +80,13 @@ INSTALLED_APPS = [
     "apps.dictation.templatetags.extra_filters",
     "apps.dictation.templatetags.adjusted_elided_page",
     "raven.contrib.django.raven_compat",
+    "django.contrib.sites",
     "django.contrib.sitemaps",
     "django_recaptcha",
     "django.forms",
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     "csp.middleware.CSPMiddleware",
@@ -202,6 +205,7 @@ SECURE_HSTS_SECONDS = 31536000
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_DOMAIN = os.getenv("DJANGO_SESSION_COOKIE_DOMAIN")
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_AGE = 86400  # 24h
@@ -214,21 +218,13 @@ CSRF_COOKIE_NAME = "__Secure-csrftoken"
 # Content Security Policy
 # https://django-csp.readthedocs.io/en/latest/
 
-CSP_DEFAULT_SRC = (
-    "'self'",
-    "http://region1.google-analytics.com/",
-    "https://www.googletagmanager.com/",
-    "https://www.googletagmanager.com/gtm.js",
-    "https://www.googletagmanager.com/gtag/js",
-    "http://cdn.jsdelivr.net/npm/",
-    "http://cdnjs.cloudflare.com/",
-)
+CSP_DEFAULT_SRC = ("'none'",)
 CSP_BASE_URI = ("'self'",)
 CSP_STYLE_SRC = (
     "'self'",
-    "http://cdn.jsdelivr.net/npm/",
-    "http://cdnjs.cloudflare.com/",
-    "http://fonts.googleapis.com/",
+    "cdn.jsdelivr.net/npm/",
+    "cdnjs.cloudflare.com/",
+    "fonts.googleapis.com/",
     "https://www.googletagmanager.com/",
     "https://www.googletagmanager.com/gtm.js",
     "https://www.googletagmanager.com/gtag/js",
@@ -243,10 +239,11 @@ CSP_FONT_SRC = (
 
 CSP_SCRIPT_SRC = (
     "'self'",
+    "'strict-dynamic'",
     "https://www.youtube.com/",
-    "http://cdn.jsdelivr.net/npm/",
-    "http://cdnjs.cloudflare.com/",
-    "http://region1.google-analytics.com/",
+    "cdn.jsdelivr.net/npm/",
+    "cdnjs.cloudflare.com/",
+    "region1.google-analytics.com/",
     "https://www.googletagmanager.com/",
     "https://www.googletagmanager.com/gtm.js",
     "https://www.googletagmanager.com/gtag/js",
@@ -357,6 +354,10 @@ LOGGING = {
         },
     },
     "loggers": {
+        "": {
+            "level": "DEBUG",
+            "handlers": ["file"],
+        },
         "django": {
             "handlers": ["file"],
             "level": "DEBUG",
