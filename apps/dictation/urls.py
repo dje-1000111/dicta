@@ -1,11 +1,16 @@
 """Urls dictation."""
 
+import os
+from dotenv import load_dotenv  # type: ignore
+
 from django.contrib.sitemaps import GenericSitemap
 from django.contrib.sitemaps.views import sitemap
 from django.urls import path
 from django.views.generic import TemplateView
 from apps.dictation.models import Dictation
 from apps.dictation import views
+
+load_dotenv(override=True)
 
 app_name = "dictation"
 
@@ -18,7 +23,12 @@ urlpatterns = [
     path("", views.HomeView.as_view(), name="home"),
     path("topic/<slug>/", views.TopicView.as_view(), name="topic"),
     path(
-        "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
+        "about/",
+        TemplateView.as_view(
+            template_name="pages/about.html",
+            extra_context=dict(domain_name=os.getenv("DJANGO_DOMAIN_NAME")),
+        ),
+        name="about",
     ),
     path("experiment-lab/", views.auto_dictation_form_view, name="lab"),
     path(

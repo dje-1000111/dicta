@@ -36,3 +36,11 @@ def practice_status(total_line, lines):
         if len(lines["data"]) > 0
         else 0
     )
+
+
+@register.filter(name="format_domain")
+def format_domain(dns):
+    """Format string to remove the 4 last chars and capitalize d and e."""
+    return "".join(
+        [letter.capitalize() if letter in ["d", "e"] else letter for letter in dns[:-4]]
+    )

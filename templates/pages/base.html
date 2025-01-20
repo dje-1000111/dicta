@@ -23,7 +23,6 @@
   <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
   <link href="{% static 'css/style.css' %}" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
-  {% comment %} <script type="module" src="{% static 'js/cookieconsent.js' %}" nonce="{{request.csp_nonce}}"></script> {% endcomment %}
   <script nonce="{{request.csp_nonce}}">
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
@@ -64,7 +63,6 @@ gtag('config', 'G-Q13MGW1JFP');
   {% csrf_token %}
   <script nonce="{{request.csp_nonce}}">
     var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    {% comment %} const csrftoken = Cookies.get('csrfmiddlewaretoken'); {% endcomment %}
     const prde = "{% url 'dictation:ajax_post_request_definition' %}";
   </script>
   <div id="consent-popup"></div>
@@ -89,7 +87,7 @@ gtag('config', 'G-Q13MGW1JFP');
               </g>
               <g>
                 <text xml:space="preserve" fill="#fff"  x="-27" y="32" transform="matrix(1 -.03623 0 1 21.702 -17.382)">
-                  <tspan class="svglg" x="-27" y="32"> dictatube </tspan>
+                  <tspan class="svglg" x="-27" y="32"> {{ domain_name|format_domain }} </tspan>
                 </text>
               </g>
             </svg>
@@ -153,7 +151,7 @@ gtag('config', 'G-Q13MGW1JFP');
   {% block 404 %}{% endblock %}
   {% block 500 %}{% endblock %}
   <footer>
-    <span class="nocop">dictatube 2025</span>
+    <span class="nocop">{{ domain_name|format_domain }} 2025</span>
     <span class="fabout"><a href="{% url 'dictation:about' %}">About</a></span>
   </footer>
   </div>

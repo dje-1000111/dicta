@@ -1,5 +1,6 @@
 """Views."""
 
+import os
 import json
 
 from typing import Any, Dict
@@ -118,6 +119,7 @@ class HomeView(ListView):
         context = super().get_context_data(**kwargs)
         context.update(
             {
+                "domain_name": os.getenv("DJANGO_DOMAIN_NAME"),
                 "practice": self.practice if is_auth else None,
                 "list_of_practices": (
                     [i.dictation_id for i in self.practice] if is_auth else None
@@ -169,6 +171,7 @@ class TopicView(DetailView):
         context = super().get_context_data(**kwargs)
         context.update(
             {
+                "domain_name": os.getenv("DJANGO_DOMAIN_NAME"),
                 "form": DictationForm(),
                 "dictation_id": (self.dictation.pk),
                 "star_rating": (
