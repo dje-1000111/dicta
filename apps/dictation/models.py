@@ -16,26 +16,18 @@ from youtube_transcript_api import (
     TranscriptsDisabled,
 )
 
+from django.db.models import F, ExpressionWrapper, FloatField, IntegerField
+from django.db.models.expressions import RawSQL
+from django.db.models.functions import Cast
 from django.db import models
 from django.utils.safestring import mark_safe
 from config import settings
 
 
 class Dictation(models.Model):
-    """Dictation model.
-
-    New field: language
-    Goal: display a table who list all video by language.
-    Idea: I can make a container with 2 tabs, the English default tab
-        and the French tab.
-    """
+    """Dictation model."""
 
     video_id = models.CharField(null=True, blank=True, max_length=50)
-    # language = models.CharField(null=True, blank=True, max_length=50)
-    # to sort a videos by topic, we need a new field like "genre"
-    # for short story, climate, history, biopic, reportage, science, etc...
-    # On the page there would be a button
-
     change_date = models.DateTimeField(auto_now=True)
     filename = models.CharField(null=True, blank=True, max_length=200, unique=True)
     timestamps = models.JSONField()
@@ -47,10 +39,12 @@ class Dictation(models.Model):
     in_production = models.BooleanField(default=False)
     site = models.ForeignKey(Site, default=1, on_delete=models.CASCADE)
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Return the string representation of the dictation."""
         return self.topic
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
+        """Return the absolute URL of the dictation."""
         return f"/topic/{self.slug}"
 
     def get_video_data(self, video_id: str) -> Any:
@@ -68,17 +62,20 @@ class Dictation(models.Model):
     def yt_get_transcript(
         self, video_id: str, languages: list = ["en", "English", "en-GB", "en-US"]
     ) -> Any:
+        """Get the transcript of the YouTube video."""
         transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
         res = transcript_list.find_manually_created_transcript(languages)
         return YouTubeTranscriptApi.get_transcript(
             video_id, languages=(res.language_code,)
         )
 
-    def sluggify_title(self, video_title: str) -> str:
+    def slugify_title(self, video_title: str) -> str:
+        """Return the slugified title."""
         video_title = re.sub(r"\W", " ", video_title)
         return "-".join(video_title.split()).lower()
 
     def create_timestamps(self, yt_transcript) -> list:
+        """Create the timestamps list."""
         timestamps = []
         for line in yt_transcript:
             timestamps += [round(line["start"], 2)]
@@ -86,6 +83,10 @@ class Dictation(models.Model):
         return timestamps
 
     def clean_text(self, yt_transcript) -> list:
+        """Clean the text.
+
+        Remove the timestamps, the speaker's name, and the special characters.
+        """
         reg = r"(\(.*\))|(\[.*\])"
         cleaned_text = []
         for line in yt_transcript:
@@ -109,6 +110,7 @@ class Dictation(models.Model):
         return cleaned_text
 
     def generate_text(self, cleaned_text):
+        """Generate the text."""
         text = []
         for line in cleaned_text:
             if line.strip():
@@ -120,6 +122,7 @@ class Dictation(models.Model):
         return text
 
     def is_transcriptable(self, video_id):
+        """Check if the video is transcriptable."""
         transcriptable = True
         try:
             self.yt_get_transcript(video_id)
@@ -132,6 +135,7 @@ class Dictation(models.Model):
         return transcriptable
 
     def is_manually_transcripted(self, video_id):
+        """Check if the video is manually transcripted."""
         manually = True
         try:
             transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
@@ -147,6 +151,7 @@ class Dictation(models.Model):
         return manually
 
     def get_current_language(self, video_id):
+        """Get the current language of the video."""
 
         if self.is_manually_transcripted(video_id) == 0:
             transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
@@ -161,8 +166,9 @@ class Dictation(models.Model):
         )
 
     def create_dictation_data(self, video_id, yttrans):
+        """Create the dictation data."""
         data = self.get_video_data(video_id)
-        slug = self.sluggify_title(data["title"])
+        slug = self.slugify_title(data["title"])
         yt_transcript = json.dumps(yttrans)
         yt_transcript = json.loads(yt_transcript)
         timestamps = self.create_timestamps(yt_transcript)
@@ -191,6 +197,7 @@ class Dictation(models.Model):
         return autodictation
 
     def is_length_enough(self, video_id):
+        """Check if the video is long enough."""
         yttrans = self.yt_get_transcript(video_id)
         yt_transcript = json.dumps(yttrans)
         yt_transcript = json.loads(yt_transcript)
@@ -211,7 +218,6 @@ class Dictation(models.Model):
         filepath = settings.TXT_DIR / filename
         total = 0
         with open(filepath, encoding="utf-8") as f:
-            # total = sum(1 for _ in f)
             total = len(f.readlines()) - 1
         return total
 
@@ -253,18 +259,13 @@ class Dictation(models.Model):
         return b64.decode("utf-8")
 
 
-def lines_default():
+def lines_default() -> dict:
     """Allow the default state of the field."""
     return {"data": []}
 
 
 class Practice(models.Model):
-    """Practice model class.
-
-    We can rate the level,
-    find out if you have already done the exercise,
-    and save your progress to resume at the same level next time.
-    """
+    """Practice model."""
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     dictation = models.ForeignKey(Dictation, on_delete=models.CASCADE)
@@ -291,13 +292,13 @@ class Practice(models.Model):
                 )
         return ratings
 
-    def update_dictation_rating(self, ratings: dict):
+    def update_dictation_rating(self, ratings: dict) -> int:
         """Update the rating of each dictation."""
         for dictation, rating in ratings.items():
             level = Dictation.objects.filter(pk=dictation[10:]).update(level=rating)
         return level
 
-    def create_dictation(self, user, dictation):
+    def create_dictation(self, user, dictation) -> None:
         """Initiate a new instance between a dictation and the user."""
         if not Practice.objects.filter(user=user, dictation=dictation).exists():
             Practice.objects.create(user=user, dictation=dictation)
@@ -311,13 +312,13 @@ class Practice(models.Model):
             return practice
 
     def save_dication_progress(self, user, dictation_id, current_line):
-        """Save the number of the last line wherre the user stopped."""
+        """Save the number of the last line where the user stopped."""
         if Practice.objects.filter(user=user, dictation=dictation_id).exists():
             Practice.objects.filter(user=user, dictation=dictation_id).update(
                 user_current_line=current_line
             )
 
-    def update_answered_lines(self, practice, line_nb, new_page):
+    def update_answered_lines(self, practice, line_nb, new_page) -> list:
         """Update the list of good answers."""
         if line_nb - 1 not in practice.lines["data"] and new_page:
             practice.lines["data"].append(line_nb - 1)
@@ -340,7 +341,7 @@ class Practice(models.Model):
                 is_done=True
             )
 
-    def saved_position(self, user, dictation_id):
+    def saved_position(self, user, dictation_id) -> int:
         """Return the last number of line in order to initiate the video at that point."""
         practice = Practice.objects.filter(user=user, dictation=dictation_id).first()
         return practice.user_current_line if practice.user_current_line else 0
@@ -363,9 +364,44 @@ class Practice(models.Model):
             user_rating=new_rating
         )
 
+    def get_progress(self, user):
+        """Get the average progress of the user in the dictation.
+
+        Calculates the 'average progress' for each dictation in progress,
+        using two distinct values from two related models: the length of the
+        lines["data"] (which is the list of committed lines updated in real time)
+        divided by the total number of lines for a dictation.
+
+        Args:
+            user: The current user.
+
+        Returns:
+            A QuerySet containing the annotated practice instances ordered by
+            average progress.
+        """
+        progress = (
+            Practice.objects.filter(user=user)
+            .annotate(
+                # -> operator to extract a value of a JSON object by a key
+                # jsonb_array_length(lines -> 'data') is the equivalent of
+                # len(lines["data"]) in Python.
+                data_length=RawSQL("jsonb_array_length(lines -> 'data')", []),
+                total_line=Cast(F("dictation__total_line"), FloatField()),
+                average_progress=ExpressionWrapper(
+                    F("data_length") / F("total_line"), output_field=IntegerField()
+                ),
+            )
+            .order_by("-average_progress")
+        )
+        return progress
+
 
 def convert_segment_to_b64(reference: str) -> str:
-    """Convert a sentence to a b64 in order to hide the original in the local storage."""
+    """Convert a sentence to a b64 in order to hide the original in the local storage.
+
+    Args:
+        reference (str): The sentence to be converted to base64.
+    """
     token = "{token}".format(token=reference).encode("utf-8")
     token = base64.b64encode(token)
     return str(token, encoding="utf-8")
@@ -435,8 +471,10 @@ def initiate_new_session_in_view(
             # if a dictionary entry in historic persists while the line is in the database,
             # we need to delete it (at the load of the page).
             for line in lines:
-                for x, l in enumerate(request.session["historic"]["revealed_line"]):
-                    if l["line"] == line:
+                for x, session_historic in enumerate(
+                    request.session["historic"]["revealed_line"]
+                ):
+                    if session_historic["line"] == line:
                         del request.session["historic"]["revealed_line"][x]
 
         chk_line = lines[-1] if len(lines) > 0 else line_nb
@@ -460,8 +498,10 @@ def delete_session_historic_in_view(
         item["dict ID"] == dictation_id
         for item in request.session["historic"]["revealed_line"]
     ):
-        for x, l in enumerate(request.session["historic"]["revealed_line"]):
-            if l["line"] == lines[-1]:
+        for x, session_historic in enumerate(
+            request.session["historic"]["revealed_line"]
+        ):
+            if session_historic["line"] == lines[-1]:
                 del request.session["historic"]["revealed_line"][x]
                 request.session.modified = True
 
@@ -497,7 +537,10 @@ def create_first_session_page(
 def append_indexes(
     request: HttpRequest, dictation_id: int, line_number: int, index: int
 ):
-    """Append the index to the indexes list."""
+    """Append the index to the indexes list.
+
+    This list is used to keep track of the number of attempts.
+    """
     for x, item in enumerate(request.session["historic"]["revealed_line"]):
         if (
             item["dict ID"] == dictation_id
@@ -511,7 +554,7 @@ def append_indexes(
 
 
 def save_user_segment_per_page_in_view(
-    request, dictation_id, line_number, user_segment
+    request: HttpRequest, dictation_id: int, line_number: int, user_segment: str
 ):
     """Save the part of segment entered in the textarea before leaving it incomplete.
 
@@ -524,7 +567,9 @@ def save_user_segment_per_page_in_view(
     return request.session["historic"]["revealed_line"]
 
 
-def display_user_segment_per_page(request, dictation_id, line_number):
+def display_user_segment_per_page(
+    request: HttpRequest, dictation_id: int, line_number: int
+):
     """Return the part of segment saved before leaving the line without validation."""
     user_segment = ""
     for item in request.session["historic"]["revealed_line"]:
@@ -536,18 +581,20 @@ def display_user_segment_per_page(request, dictation_id, line_number):
 def get_attempts_per_page(
     request: HttpRequest, dictation_id: int, line_number: int
 ) -> int:
+    """Return the number of attempts for a specific page."""
     len_indexes = 0
     for item in request.session["historic"]["revealed_line"]:
         if item["dict ID"] == dictation_id and item["line"] == line_number:
             len_indexes = len(item["indexes"])
             item["attempts"] = len(item["indexes"])
-    # request.session.modified = True
+    request.session.modified = True
     return len_indexes
 
 
 def update_session_page_validated(
     request: HttpRequest, dictation_id: int, line_number: int, attempts: int = 0
 ):
+    """Update the number of attempts for a specific page already validated."""
     if any(
         item["dict ID"] == dictation_id
         for item in request.session["historic"]["revealed_line"]
@@ -585,13 +632,17 @@ def update_session_page_validated(
 
 
 def check_help_used(request: HttpRequest, dictation_id: int, line_number: int) -> bool:
+    """Return a boolean if the help was used for a specific page."""
     used = False
     if any(
-        l["dict ID"] == dictation_id
-        for l in request.session["historic"]["revealed_line"]
+        session_historic["dict ID"] == dictation_id
+        for session_historic in request.session["historic"]["revealed_line"]
     ):
-        for x, l in enumerate(request.session["historic"]["revealed_line"]):
-            if l["line"] == line_number and l["help_used"]:
+        for session_historic in request.session["historic"]["revealed_line"]:
+            if (
+                session_historic["line"] == line_number
+                and session_historic["help_used"]
+            ):
                 used = True
     return used
 
@@ -629,7 +680,7 @@ def reveal_first_wrong_letter(
             index = segment.index(star)
 
         if request.user.is_authenticated:
-            if line_number > max(set(request.session["line_numbers"])):  # why set() ???
+            if line_number > max(set(request.session["line_numbers"])):
                 if line_number not in request.session["line_numbers"]:
                     request.session["line_numbers"].append(line_number)
                     request.session.modified = True
@@ -648,8 +699,6 @@ def reveal_first_wrong_letter(
                 revealed_segment = segment
 
             if not check_help_used(request, dictation_id, line_number):
-                # TODO: Save (in session) the part of segment left in the textarea before leaving the page
-                # so that we can display it in the textarea when we come back to it.
                 if get_attempts_per_page(request, dictation_id, line_number) < 3:
                     append_indexes(request, dictation_id, line_number, index)
         else:
@@ -683,9 +732,9 @@ def correction(
 ) -> tuple[str, bool, int]:
     """Return the corrected segment.
 
-    The complete segment if is the same as the original.
-    The first right part(s) eventually appened with stars of lenght
-    of the missing words.
+    the full segment if it is the same as the original.
+    In case of errors, the words are replaced by stars from
+    the first error until the end of the segment.
     """
 
     if dictation_id != request.session["current_dictation"][0]:
@@ -730,9 +779,9 @@ def correction(
 def corrected_word(reference_word: str, new_word: str) -> str:
     """Return the corrected word.
 
-    The right word,
-    or the word hilighted with an underscore if there is a few mistakes otherwise full
-    of stars and underscored.
+    The correct word,
+    or the word as is and underlined on the incorrect letters (in red).
+    If the word is entirely wrong it is replaced by stars and underlined (in red).
     """
     correct_word = ""
     if len(new_word) > len(reference_word):
@@ -766,10 +815,8 @@ def remove_punctuation(segment: str) -> list:
     Allow the users to avoid typing these (and limit the amount of mistakes).
     """
     segment = sanitize_longer(segment)
-    # segment = segment.replace(r"(?<=\w)\-(?=\w+)", " ", segment)
     segment = re.sub(r"\-(?=\w)|(?<=\w)\-", " ", segment)
     segment = segment.replace(" - ", " ")
-
     segment = "".join([i for i in segment if i not in settings.PONCTUATION])
     segment = re.sub(r"(?<!\d)[^\w\s']|(?<!\d)\.(?!\d)|\.$", "", segment)
     return segment.strip().split()

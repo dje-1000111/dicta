@@ -1,7 +1,7 @@
 {% load static %}
 
 {% autoescape off %}
-Hello {{ user.username }},
+Hello {{ user.username|capfirst }},
 
 Please click the link below to activate your account:
 

@@ -1,10 +1,10 @@
-A container ship is a specific type of cargo ship designed for
-the efficient transportation of standardized cargo containers
+A container ship is a specific type of cargo ship 
+designed for the efficient transportation of standardized cargo containers.
 We often see cargo containers on large trucks on the road.
 Let's take a look at the general design of a container ship.
 Today, we are using this 3D ship model, based on the MSC Krystal.
-The sizes of container ships are usually determined by their capacity in
-TEU, 20 foot equivalent unit, and FEU, 40 foot equivalent unit
+The sizes of container ships are usually determined by their capacity in TEU, 
+20 foot equivalent unit, and FEU, 40 foot equivalent unit.
 Container ships store their fuel in tanks that are usually located next to the Engine Room
 or in the double side or bottom tanks.
 Water ballast tanks, they keep the ship stabilized.
@@ -12,45 +12,45 @@ Most ships are equipped with hatch covers.
 The ship stores containers inside the hull and on top of the deck.
 Inside the hull, there is cargo-hold space.
 The cargo space is divided into holds by watertight bulkheads.
-One complete hold itself is divided into two parts by the use of so-called pillar bulkheads.
-In recent years, the cargo holds in most container
-ships are designed for the carriage of 40 ft containers.
+One complete hold itself is divided into two parts 
+by the use of so-called pillar bulkheads.
+In recent years, the cargo holds in most container ships are designed for the carriage of 40 ft containers.
 A small ship can carry fewer than 1,000 TEU,
 and the largest ships can carry more than 24,000 TEU. 
-In a smaller container ship, the superstructure and the engine room are located at the aft.
+In a smaller ship, the superstructure and the engine room are located at the aft.
 In a larger ship, the structure is located toward the middle of the ship.
-In an ultra-large ship, the superstructure is separated
-from the chimney and the engine room and is designed to be toward the front.
+In an ultra-large ship, the superstructure is separated from the chimney and the engine room 
+and is designed to be toward the front.
 The reason for this is to increase visibility from the navigational bridge,
 and it could allow loading more containers on top.
 Containers are designed for stacking on top of each other.
-This is a corner casting
-Containers are connected to each other using a device called a twist lock
+This is a corner casting.
+Containers are connected to each other using a device called a twist lock.
 This is a manual twist lock.
-It has a lever handle that can be moved in a side way to tighten them in place
-it locks the corner castings of two different containers together
+It has a lever handle that can be moved in a side way to tighten them in place.
+It locks the corner castings of two different containers together.
 This is a semi-auto twist lock.
-The cone on this lock is designed a little
-tilted on one side so when the casting corner presses it down,
-the cone will turn automatically and then lock in place
-to unlock it, the operating rod is used to pull this wire manually
-Now you can see how containers are stacked vertically
+The cone on this lock is designed a little tilted on one side 
+so when the casting corner presses it down,
+the cone will turn automatically and then lock in place.
+To unlock it, the operating rod is used to pull this wire manually.
+Now you can see how containers are stacked vertically.
 The same twist lock mechanism is also used to secure a container on a truck
 but sometimes humans still choose to do this.
-How containers are stowed
-These are cell guides
+How containers are stowed.
+These are cell guides.
 Containers are stowed along the cell guides.
 When stowing 20 foot containers, they could be at risk of sliding side way
-The container corners not supported by cell guides need to be fixed to prevent slipping side way
-At least one or more tiers of 40 ft containers are
-generally stowed on top to prevent the deformation of 20 ft containers.
-Containers stowed inside the hull don't need to use twistlocks
+The container corners not supported by cell guides need to be fixed to prevent slipping side way.
+At least one or more tiers of 40 ft containers are generally stowed on top to prevent the deformation of 20 ft containers.
+Containers stowed inside the hull don't need to use twistlocks.
 When the hull is fully loaded, hatch covers will be closed,
 and more containers will be loaded on top of the deck.
 Since there are no cell guides here, the containers have to be secured using twist locks.
-However, twist locks alone are not enough; lashing is required.
-This is a lashing bridge, the lower tiers of containers require lashing to
-prevent shifting and minimize structural stress.
+However, twist locks alone are not enough; 
+lashing is required.
+This is a lashing bridge, 
+the lower tiers of containers require lashing to prevent shifting and minimize structural stress.
 To maximize container stowage on deck,
 the outboard stacks of containers are often supported on pedestals.
 Container ships may transport large numbers of refrigerated boxes,
@@ -62,17 +62,23 @@ Loading containers on and off a ship requires a gigantic crane
 on the port called a container gantry crane.
 The gantry crane lifts a container using a spreader.
 This device uses twist locks to secure into the four corner castings of a container.
-When the lock is secured, it can lift the container and load it onto the ship.
-The spreader is equipped with image sensors to help accurately position a container.
-To unload and reload containers in and out of a ship, it usually takes 1 to 3 days,
+When the lock is secured, 
+it can lift the container and load it onto the ship.
+The spreader is equipped with image sensors 
+to help accurately position a container.
+To unload and reload containers in and out of a ship, 
+it usually takes 1 to 3 days,
 depending on the cargo volume.
-How is a container located in these massive stacks of containers?
+So how is a container located in these massive stacks of containers?
 This is the bay numbering:
-Odd-numbered bays are for 20 foot containers, and even-numbered bays are for 40 foot containers.
-This is the row numbering
+Odd-numbered bays are for 20 foot containers, 
+and even-numbered bays are for 40 foot containers.
+This is the row numbering.
 Starting from the center, odd numbers on the starboard side, and even numbers on the port side.
-And this is the tier numbering
-So when the location reads 300414
-It is a 40 foot container stowed in Bay 30, Row 04, and Tier 14
-If there were a 20 foot container below it would reads bay 31, row 04, tier 12
-Thank you for watching! My name is Lucius, I'll see you in the next video
+And this is the tier numbering.
+So when the location reads 300414,
+it is a 40 foot container stowed in Bay 30, 
+Row 04
+and Tier 14.
+If there were a 20 foot container below it,
+it would be bay 31, row 04, tier 12.

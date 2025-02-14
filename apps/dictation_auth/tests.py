@@ -6,7 +6,11 @@ User = get_user_model()
 
 
 class UsersManagersTests(TestCase):
+    """Users managers tests."""
+
     def test_create_user(self):
+        """Test create user."""
+        User = get_user_model()
         user = User.objects.create_user(email="basicuser@domain.com", password="secret")
         self.assertEqual(user.email, "basicuser@domain.com")
         self.assertTrue(user.is_active)
@@ -26,6 +30,7 @@ class UsersManagersTests(TestCase):
             User.objects.create_user(email="", password="secret")
 
     def test_create_superuser(self):
+        """Test create superuser."""
         User = get_user_model()
         admin_user = User.objects.create_superuser("superuser@domain.com", "secret")
         self.assertEqual(admin_user.email, "superuser@domain.com")

@@ -2,15 +2,22 @@
 
 import pytest
 from django.http import HttpRequest
+from django.contrib.sessions.middleware import SessionMiddleware
 from apps.dictation.models import correction
 
 
 @pytest.fixture
-def mock_request():
-    """Fixture to create a mock HttpRequest object with a session."""
+def mock_session(mocker):
     request = HttpRequest()
+    middleware = SessionMiddleware(lambda x: None)
+    middleware.process_request(request)
+    request.session.save()
 
-    request.session = {
+    # Mock session
+    mock_session = mocker.MagicMock()
+    request.session = mock_session
+
+    mock_session = {
         "historic": {
             "revealed_line": [
                 {"dict ID": 1, "line": 2, "indexes": [1, 2, 3], "attempts": 0},
@@ -19,40 +26,52 @@ def mock_request():
         },
         "current_dictation": [1],
     }
+
+    # Mock user attribute
+    mock_user = mocker.MagicMock()
+    mock_user.is_authenticated = True
+    request.user = mock_user
+
     return request
 
 
-def test_correction_identical_segments(mock_request):
+@pytest.mark.django_db
+def test_correction_identical_segments(mock_session):
+    """Test correction with identical segments."""
     original = "This is a test"
     new = "This is a test"
     dictation_id = 1
     line_number = 1
 
-    result = correction(original, new, dictation_id, line_number, mock_request)
+    result = correction(original, new, dictation_id, line_number, mock_session)
 
     assert result == ("This is a test", True, 0)
 
 
-def test_correction_different_dictation_id(mock_request):
+@pytest.mark.django_db
+def test_correction_different_dictation_id(mock_session):
+    """Test correction with different dictation ID."""
     original = "This is a test"
     new = "This is a best"
     dictation_id = 2
     line_number = 1
 
-    result = correction(original, new, dictation_id, line_number, mock_request)
+    result = correction(original, new, dictation_id, line_number, mock_session)
 
     assert result[0] == "This is a <span class='spelling'>b</span>est"
     assert result[1] is False
     assert result[2] == 0
 
 
-def test_correction_with_missing_words(mock_request):
+@pytest.mark.django_db
+def test_correction_with_missing_words(mock_session):
+    """Test correction with missing words."""
     original = "This is a test string"
     new = "This is a trest string"
     dictation_id = 1
     line_number = 1
 
-    result = correction(original, new, dictation_id, line_number, mock_request)
+    result = correction(original, new, dictation_id, line_number, mock_session)
 
     assert (
         result[0]
@@ -62,13 +81,15 @@ def test_correction_with_missing_words(mock_request):
     assert result[2] == 0
 
 
-def test_correction_exact_match(mock_request):
+@pytest.mark.django_db
+def test_correction_exact_match(mock_session):
+    """Test correction with exact match."""
     original = "This is a test string"
     new = "This is a test string"
     dictation_id = 1
     line_number = 1
 
-    result = correction(original, new, dictation_id, line_number, mock_request)
+    result = correction(original, new, dictation_id, line_number, mock_session)
 
     assert result[0] == "This is a test string"
     assert result[1] is True

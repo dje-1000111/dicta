@@ -6,7 +6,7 @@
 {% block title %}Auto generate dictation{% endblock title %}
 {% block css_container %}<div class="grid-home-container" id="hcontainer">{% endblock css_container %}
 {% block lab %}
-    <main class="d-flex flex-column justify-content-between align-content-stretch">
+    <main class="d-flex flex-column justify-content-around">
         {% if messages %}
         <ul class="d-block float-start p-0 w-100">
             {% for message in messages %}
@@ -14,16 +14,14 @@
                 {% endfor %}
         </ul>
         {% endif %}
-        <div class="warning">
-            This feature can be used either via a proxy or locally. The server IP address is blocked by YouTube. 
-            <br>For convenience, prepare the new video and tips locally and release it to github.
-        </div>        
         <h1>Dictation Generator</h1>
         <div class="d-flex flex-column justify-content-center">
-            
-            
-
             <div id="lab" class="lab-container p-5">
+                <p>
+                    This feature can be used either via a proxy or locally. The server IP address is blocked by YouTube. 
+                    <br>For convenience, prepare the new video and tips locally and release it to github.
+                </p>
+                <hr>
                 <p>Choose a video on YouTube and get the ID (embed code)<br>
                     This is the XXX part in the example URL <code>https://www.youtube.com/watch?v=XXXXXXXXX</code></p>
                 <p>Auto-generated subtitles are blocked, you need to find a video that provides the subtitles written by the

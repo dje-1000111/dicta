@@ -32,11 +32,16 @@ class DictationForm(forms.Form):
 
 
 class AutoDictationForm(forms.ModelForm):
+    """Auto dictation form."""
+
     def __init__(self, *args, **kwargs):
+        """Init."""
         super().__init__(*args, **kwargs)
         self.fields["video_id"].required = True
 
     class Meta:
+        """Meta."""
+
         model = Dictation
         fields = ["video_id"]
         labels = {"video_id": ""}

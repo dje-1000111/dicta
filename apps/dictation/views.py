@@ -7,7 +7,6 @@ from typing import Any, Dict
 
 from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 from django.http.response import JsonResponse
@@ -30,7 +29,7 @@ from apps.dictation.models import (
 from apps.dictation.forms import DictationForm, AutoDictationForm
 
 
-def csrf_failure(request, reason=""):
+def csrf_failure(request: HttpRequest, reason: str = "") -> HttpResponse:
     messages.warning(
         request,
         mark_safe(
@@ -43,61 +42,79 @@ def csrf_failure(request, reason=""):
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
-def bad_request(request, exception=None, template_name="400.html"):
-    """Bad request."""
+def bad_request(request: HttpRequest, exception=None, template_name="400.html"):
+    """Handle bad request."""
     return render(request, "pages/400.html", status=400)
 
 
-def permission_denied(request, exception=None, template_name="403.html"):
-    """Permission denied."""
+def permission_denied(request: HttpRequest, exception=None, template_name="403.html"):
+    """Handle permission denied."""
     return render(request, "pages/403.html", status=403)
 
 
-def not_found(request, exception=None, template_name="404.html"):
-    """Not found."""
+def not_found(request: HttpRequest, exception=None, template_name="404.html"):
+    """Handle not found."""
     return render(request, "pages/404.html", status=404)
 
 
-def server_error(request, exception=None, template_name="500.html"):
-    """Server error."""
+def server_error(request: HttpRequest, exception=None, template_name="500.html"):
+    """Handle server error."""
     return render(request, "pages/500.html", status=500)
 
 
-def auto_dictation_form_view(request):
-    """Get the youtube video id from a form on a page.
-
-    This form should be only for the staff.
-    The users can make a suggestion via another form.
-    """
-    dictation = Dictation()
+def auto_dictation_form_view(request: HttpRequest) -> HttpResponse:
+    """Handle auto dictation form view."""
     if request.method == "POST":
         form = AutoDictationForm(request.POST)
         if form.is_valid():
             video_id = form.cleaned_data["video_id"]
-            if (
-                dictation.is_transcriptable(video_id)
-                and dictation.is_manually_transcripted(video_id)
-                and dictation.is_length_enough(video_id)
-            ):
+            dictation = Dictation()
+            if dictation.is_transcriptable(video_id):
                 yttrans = dictation.yt_get_transcript(video_id)
-                autodictation = dictation.create_dictation_data(video_id, yttrans)
-                return HttpResponseRedirect(f"/topic/{autodictation[0].slug}/")
+                if dictation.is_length_enough(video_id):
+                    dictation.create_dictation_data(video_id, yttrans)
+                    messages.success(
+                        request,
+                        mark_safe(
+                            "The dictation has been created successfully.<br>"
+                            "You can now use it in the dictation section."
+                        ),
+                    )
+                else:
+                    messages.info(
+                        request,
+                        mark_safe(
+                            "The video is too short or too long to be used for dictation."
+                        ),
+                    )
+            else:
+                messages.info(
+                    request,
+                    mark_safe(
+                        "The video is not transcriptable.<br>"
+                        "Please choose another video."
+                    ),
+                )
+        else:
             messages.info(
                 request,
                 mark_safe(
-                    "Sorry, either the subtitles are <br>auto generated,<br>\
-                        disabled <br>or not in English<br>or the video ID is \
-                            invalid<br>or the possible dictation is too long (more than 6/7 mn)."
+                    "The form is invalid.<br>"
+                    "Please check the video ID and try again."
                 ),
             )
     else:
         form = AutoDictationForm()
 
-    return render(request, "pages/autodictation.html", {"addform": form})
+    return render(
+        request,
+        "pages/autodictation.html",
+        {"addform": form, "domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+    )
 
 
 class HomeView(ListView):
-    """IndexView."""
+    """Home view."""
 
     template_name: str = "pages/home.html"
     paginate_by: int = 8
@@ -136,6 +153,7 @@ class TopicView(DetailView):
     template_name: str = "pages/topic.html"
 
     def get_object(self, queryset=None):
+        """Get the dictation object."""
         practice = Practice()
 
         self.dictation = get_object_or_404(Dictation, slug=self.kwargs["slug"])
@@ -173,7 +191,7 @@ class TopicView(DetailView):
             {
                 "domain_name": os.getenv("DJANGO_DOMAIN_NAME"),
                 "form": DictationForm(),
-                "dictation_id": (self.dictation.pk),
+                "dictation_id": self.dictation.pk,
                 "star_rating": (
                     self.note.user_rating
                     if self.request.user.is_authenticated
@@ -209,13 +227,14 @@ class AjaxDetailView(DetailView):
 
     model = Dictation
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        """Handle GET request."""
         if "pk" not in kwargs and "slug" not in kwargs:
             raise Http404("Object not found")
         return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        """Post."""
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any):
+        """Handle POST request."""
         data = json.loads(request.body)
         (
             reset,
@@ -329,7 +348,7 @@ def post_user_rating(request: HttpRequest) -> HttpResponse:
         raise Http404("The requested resource was not found.") from exc
 
 
-def post_request_definition(request):
+def post_request_definition(request: HttpRequest) -> HttpResponse:
     """Post the definition from wiki."""
     if not request.body:
         return HttpResponse("No data provided", status=400)

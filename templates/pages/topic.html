@@ -19,7 +19,7 @@
         {% endif %}
         {% if not user.is_authenticated %}
             <ul class="d-block float-start p-0 w-100">
-                <li class="info">To access personalized features and track your progress, consider logging in to your account.</li>
+                <li class="info">To track your progress, consider logging (or creating an account).</li>
             </ul>
         {% endif %}
 
@@ -27,10 +27,13 @@
             <span class=""><i class="fas fa-question-circle"></i></span>
             <span class="bg-info p-2 float-end mb-3 dict-tt-content">Double click on a word to get its definition</span>
         </div>
-        <h1>{{vid_title}} <span id="video-title"></span><i id="ivideo-title"></i></h1>
+        <h1>{{vid_title}} <span id="video-title"></span><i id="ivideo-title"></i>
+            <strong>play the video with the controls and type sentence by sentence what your hear</strong>
+        </h1>
         {% if user.is_authenticated %}
             <div class="star-rating">
-                <span>How would you describe this exercise:</span>
+                {% comment %} <span>How would you describe this exercise:</span> {% endcomment %}
+                <span>How would you rate the difficulty:</span>
                 {% for star in stars %}
                     {% if star == star_rating %}
                         <input type="radio" id="{{dictation_id}}_{{star}}" name="rate" value="{{star}}" checked="">
@@ -65,7 +68,7 @@
                 </button>
             </div>
             {% if user.is_authenticated %}
-                <button id="btn-board" class="btn btn-outline-info btn-sm mb-3">Show progress</button>
+                <button id="btn-board" class="btn btn-outline-info btn-sm cusw-btn mb-3">Show progress</button>
                 <div id="board" class="board">
                     {% for list in lol %}
                         <table class="tled">
@@ -94,31 +97,38 @@
                 <br>
             {% endif %}
             {{form}}
-            <div class="d-flex justify-content-between rounded bg-white mt-3">
-                <div class="d-flex align-items-center p-2">
-                    <button type="button" class="btn btn-danger btn-yt ms-1 controls-tt" title="play" id="playstop"
-                        data-tooltip="Play/Stop"><i id="iplaystop" class="fa-solid fa-play w-ctrl"></i></button>
-                    <button type="button" class="btn btn-success ms-1 controls-tt" title="check" id="check"
-                        data-tooltip="Verify the spelling step by step"><i
-                            class="fa-solid fa-check w-ctrl"></i></button>
-                    <button type="button" class="btn btn-warning ms-1 controls-tt" title="reveal first letter"
-                        id="reveal" data-tooltip="You can click 3 times by segment to get the very next letter."><i
-                            class="fa-solid fa-0 w-ctrl"></i></button>
-                    <button type="button" class="btn btn-outline-secondary ms-1 controls-tt"
-                        data-tooltip="If the video provides the text, click to blur it." title="Blur video"
-                        id="blur-btn"><i id="iblur" class="fa-solid fa-droplet w-ctrl"></i></button>
+            <div class="d-flex flex-column justify-content-between rounded rounded-top-4 bg-white mt-4">
+                <span class="sticker">Controls</span>
+                <div class="d-flex justify-content-between bg-white mb-3">
+                    <div class="d-flex align-items-center pt-3 ps-2">
+                        <button type="button" class="btn btn-danger btn-yt ms-1 controls-tt" title="play" id="playstop"
+                            data-tooltip="Play/Stop"><i id="iplaystop" class="fa-solid fa-play w-ctrl"></i></button>
+                        <button type="button" class="btn btn-success ms-1 controls-tt" title="check" id="check"
+                            data-tooltip="Verify the spelling step by step"><i
+                                class="fa-solid fa-check w-ctrl"></i></button>
+                        <button type="button" class="btn btn-warning ms-1 controls-tt" title="reveal first letter"
+                            id="reveal" data-tooltip="You can click 3 times by segment to get the very next letter."><i
+                                class="fa-solid fa-0 w-ctrl"></i></button>
+                        <button type="button" class="btn btn-outline-secondary ms-1 controls-tt"
+                            data-tooltip="If the video provides the text, click to blur it." title="Blur video"
+                            id="blur-btn"><i id="iblur" class="fa-solid fa-droplet w-ctrl"></i></button>
+                    </div>
+                    <span id="complete" class="d-flex pt-3 pe-3"></span>
                 </div>
-                <span id="complete" class="d-flex p-2"></span>
             </div>
-            
             <p> {% if result %}{{result}}{% endif %} </p>
-            <p>Correction:</p>
             <img id="imgb64" src='data:image/jpeg;base64,{{ b64_img }}' alt="poster" hidden>
-            <div id="result_correction" class="text-entry"></div>
+            <div class="d-flex flex-column justify-content-between rounded rounded-top-4 bg-white mt-4">
+                <span class="sticker">Correction</span>
+                <div id="result_correction" class="text-entry">
+                    
+                </div>
+            </div>
         </div>
         <div id="bonus-txt" class="bonus-txt">
-            <h2>The story until the last validated segment</h2>
-            <div id="bonus-container" class="bonus-container">
+            {% comment %} <h2>The story until the last validated segment</h2> {% endcomment %}
+            <h2>Validated segments in current session</h2>
+            <div id="bonus-container" class="bonus-container me-2">
                 <div>
                     <ul id="story-segment"></ul>
                 </div>

@@ -43,7 +43,6 @@
                         {% if exercise.dictation_id == item.id  %} 
                         <td id="your-progress-{{exercise.dictation_id}}" class="your-progress">
                             <script nonce="{{request.csp_nonce}}">
-                                {% comment %} args: dictationProgress, dictationId, lines, isDone{% endcomment %}
                                 window.statusbar(
                                     "{% practice_status exercise.dictation.total_line exercise.lines %}%",
                                     {{exercise.dictation_id}},

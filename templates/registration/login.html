@@ -16,6 +16,7 @@
     {% else %}
         <div id="profile-container" class="profile-container h-100 p-2">
     {% endif %} 
+
     <div class="d-flex justify-content-center align-items-center align-content-center mt-5 mb-5">
         <div class="input-group mb-3 d-flex justify-content-center bg-light rounded p-3 shad w-300">
             <form method="post" action="{% url 'auth:login' %}">{% csrf_token %}
@@ -23,9 +24,9 @@
                     {% if form.non_field_errors %}
                         <ul class="errorlist alert alert-danger"><li>{{ form.non_field_errors }}</li></ul>
                     {% endif %}
-                    {% if form.email.errors %}
+                    {% comment %} {% if form.email.errors %}
                         <ul class="errorlist alert alert-danger"><li>{{ form.email.errors|escape }}</li></ul>
-                    {% endif %}       
+                    {% endif %}        {% endcomment %}
                     {% if form.password.errors %}
                         <ul class="errorlist alert alert-danger"><li>{{ form.password.errors|escape }}</li></ul>
                     {% endif %}                                           

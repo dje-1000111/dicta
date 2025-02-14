@@ -1,46 +1,47 @@
 """Dictation auth views."""
 
 import os
-import time
-from typing import Any, Dict
-from smtplib import SMTPDataError
 from dotenv import load_dotenv, find_dotenv  # type: ignore
+from typing import Any
 
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
+from django.utils.safestring import mark_safe
+from django.http import HttpRequest
+from django.http.response import HttpResponse
+from django.urls import reverse_lazy, reverse
 
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import authenticate, logout
-from django.views.generic import FormView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import SignupForm, LoginForm
-from django.urls import reverse_lazy
 from django.contrib import messages
-from django.utils.safestring import mark_safe
-from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import (
     PasswordChangeView,
     PasswordResetView,
     PasswordResetConfirmView,
 )
 from django.contrib.messages.views import SuccessMessageMixin
+from django.views.generic import FormView
 
-from apps.dictation_auth.models import User
 from apps.dictation_auth.forms import (
+    SignupForm,
+    LoginForm,
     UpdateProfileForm,
     CustomPasswordChangeForm,
 )
+from apps.dictation_auth.models import User
 from apps.dictation_auth.utils import account_activation_token, send_custom_email
+from apps.dictation.models import Practice
 from config import settings
 
 load_dotenv(find_dotenv())
 
 
-def login(request):
+def login(request: HttpRequest) -> HttpResponse:
     """Login view."""
     if request.method == "POST":
         form = LoginForm(request.POST, csp_nonce=request.csp_nonce)
@@ -54,10 +55,15 @@ def login(request):
             return redirect("dictation:home")
     else:
         form = LoginForm(csp_nonce=request.csp_nonce)
-    return render(request, "registration/login.html", {"form": form})
+    return render(
+        request,
+        "registration/login.html",
+        {"form": form, "domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+    )
 
 
-def signup(request):
+def signup(request: HttpRequest) -> HttpResponse:
+    """Signup view."""
     if request.method == "POST":
         form = SignupForm(request.POST, csp_nonce=request.csp_nonce)
         if form.is_valid():
@@ -81,18 +87,7 @@ def signup(request):
                 },
             )
 
-            try:
-                send_custom_email(subject, message, from_email, recipient_list)
-            except SMTPDataError:
-                # Implement a backoff strategy
-                for i in range(3):  # Retry up to 3 times
-                    time.sleep(2**i)  # Exponential backoff
-                    try:
-                        send_custom_email(subject, message, from_email, recipient_list)
-                        break  # Exit loop if successful
-                    except SMTPDataError:
-                        continue  # Try again if it fails
-
+            send_custom_email(subject, message, from_email, recipient_list)
             messages.info(
                 request,
                 mark_safe(
@@ -104,15 +99,21 @@ def signup(request):
             return redirect("auth:signup")
     else:
         form = SignupForm(csp_nonce=request.csp_nonce)
-    return render(request, "registration/signup.html", {"form": form})
+    return render(
+        request,
+        "registration/signup.html",
+        {"form": form, "domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+    )
 
 
 @login_required
-def account_activation_sent(request):
+def account_activation_sent(request: HttpRequest) -> HttpResponse:
+    """Account activation sent view."""
     return render(request, "auth:account_activation_sent.html")
 
 
-def activate(request, uidb64, token):
+def activate(request: HttpRequest, uidb64: str, token: str) -> HttpResponse:
+    """Activate account view."""
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
@@ -144,28 +145,28 @@ def activate(request, uidb64, token):
 
 
 @login_required
-def account_activation_complete(request):
+def account_activation_complete(request: HttpRequest) -> HttpResponse:
+    """Account activation complete view."""
     return render(request, "registration/account_activation_complete.html")
 
 
 @login_required
-def profile(request):
-    return render(request, "registration/profile.html")
-
-
-class ProfileView(LoginRequiredMixin, FormView):
+def profile(request: HttpRequest) -> HttpResponse:
     """Profile view."""
+    practice = Practice().get_progress(
+        user=request.user,
+    )
 
-    template_name: str = "registration/profile.html"
-
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        """Get context data."""
-        context = super().get_context_data(**kwargs)
-
-        return context
+    return render(
+        request,
+        "registration/profile.html",
+        {"domain_name": os.getenv("DJANGO_DOMAIN_NAME"), "practice": practice},
+    )
 
 
 class UpdateProfile(SuccessMessageMixin, LoginRequiredMixin, FormView):
+    """Update profile view."""
+
     initial = {}
     form_class = UpdateProfileForm
     template_name: str = "registration/profile_form.html"
@@ -176,7 +177,8 @@ class UpdateProfile(SuccessMessageMixin, LoginRequiredMixin, FormView):
     redirect_field_name = settings.LOGIN_URL
     login_url = settings.LOGIN_URL
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        """Handle POST requests: instantiate a form instance with the passed POST variables."""
         form = self.get_form()
         if form.is_valid():
             User.objects.filter(pk=self.request.user.pk).update(
@@ -186,7 +188,8 @@ class UpdateProfile(SuccessMessageMixin, LoginRequiredMixin, FormView):
         else:
             return self.form_invalid(form)
 
-    def get_success_message(self, cleaned_data):
+    def get_success_message(self, cleaned_data: dict) -> str:
+        """Return the success message."""
         return self.success_message % dict(cleaned_data)
 
     def get_initial(self):
@@ -201,13 +204,17 @@ class UpdateProfile(SuccessMessageMixin, LoginRequiredMixin, FormView):
 
 
 @login_required
-def delete_account(request):
+def delete_account(request: HttpRequest) -> HttpResponse:
     """Lead to a confirmation page."""
-    return render(request, "registration/delete_account.html")
+    return render(
+        request,
+        "registration/delete_account.html",
+        {"domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+    )
 
 
 @login_required
-def delete_account_confirm(request):
+def delete_account_confirm(request: HttpRequest) -> HttpResponse:
     """Delete account confirmation."""
     try:
         user = User.objects.get(pk=request.user.pk)
@@ -228,23 +235,38 @@ def delete_account_confirm(request):
     return render(request, "registration/delete_account.html")
 
 
-def user_logout(request):
+def user_logout(request: HttpRequest) -> HttpResponse:
     """Log out."""
     logout(request)
     return redirect("dictation:home")
 
 
 class CustomPasswordChangeView(SuccessMessageMixin, PasswordChangeView):
+    """Custom PasswordChangeView."""
+
     form_class = CustomPasswordChangeForm
     template_name = "registration/password_change.html"
     success_url = reverse_lazy("auth:profile")
     success_message = "Your password was changed successfully."
 
-    def get_success_message(self, cleaned_data):
+    def get_success_message(self, cleaned_data: dict) -> str:
+        """Return the success message."""
         return self.success_message % dict(cleaned_data)
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data."""
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                "domain_name": os.getenv("DJANGO_DOMAIN_NAME"),
+            }
+        )
+        return context
 
 
 class CustomPasswordResetView(SuccessMessageMixin, PasswordResetView):
+    """Custom PasswordResetView."""
+
     template_name = "registration/password_reset.html"
     email_template_name = "registration/password_reset_email.html"
     subject_template_name = "registration/password_reset_subject.txt"
@@ -257,12 +279,36 @@ class CustomPasswordResetView(SuccessMessageMixin, PasswordResetView):
     )
 
     def dispatch(self, *args, **kwargs):
+        """Dispatch."""
         return super().dispatch(*args, **kwargs)
 
-    def get_success_message(self, cleaned_data):
+    def get_success_message(self, cleaned_data: dict) -> str:
+        """Return the success message."""
         return self.success_message % dict(cleaned_data)
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data."""
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                "domain_name": os.getenv("DJANGO_DOMAIN_NAME"),
+            }
+        )
+        return context
 
 
 class CustomPasswordResetConfirmView(SuccessMessageMixin, PasswordResetConfirmView):
+    """Custom PasswordResetConfirmView."""
+
     success_url = reverse_lazy("auth:login")
     success_message = mark_safe("Your new password has been set. You can now Log in")
+
+    def get_context_data(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
+        """Get context data."""
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                "domain_name": os.getenv("DJANGO_DOMAIN_NAME"),
+            }
+        )
+        return context

@@ -7,7 +7,6 @@ from django import forms
 from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth import authenticate
 from django.template import loader
 
 from django.contrib.auth import password_validation
@@ -31,7 +30,7 @@ class UserCreationForm(auth_forms.UserCreationForm):
 
 
 class SignupForm(auth_forms.UserCreationForm):
-    """Inscription form."""
+    """Signup form."""
 
     def __init__(self, *args, **kwargs):
         csp_nonce = kwargs.pop("csp_nonce", None)
@@ -92,10 +91,11 @@ class SignupForm(auth_forms.UserCreationForm):
         fields = ("username", "email", "password1", "password2", "captcha")
 
 
-class LoginForm(auth_forms.AuthenticationForm):
+class LoginForm(auth_forms.UserCreationForm):
     """Login form."""
 
     def __init__(self, *args, **kwargs):
+        """Init."""
         csp_nonce = kwargs.pop("csp_nonce", None)
         super().__init__(*args, **kwargs)
         self.fields["captcha"].widget.attrs["csp_nonce"] = csp_nonce
@@ -147,19 +147,27 @@ class LoginForm(auth_forms.AuthenticationForm):
         fields = ("email", "password", "captcha")
 
     def clean(self):
+        """Clean."""
         cleaned_data = super().clean()
         email = cleaned_data.get("email")
         password = cleaned_data.get("password")
-        if email and password:
-            user = authenticate(email=email, password=password)
-            if user:
-                return cleaned_data
-            else:
-                raise forms.ValidationError(self.invalid_login)
+        if (
+            not self._meta.model.objects.filter(email__iexact=email)
+            or not password
+            or len(password) < 8
+        ):
+            raise forms.ValidationError(self.invalid_login)
+        elif email and self._meta.model.objects.filter(email__iexact=email).exists():
+            pass
+        else:
+            return email
 
 
 class CustomPasswordResetForm(PasswordResetForm):
+    """Custom password reset form."""
+
     def __init__(self, *args, **kwargs):
+        """Init."""
         super().__init__(*args, **kwargs)
 
     email = forms.EmailField(
@@ -200,7 +208,10 @@ class CustomPasswordResetForm(PasswordResetForm):
 
 
 class CustomSetPasswordForm(SetPasswordForm):
+    """Custom set password form."""
+
     def __init__(self, *args, **kwargs):
+        """Init."""
         super().__init__(*args, **kwargs)
 
     new_password1 = forms.CharField(
@@ -221,7 +232,10 @@ class CustomSetPasswordForm(SetPasswordForm):
 
 
 class UpdateProfileForm(forms.ModelForm):
+    """Update profile form."""
+
     def __init__(self, *args, **kwargs):
+        """Init."""
         super().__init__(*args, **kwargs)
 
     username = forms.CharField(
@@ -236,12 +250,17 @@ class UpdateProfileForm(forms.ModelForm):
     )
 
     class Meta:
+        """Meta."""
+
         model = User
         fields = ["username"]
 
 
 class CustomPasswordChangeForm(SetPasswordForm):
+    """Custom password change form."""
+
     def __init__(self, *args, **kwargs):
+        """Init."""
         super().__init__(*args, **kwargs)
 
     old_password = forms.CharField(

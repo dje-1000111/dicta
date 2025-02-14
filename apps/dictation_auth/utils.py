@@ -20,7 +20,10 @@ account_activation_token = AccountActivationTokenGenerator()
 
 
 class CustomEmailMessage(EmailMessage):
+    """Custom email message."""
+
     def message(self):
+        """Return the email message."""
         msg = super().message()
         if "Message-ID" in msg:
             del msg["Message-ID"]
@@ -30,5 +33,6 @@ class CustomEmailMessage(EmailMessage):
 
 
 def send_custom_email(subject, body, from_email, to_list):
+    """Send custom email."""
     email = CustomEmailMessage(subject, body, from_email, to_list)
     email.send()
