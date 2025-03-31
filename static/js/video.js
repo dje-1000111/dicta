@@ -45,7 +45,7 @@ function onPlayerStateChange(event) {
 
         }, 100);
     }
-    if (event.data == YT.PlayerState.PAUSED && !done) {
+    if (event.data == YT.PlayerState.PAUSED) {
         iplaystop.classList.replace('fa-stop', 'fa-play')
         done = false;
         paused = true

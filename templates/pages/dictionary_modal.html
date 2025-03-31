@@ -1,13 +1,12 @@
 {% block dictmod %}
 {% load i18n %}
 {% spaceless %}
-{% comment %} <div class="container mt-3" id="modal-container"> {% endcomment %}
     <div class="modal" id="dictmod">
         <div class="modal-dialog">
             <div class="modal-content modal-bg">
                 <div class="modal-header">
                     <h2 class="modal-title text-primary" id="dictionary-title">title</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" title="close" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="col-12 p-3 bg-light">
                     <form method="post">
@@ -17,11 +16,10 @@
                 </div>
                 <div class="modal-footer">
                     <span class="wikisource">source: <a href="https://www.wiktionary.org/">wiktionary</a></span>
-                    <button type="button" class="btn btn-secondary mr-1" data-bs-dismiss="modal">close</button>
+                    <button type="button" title="close" class="btn btn-secondary mr-1" data-bs-dismiss="modal">close</button>
                 </div>
             </div>
         </div>
     </div>
-{% comment %} </div> {% endcomment %}
 {% endspaceless %}
 {% endblock dictmod %}

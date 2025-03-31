@@ -81,4 +81,4 @@ it is a 40 foot container stowed in Bay 30,
 Row 04
 and Tier 14.
 If there were a 20 foot container below it,
-it would be bay 31, row 04, tier 12.
+it would be Bay 31, Row 04 and Tier 12.

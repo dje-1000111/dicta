@@ -28,11 +28,10 @@
             <span class="bg-info p-2 float-end mb-3 dict-tt-content">Double click on a word to get its definition</span>
         </div>
         <h1>{{vid_title}} <span id="video-title"></span><i id="ivideo-title"></i>
-            <strong>play the video with the controls and type sentence by sentence what your hear</strong>
+            <strong>play the video with the controls and type sentence by sentence what you hear</strong>
         </h1>
         {% if user.is_authenticated %}
             <div class="star-rating">
-                {% comment %} <span>How would you describe this exercise:</span> {% endcomment %}
                 <span>How would you rate the difficulty:</span>
                 {% for star in stars %}
                     {% if star == star_rating %}

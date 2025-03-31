@@ -44,22 +44,42 @@ def csrf_failure(request: HttpRequest, reason: str = "") -> HttpResponse:
 
 def bad_request(request: HttpRequest, exception=None, template_name="400.html"):
     """Handle bad request."""
-    return render(request, "pages/400.html", status=400)
+    return render(
+        request,
+        "pages/400.html",
+        {"domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+        status=400,
+    )
 
 
 def permission_denied(request: HttpRequest, exception=None, template_name="403.html"):
     """Handle permission denied."""
-    return render(request, "pages/403.html", status=403)
+    return render(
+        request,
+        "pages/403.html",
+        {"domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+        status=403,
+    )
 
 
 def not_found(request: HttpRequest, exception=None, template_name="404.html"):
     """Handle not found."""
-    return render(request, "pages/404.html", status=404)
+    return render(
+        request,
+        "pages/404.html",
+        {"domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+        status=404,
+    )
 
 
 def server_error(request: HttpRequest, exception=None, template_name="500.html"):
     """Handle server error."""
-    return render(request, "pages/500.html", status=500)
+    return render(
+        request,
+        "pages/500.html",
+        {"domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+        status=500,
+    )
 
 
 def auto_dictation_form_view(request: HttpRequest) -> HttpResponse:

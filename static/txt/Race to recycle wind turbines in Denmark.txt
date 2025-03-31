@@ -50,7 +50,7 @@ Precise details are still under wraps but it turns out it's relatively simple.
 "These are the glass fibers which kind of come apart a little bit..."
 "Yes, I can see those."
 "Because they're not bound together anymore".
-"So you can see it's very clearly separated into it different components".
+"So you can see it's very clearly separated into different components".
 That means the fibers and even that tough epoxy resin could be recovered and potentially reused.
 "This has been quite remarkable we thought that these materials were extremely strong and indestructible,
 now we found a chemical process that can actually chew its way right through the epoxy".
@@ -58,5 +58,5 @@ And in theory it could work on all kinds of turbine blades already out there.
 "What we find exciting is we're sort of the first to be able to do that.
 There are potentials in recycling such very tough materials
 not only confined to the wind turbine industry, there's the aeronautic industry, space industry, cars."
-This technology still needs to make the leap from a test tube to the real world
+This technology still needs to make the leap from the test tube to the real world
 but with new solutions on the table perhaps this growing waste problem could be headed off before it gets too big.
