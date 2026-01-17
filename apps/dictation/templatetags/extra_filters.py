@@ -46,5 +46,5 @@ def practice_status(total_line, lines):
 def format_domain(dns):
     """Format string to remove the 4 last chars and capitalize d and e."""
     return "".join(
-        [letter.capitalize() if letter in ["d", "e"] else letter for letter in dns[:-4]]
+        [letter.capitalize() if letter in ["d", "e"] else letter for letter in dns[:-5]]
     )
