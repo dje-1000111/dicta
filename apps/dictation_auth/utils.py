@@ -2,6 +2,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from six import text_type
 from django.core.mail import EmailMessage
 from email.utils import make_msgid
+
 from config import settings
 
 

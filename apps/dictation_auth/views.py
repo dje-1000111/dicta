@@ -34,7 +34,11 @@ from apps.dictation_auth.forms import (
     CustomPasswordChangeForm,
 )
 from apps.dictation_auth.models import User
-from apps.dictation_auth.utils import account_activation_token, send_custom_email
+from apps.dictation_auth.utils import (
+    account_activation_token,
+    send_custom_email,
+    # send_email_api,
+)
 from apps.dictation.models import Practice
 from config import settings
 
@@ -58,7 +62,7 @@ def login(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "registration/login.html",
-        {"form": form, "domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+        {"form": form, "domain_name": os.getenv("DOMAIN_NAME")},
     )
 
 
@@ -102,7 +106,7 @@ def signup(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "registration/signup.html",
-        {"form": form, "domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+        {"form": form, "domain_name": os.getenv("DOMAIN_NAME")},
     )
 
 
@@ -160,7 +164,7 @@ def profile(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "registration/profile.html",
-        {"domain_name": os.getenv("DJANGO_DOMAIN_NAME"), "practice": practice},
+        {"domain_name": os.getenv("DOMAIN_NAME"), "practice": practice},
     )
 
 
@@ -209,7 +213,7 @@ def delete_account(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "registration/delete_account.html",
-        {"domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+        {"domain_name": os.getenv("DOMAIN_NAME")},
     )
 
 
@@ -258,7 +262,7 @@ class CustomPasswordChangeView(SuccessMessageMixin, PasswordChangeView):
         context = super().get_context_data(**kwargs)
         context.update(
             {
-                "domain_name": os.getenv("DJANGO_DOMAIN_NAME"),
+                "domain_name": os.getenv("DOMAIN_NAME"),
             }
         )
         return context
@@ -291,7 +295,7 @@ class CustomPasswordResetView(SuccessMessageMixin, PasswordResetView):
         context = super().get_context_data(**kwargs)
         context.update(
             {
-                "domain_name": os.getenv("DJANGO_DOMAIN_NAME"),
+                "domain_name": os.getenv("DOMAIN_NAME"),
             }
         )
         return context
@@ -308,7 +312,7 @@ class CustomPasswordResetConfirmView(SuccessMessageMixin, PasswordResetConfirmVi
         context = super().get_context_data(**kwargs)
         context.update(
             {
-                "domain_name": os.getenv("DJANGO_DOMAIN_NAME"),
+                "domain_name": os.getenv("DOMAIN_NAME"),
             }
         )
         return context

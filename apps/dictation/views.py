@@ -47,7 +47,7 @@ def bad_request(request: HttpRequest, exception=None, template_name="400.html"):
     return render(
         request,
         "pages/400.html",
-        {"domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+        {"domain_name": os.getenv("DOMAIN_NAME")},
         status=400,
     )
 
@@ -57,7 +57,7 @@ def permission_denied(request: HttpRequest, exception=None, template_name="403.h
     return render(
         request,
         "pages/403.html",
-        {"domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+        {"domain_name": os.getenv("DOMAIN_NAME")},
         status=403,
     )
 
@@ -67,7 +67,7 @@ def not_found(request: HttpRequest, exception=None, template_name="404.html"):
     return render(
         request,
         "pages/404.html",
-        {"domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+        {"domain_name": os.getenv("DOMAIN_NAME")},
         status=404,
     )
 
@@ -77,7 +77,7 @@ def server_error(request: HttpRequest, exception=None, template_name="500.html")
     return render(
         request,
         "pages/500.html",
-        {"domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+        {"domain_name": os.getenv("DOMAIN_NAME")},
         status=500,
     )
 
@@ -129,7 +129,7 @@ def auto_dictation_form_view(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "pages/autodictation.html",
-        {"addform": form, "domain_name": os.getenv("DJANGO_DOMAIN_NAME")},
+        {"addform": form, "domain_name": os.getenv("DOMAIN_NAME")},
     )
 
 
@@ -154,9 +154,10 @@ class HomeView(ListView):
         if ratings:
             practice.update_dictation_rating(ratings)
         context = super().get_context_data(**kwargs)
+        # breakpoint()
         context.update(
             {
-                "domain_name": os.getenv("DJANGO_DOMAIN_NAME"),
+                "domain_name": os.getenv("DOMAIN_NAME"),
                 "practice": self.practice if is_auth else None,
                 "list_of_practices": (
                     [i.dictation_id for i in self.practice] if is_auth else None
@@ -209,7 +210,7 @@ class TopicView(DetailView):
         context = super().get_context_data(**kwargs)
         context.update(
             {
-                "domain_name": os.getenv("DJANGO_DOMAIN_NAME"),
+                "domain_name": os.getenv("DOMAIN_NAME"),
                 "form": DictationForm(),
                 "dictation_id": self.dictation.pk,
                 "star_rating": (
@@ -385,3 +386,30 @@ def post_request_definition(request: HttpRequest) -> HttpResponse:
         status=204,
         headers={"definition": json.dumps(definition), "X-Robots-Tag": "noindex"},
     )
+
+
+# def post_request_definition(request: HttpRequest) -> HttpResponse:
+#     """Post the definition from wiki."""
+#     if not request.body:
+#         return HttpResponse("No data provided", status=400)
+
+#     data = json.loads(request.body)
+#     # word = data.get("term")
+#     if not data:
+#         return HttpResponse("No term provided", status=400)
+
+#     wiki = WiktionaryAPI()
+#     try:
+#         json_data = wiki.extract_data(data)
+#         if "en" in json_data:
+#             definition = wiki.reduce_json(json_data)
+#         else:
+#             definition = {"no-result": "No definition found."}
+#     except requests.exceptions.RequestException as e:
+#         return HttpResponse(f"Error fetching data: {e}", status=500)
+
+#     return HttpResponse(
+#         json.dumps(definition),
+#         status=200,
+#         headers={"X-Robots-Tag": "noindex", "Content-Type": "application/json"},
+#     )

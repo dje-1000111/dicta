@@ -26,7 +26,7 @@ urlpatterns = [
         "about/",
         TemplateView.as_view(
             template_name="pages/about.html",
-            extra_context=dict(domain_name=os.getenv("DJANGO_DOMAIN_NAME")),
+            extra_context=dict(domain_name=os.getenv("DOMAIN_NAME")),
         ),
         name="about",
     ),
