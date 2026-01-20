@@ -387,7 +387,7 @@ def post_request_definition(request: HttpRequest) -> JsonResponse:
             definition = wiki.reduce_json(json_data)
         else:
             definition = {"no-result": "No definition found."}
-    except requests.exceptions.RequestException as e:
-        return HttpResponse(f"Error fetching data: {e}", status=500)
+    except requests.exceptions.RequestException as err:
+        return HttpResponse(f"Error fetching data: {err}", status=500)
 
     return JsonResponse({"defs": json.dumps(definition)})
