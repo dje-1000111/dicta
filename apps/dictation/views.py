@@ -10,6 +10,7 @@ from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.utils.safestring import mark_safe
+from django.http.response import JsonResponse
 from django.http import HttpResponse, HttpRequest, Http404, JsonResponse
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
