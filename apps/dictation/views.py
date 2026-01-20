@@ -2,6 +2,7 @@
 
 import os
 import json
+import requests
 
 from typing import Any, Dict
 
@@ -10,7 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 from django.http.response import JsonResponse
-from django.http import HttpResponse, HttpRequest, Http404
+from django.http import HttpResponse, HttpRequest, Http404, JsonResponse
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from apps.dictation.models import (
@@ -369,47 +370,24 @@ def post_user_rating(request: HttpRequest) -> HttpResponse:
         raise Http404("The requested resource was not found.") from exc
 
 
-def post_request_definition(request: HttpRequest) -> HttpResponse:
+def post_request_definition(request: HttpRequest) -> JsonResponse:
     """Post the definition from wiki."""
     if not request.body:
         return HttpResponse("No data provided", status=400)
 
-    term = json.loads(request.body)
+    data = json.loads(request.body)
+
+    if not data:
+        return HttpResponse("No term provided", status=400)
+
     wiki = WiktionaryAPI()
-    data = wiki.extract_data(term)
-    if "en" in data:
-        definition = wiki.reduce_json(data)
-    else:
-        definition = {"no-result": "No definition found."}
+    try:
+        json_data = wiki.extract_data(data)
+        if "en" in json_data:
+            definition = wiki.reduce_json(json_data)
+        else:
+            definition = {"no-result": "No definition found."}
+    except requests.exceptions.RequestException as e:
+        return HttpResponse(f"Error fetching data: {e}", status=500)
 
-    return HttpResponse(
-        status=204,
-        headers={"definition": json.dumps(definition), "X-Robots-Tag": "noindex"},
-    )
-
-
-# def post_request_definition(request: HttpRequest) -> HttpResponse:
-#     """Post the definition from wiki."""
-#     if not request.body:
-#         return HttpResponse("No data provided", status=400)
-
-#     data = json.loads(request.body)
-#     # word = data.get("term")
-#     if not data:
-#         return HttpResponse("No term provided", status=400)
-
-#     wiki = WiktionaryAPI()
-#     try:
-#         json_data = wiki.extract_data(data)
-#         if "en" in json_data:
-#             definition = wiki.reduce_json(json_data)
-#         else:
-#             definition = {"no-result": "No definition found."}
-#     except requests.exceptions.RequestException as e:
-#         return HttpResponse(f"Error fetching data: {e}", status=500)
-
-#     return HttpResponse(
-#         json.dumps(definition),
-#         status=200,
-#         headers={"X-Robots-Tag": "noindex", "Content-Type": "application/json"},
-#     )
+    return JsonResponse({"defs": json.dumps(definition)})
