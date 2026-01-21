@@ -12,9 +12,15 @@ https://docs.djangoproject.com/en/5.0.4/ref/settings/
 
 import os
 import sentry_sdk
+
 from pathlib import Path
+
+from . import base
+from .base import *  # noqa
+
 from dotenv import load_dotenv, find_dotenv  # type: ignore
-import psycopg2.extensions
+
+# import psycopg2.extensions
 
 sentry_sdk.init(
     dsn=os.getenv("SENTRY_DSN"),
@@ -49,142 +55,23 @@ CSRF_FAILURE_VIEW = "apps.dictation.views.csrf_failure"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-if DEBUG:
-    ALLOWED_HOSTS = []
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-else:
-    ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split()
-    CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split()
-    EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
-    EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-    EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-    DEFAULT_FROM_EMAIL = os.getenv("DJANGO_DEFAULT_FROM_EMAIL")
-    DOMAIN_NAME = os.getenv("DOMAIN_NAME")
-    DOMAIN = os.getenv("DOMAIN")
-    EMAIL_URL = os.getenv("EMAIL_URL")
-    EMAIL_URL_SUFFIX = os.getenv("EMAIL_URL_SUFFIX")
-    EMAIL_AUTH = os.getenv("EMAIL_AUTH")
 
-# Application definition
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS").split()
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split()
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("DJANGO_DEFAULT_FROM_EMAIL")
+DOMAIN_NAME = os.getenv("DOMAIN_NAME")
+DOMAIN = os.getenv("DOMAIN")
+EMAIL_URL = os.getenv("EMAIL_URL")
+EMAIL_URL_SUFFIX = os.getenv("EMAIL_URL_SUFFIX")
+EMAIL_AUTH = os.getenv("EMAIL_AUTH")
 
-INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    "compressor",
-    "apps.dictation",
-    "apps.dictation_auth",
-    "apps.dictation.templatetags.extra_filters",
-    "apps.dictation.templatetags.adjusted_elided_page",
-    "raven.contrib.django.raven_compat",
-    "django.contrib.sites",
-    "django.contrib.sitemaps",
-    "django_recaptcha",
-    "django.forms",
-]
 
 SITE_ID = 3
 
-MIDDLEWARE = [
-    "csp.middleware.CSPMiddleware",
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "config.middleware.LogErrorsMiddleware",
-]
-
-ROOT_URLCONF = "config.urls"
-
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ],
-        },
-    },
-]
-
-FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
-
-WSGI_APPLICATION = "config.wsgi.application"
-
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWD"),
-        "PORT": os.getenv("DB_PORT"),
-        "DISABLE_SERVER_SIDE_CURSORS": True,
-        "TEST": {
-            "NAME": "dictation_test_database",
-        },
-        "OPTIONS": {
-            "isolation_level": psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE,
-        },
-    }
-}
-
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]
-
-AUTHENTICATION_BACKENDS = [
-    "apps.dictation_auth.authenticate.EmailModelBackend",
-    "django.contrib.auth.backends.ModelBackend",
-]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
-
-LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "UTC"
-
-USE_I18N = True
-
-USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = os.getenv("STATIC_ROOT")
+MIDDLEWARE = base.MIDDLEWARE + ["csp.middleware.CSPMiddleware"]
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
