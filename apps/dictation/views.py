@@ -90,9 +90,7 @@ def auto_dictation_form_view(request: HttpRequest) -> HttpResponse:
             video_id = form.cleaned_data["video_id"]
             dictation = Dictation()
             data = dictation.get_data(video_id)
-            # breakpoint()
             vtt = dictation.download_vtt(video_id, data["filename"])
-            # breakpoint()
             vtt = dictation.check_vtt(data["filename"], data)
 
             if not vtt:
@@ -101,19 +99,17 @@ def auto_dictation_form_view(request: HttpRequest) -> HttpResponse:
                     "The subtitles cannot be processed due to a formatting issue.",
                 )
 
-            # breakpoint()
             elif not data:
                 messages.info(request, "This video is not available.")
 
             elif (
                 data
                 and not Dictation.objects.filter(
-                    filename=f"{data["filename"]}.en.txt"
+                    filename=f"{data['filename']}.en.txt"
                 ).exists()
             ):
                 if (
                     data["last_between_1_and_6_minutes"]
-                    # and data["is_subtitle_in_right_format"]
                     and data["released_after_2020"]
                     and data.get("has_subtitles")
                 ):
@@ -122,7 +118,7 @@ def auto_dictation_form_view(request: HttpRequest) -> HttpResponse:
                         request,
                         mark_safe(
                             "The dictation has been created successfully.<br>"
-                            f"You can now use it in the topic section → <a href={request.scheme}://{request.get_host()}/topic/{data.get("slug")}>{data.get("topic")}</a>"
+                            f"You can now use it in the topic section → <a href={request.scheme}://{request.get_host()}/topic/{data.get('slug')}>{data.get('topic')}</a>"
                         ),
                     )
                 else:
@@ -140,7 +136,7 @@ def auto_dictation_form_view(request: HttpRequest) -> HttpResponse:
             else:
                 messages.info(
                     request,
-                    f"This dictation already exists. -> {dictation.get_absolute_url()}{data["filename"]}/",
+                    f"This dictation already exists. -> {dictation.get_absolute_url()}{data['filename']}/",
                 )
 
     else:
