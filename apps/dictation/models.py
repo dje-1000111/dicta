@@ -85,7 +85,7 @@ class Dictation(models.Model):
             autodictation = Dictation.objects.get_or_create(
                 video_id=kwargs["video_id"],
                 topic=kwargs["video_title"],
-                filename=f"{filename}.{kwargs.get("sub_version")}.txt",
+                filename=f"{filename}.{kwargs.get('sub_version')}.txt",
                 level=3,
                 slug=kwargs["slug"],
                 timestamps={"data": timestamps},
@@ -235,7 +235,7 @@ class Dictation(models.Model):
     def check_vtt(self, filename, info):
         try:
             with open(
-                f"{settings.TXT_DIR / filename}.{info.get("sub_version")}.vtt",
+                f"{settings.TXT_DIR / filename}.{info.get('sub_version')}.vtt",
                 "r",
                 encoding="utf-8",
             ) as f:
@@ -248,7 +248,7 @@ class Dictation(models.Model):
             return ""
         if length_lines > 500:
             Path.unlink(
-                f"{settings.TXT_DIR / filename}.{info.get("sub_version")}.vtt",
+                f"{settings.TXT_DIR / filename}.{info.get('sub_version')}.vtt",
                 missing_ok=True,
             )
             return ""
@@ -259,7 +259,7 @@ class Dictation(models.Model):
         data = self.get_data(video_id)
         filename = data["filename"]
         vtt_file = self.download_vtt(video_id, filename)
-        return Path(f"{vtt_file}.{data.get("sub_version")}.vtt")
+        return Path(f"{vtt_file}.{data.get('sub_version')}.vtt")
 
     def remove_blank_lines(self, file: Path) -> None:
         """Remove blank lines.
