@@ -20,9 +20,7 @@ Epigenetic changes can boost or interfere with the transcription of specific gen
 The most common way interference happens is that DNA,
 or the proteins it's wrapped around,
 gets labeled with small chemical tags.
-The set of all of the chemical tags that are attached to the genome
-of a given cell
-is called the epigenome.
+The set of all of the chemical tags that are attached to the genome of a given cell is called the epigenome.
 Some of these, like a methyl group, inhibit gene expression
 by derailing the cellular transcription machinery
 or causing the DNA to coil more tightly,

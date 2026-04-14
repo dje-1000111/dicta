@@ -1,0 +1,73 @@
+The oceans, they are always on the move. Together, the ocean
+basins are like a big interconnected highway that
+transports nutrients, carbon and heat around the world. This
+mesmerizing data visualization of ocean currents was created
+using a model called estimating the circulation and climate of
+the ocean, or ECCO, for short.
+It's built using real world data from satellites, buoys
+and all kinds of other measurements.
+All of this movement starts with physics.
+Because the Earth is spinning, the water feels something called
+the Coriolis effect. This pushes some of the strongest currents,
+like the Gulf Stream and the East Australian Current, against
+the east side of the continents. Because these currents wind up
+on the west side of the ocean basins they sit in, scientists
+call them western boundary currents. In this visualization,
+the currents closer to the surface are white and the deeper
+currents are blue, almost like you're seeing those deep
+currents through the top layer of water. But what's causing all
+this motion and what makes some water rise and some water sink?
+Let's take a look. Here, we can see the Pacific Ocean's
+strongest current, the Kuroshio. It begins in the warm, tropical
+Philippine Sea, and then flows north past Taiwan. After it
+reaches Japan, it turns east and heads across the Pacific Ocean,
+spinning off huge eddies where it turns right. The Kuroshio
+carries over 200 times more water than the world's largest
+river, the Amazon. This visualization makes it easy to
+see how the ocean moves water across the planet, but what's
+hard to see are the places where the water moves up or down. This
+is called upwelling, or downwelling. When upwelling
+brings cold, deep nutrients into the sunlight near the surface,
+it creates a feeding ground for all sorts of ocean life.
+Nutrients carried, in part by the Kuroshio Current, help feed
+the fisheries in Japan and create an important economic
+zone for the country. Another major western boundary current
+is the Agulhas Current, which carries water down the east
+coast of Africa to its southern tip, called Cape Agulhas. There,
+the current makes a sharp turn to the east, but sometimes it
+pinches off giant eddies called the Agulhas rings, which drift
+west into the Atlantic. These circular currents carry salt and
+heat into the Atlantic and form an important part of the
+overturning circulation, also called the Global Ocean conveyor
+belt. This so called conveyor belt is a system of currents
+that carries heat northward, across the equator and into the
+North Atlantic. It plays a big role in the climates of North
+America, Europe and Africa. Without it, winters in Europe
+would be much colder, and droughts in Africa more severe.
+But the oceans do more than just move heat around. In some
+places, they absorb heat from the sun, and in others, they
+release it back to the air. We can see that in the Gulf Stream,
+yet another part of the ocean's conveyor belt, the Gulf Stream
+starts in the tropics, where the water is very warm, as it drags
+warm water up the east coast of North America, it acts like a
+heater for the atmosphere. By the time this water has wandered
+across the Atlantic and wrapped around Europe, Iceland and
+Greenland, it's gotten so cold that it sinks deep into the
+North Atlantic Ocean. But temperature isn't the only thing
+that can make water sink, so can salt.Salinity or the amount of
+salt in the water, can make it heavy. The saltier and colder
+water is, the heavier it gets. As it gets warm and fresh water
+gets lighter, changes in the heaviness or density of ocean
+water are what keep the ocean's conveyor belt turning. Streaks
+near the surface show how water is moving from one place to
+another. If you look close, you can see below the surface.
+Sometimes the water down deep is moving in a different direction,
+even the opposite direction. Sometimes this cold, deep water
+headed south beneath the Gulf Stream is another part of that
+same ocean conveyor belt that keeps Europe warm. Some of that
+warm Gulf stream water that heads north at the surface
+eventually winds up there, moving south again after losing
+so much heat to the atmosphere. Eventually this cold, deep water
+will spread around the globe and slowly rise toward the surface.
+There it will warm up in the sun and get ready to start the trip
+all over again.

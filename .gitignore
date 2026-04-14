@@ -6,9 +6,12 @@ lsettings.py
 psettings.py
 prodsettings.py
 localsettings.py
+config/exprodsettings.py
+apps/dictation/migrations/0011_dictation_site.py
 goodconfig.txt
 /assets/
 staticfiles/
+sql_backups/README.txt
 
 # Python
 __pycache__/

@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0.4/ref/settings/
 import os
 
 from dotenv import load_dotenv, find_dotenv  # type: ignore
+from . import base
 from .base import *  # noqa
 
 load_dotenv(find_dotenv())
@@ -40,6 +41,7 @@ CSRF_FAILURE_VIEW = "apps.dictation.views.csrf_failure"
 
 SITE_ID = 1
 
+MIDDLEWARE = base.MIDDLEWARE + ["csp.middleware.CSPMiddleware"]
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
@@ -49,3 +51,78 @@ SITE_ID = 1
 
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+
+# Content Security Policy
+# https://django-csp.readthedocs.io/en/latest/
+
+CSP_NONCE_USE_NONCE = True
+CSP_INCLUDE_NONCE_IN = ["script-src"]
+
+CSP_DEFAULT_SRC = ("'none'",)
+CSP_BASE_URI = ("'self'",)
+CSP_STYLE_SRC = (
+    "'self'",
+    "cdn.jsdelivr.net/npm/",
+    "cdnjs.cloudflare.com/",
+    "fonts.googleapis.com/",
+    "https://www.googletagmanager.com/",
+    "https://www.googletagmanager.com/gtm.js",
+    "https://www.googletagmanager.com/gtag/js",
+)
+
+CSP_FONT_SRC = (
+    "'self'",
+    "https://fonts.gstatic.com/",
+    "https://fonts.googleapis.com/",
+    "https://cdnjs.cloudflare.com/",
+)
+
+CSP_SCRIPT_SRC = (
+    "'self'",
+    "'strict-dynamic'",
+    "https://www.youtube.com/",
+    "cdn.jsdelivr.net/npm/",
+    "cdnjs.cloudflare.com/",
+    "region1.google-analytics.com/",
+    "https://www.googletagmanager.com/",
+    "https://www.googletagmanager.com/gtm.js",
+    "https://www.googletagmanager.com/gtag/js",
+    "https://www.google.com/recaptcha/",
+    "https://www.gstatic.com/recaptcha/",
+    "https://analytics.google.com/",
+    "https://stats.g.doubleclick.net/",
+    "https://www.google-analytics.com/",
+)
+CSP_INCLUDE_NONCE_IN = ["script-src"]
+CSP_IMG_SRC = (
+    "'self'",
+    "img.youtube.com",
+    "i.ytimg.com/",
+    "*.google-analytics.com/",
+    "https://www.googletagmanager.com",
+    "https://www.gstatic.com/",
+    "data:",
+    "blob:",
+)
+CSP_CONNECT_SRC = (
+    "'self'",
+    "https://www.googletagmanager.com",
+    "https://www.google-analytics.com",
+    "https://analytics.google.com/",
+    "https://stats.g.doubleclick.net/",
+    "https://www.gstatic.com/",
+)
+CSP_MEDIA_SRC = ("'self'", "https://www.youtube.com/")
+CSP_FRAME_SRC = (
+    "'self'",
+    "https://www.youtube-nocookie.com/",
+    "https://www.youtube.com/embed/",
+    "https://www.youtube.com/iframe_api",
+    "https://www.googletagmanager.com/",
+    "https://googleads.g.doubleclick.net/",
+    "https://www.google.com/recaptcha/",
+    "https://recaptcha.google.com/recaptcha/",
+)
+CSP_OBJECT_SRC = ("'none'",)
+CSP_FRAME_ANCESTORS = "'self'"
+# CSP_REQUIRE_TRUSTED_TYPES_FOR = ("'script'",)

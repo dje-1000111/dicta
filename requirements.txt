@@ -18,12 +18,13 @@ curated-tokenizers==2.0.0
 curated-transformers==2.0.1
 cycler==0.12.1
 cymem==2.0.8
+defusedxml==0.7.1
 dill==0.3.9
 Django==5.2.10
 django-appconf==1.0.6
 django-compressor==4.5.1
+django-csp==4.0
 django-recaptcha==4.0.0
-django_csp==3.8
 filelock==3.16.1
 fonttools==4.54.1
 fsspec==2024.9.0
@@ -113,4 +114,4 @@ wheel==0.44.0
 whitenoise==6.7.0
 wordcloud==1.9.3
 wrapt==1.16.0
-youtube-transcript-api==0.6.2
+

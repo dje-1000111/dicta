@@ -10,7 +10,6 @@ from django.shortcuts import render, redirect
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.utils.safestring import mark_safe
-from django.http.response import JsonResponse
 from django.http import HttpResponse, HttpRequest, Http404, JsonResponse
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
@@ -90,40 +89,60 @@ def auto_dictation_form_view(request: HttpRequest) -> HttpResponse:
         if form.is_valid():
             video_id = form.cleaned_data["video_id"]
             dictation = Dictation()
-            if dictation.is_transcriptable(video_id):
-                yttrans = dictation.yt_get_transcript(video_id)
-                if dictation.is_length_enough(video_id):
-                    dictation.create_dictation_data(video_id, yttrans)
+            data = dictation.get_data(video_id)
+            # breakpoint()
+            vtt = dictation.download_vtt(video_id, data["filename"])
+            # breakpoint()
+            vtt = dictation.check_vtt(data["filename"], data)
+
+            if not vtt:
+                messages.warning(
+                    request,
+                    "The subtitles cannot be processed due to a formatting issue.",
+                )
+
+            # breakpoint()
+            elif not data:
+                messages.info(request, "This video is not available.")
+
+            elif (
+                data
+                and not Dictation.objects.filter(
+                    filename=f"{data["filename"]}.en.txt"
+                ).exists()
+            ):
+                if (
+                    data["last_between_1_and_6_minutes"]
+                    # and data["is_subtitle_in_right_format"]
+                    and data["released_after_2020"]
+                    and data.get("has_subtitles")
+                ):
+                    dictation.create_dictation_data(**data)
                     messages.success(
                         request,
                         mark_safe(
                             "The dictation has been created successfully.<br>"
-                            "You can now use it in the dictation section."
+                            f"You can now use it in the topic section → <a href={request.scheme}://{request.get_host()}/topic/{data.get("slug")}>{data.get("topic")}</a>"
                         ),
                     )
                 else:
-                    messages.info(
+                    messages.warning(
                         request,
                         mark_safe(
-                            "The video is too short or too long to be used for dictation."
+                            (
+                                "<ul><h4>The chosen video</h4><li>must contain subtitles written by the author (<strong>not auto-generated</strong>)</li>"
+                                "<li>must be in <strong>English</strong></li>"
+                                "<li>last <strong>between 1 and 6 minutes</strong></li>"
+                                "<li>be from <strong>at least 2021</strong>.</li></ul>"
+                            )
                         ),
                     )
             else:
                 messages.info(
                     request,
-                    mark_safe(
-                        "The video is not transcriptable.<br>"
-                        "Please choose another video."
-                    ),
+                    f"This dictation already exists. -> {dictation.get_absolute_url()}{data["filename"]}/",
                 )
-        else:
-            messages.info(
-                request,
-                mark_safe(
-                    "The form is invalid.<br>"
-                    "Please check the video ID and try again."
-                ),
-            )
+
     else:
         form = AutoDictationForm()
 
@@ -155,7 +174,7 @@ class HomeView(ListView):
         if ratings:
             practice.update_dictation_rating(ratings)
         context = super().get_context_data(**kwargs)
-        # breakpoint()
+
         context.update(
             {
                 "domain_name": os.getenv("DOMAIN_NAME"),
@@ -269,13 +288,14 @@ class AjaxDetailView(DetailView):
             validated,
         ) = data.values()
 
-        practice = Practice()
+        # practice = Practice()
 
         if self.request.user.is_authenticated:
             dictation = Dictation.objects.filter(pk=dictation_id).first()
             filename = dictation.filename
 
-            lines = practice.get_lines(request.user, dictation)
+            # lines = practice.get_lines(request.user, dictation)
+            lines = Practice().get_lines(request.user, dictation)
 
             if validated:
                 delete_session_historic_in_view(request, dictation_id, lines)
@@ -283,15 +303,16 @@ class AjaxDetailView(DetailView):
             if reset:
                 self.request.session["historic"]["revealed_line"] = []
                 self.request.session.modified = True
-                practice.delete_practice(self.request.user, dictation_id)
+                # practice.delete_practice(self.request.user, dictation_id)
+                Practice().delete_practice(self.request.user, dictation_id)
         else:
-            dictation = Dictation()
-            filename = dictation.get_filename(topicname)
+            # dictation = Dictation()
+            filename = Dictation().get_filename(topicname)
 
-        tot_lines = dictation.total_lines(filename)
-        reference = dictation.read_segment(filename, line_nb + 1, tot_lines)
+        tot_lines = Dictation().total_lines(filename)
+        reference = Dictation().read_segment(filename, line_nb + 1, tot_lines)
         corrected, state, attempts = correction(
-            dictation.read_segment(filename, line_nb + 1, tot_lines),
+            Dictation().read_segment(filename, line_nb + 1, tot_lines),
             textarea_content,
             dictation_id,
             line_nb,
@@ -315,7 +336,8 @@ class AjaxDetailView(DetailView):
             )
 
             if "*" not in corrected and "<" not in corrected:
-                practice.update_answered_lines(practice, line_nb, new_page)
+                # practice.update_answered_lines(practice, line_nb, new_page)
+                practice.update_answered_lines(line_nb, new_page)
 
                 Practice().save_dication_progress(
                     user=self.request.user,
@@ -352,6 +374,116 @@ class AjaxDetailView(DetailView):
             },
             headers={"X-Robots-Tag": "noindex"},
         )
+
+
+# class AjaxDetailView(DetailView):
+#     """Ajax post text area content."""
+
+#     model = Dictation
+
+#     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+#         """Handle GET request."""
+#         if "pk" not in kwargs and "slug" not in kwargs:
+#             raise Http404("Object not found")
+#         return super().get(request, *args, **kwargs)
+
+#     def post(self, request: HttpRequest, *args: Any, **kwargs: Any):
+#         """Handle POST request."""
+#         data = json.loads(request.body)
+#         (
+#             reset,
+#             line_nb,
+#             textarea_content,
+#             topicname,
+#             reveal_status,
+#             new_page,
+#             dictation_id,
+#             validated,
+#         ) = data.values()
+
+#         practice = Practice()
+
+#         if self.request.user.is_authenticated:
+#             dictation = Dictation.objects.filter(pk=dictation_id).first()
+#             filename = dictation.filename
+
+#             lines = practice.get_lines(request.user, dictation)
+
+#             if validated:
+#                 delete_session_historic_in_view(request, dictation_id, lines)
+#                 initiate_new_session_in_view(request, dictation_id, lines, line_nb)
+#             if reset:
+#                 self.request.session["historic"]["revealed_line"] = []
+#                 self.request.session.modified = True
+#                 practice.delete_practice(self.request.user, dictation_id)
+#         else:
+#             dictation = Dictation()
+#             filename = dictation.get_filename(topicname)
+
+#         tot_lines = dictation.total_lines(filename)
+#         reference = dictation.read_segment(filename, line_nb + 1, tot_lines)
+#         corrected, state, attempts = correction(
+#             dictation.read_segment(filename, line_nb + 1, tot_lines),
+#             textarea_content,
+#             dictation_id,
+#             line_nb,
+#             request,
+#         )
+
+#         if reveal_status:
+#             corrected, attempts = reveal_first_wrong_letter(
+#                 corrected,
+#                 reference,
+#                 line_nb,
+#                 reveal_status,
+#                 new_page,
+#                 dictation_id,
+#                 request,
+#             )
+
+#         if self.request.user.is_authenticated:
+#             practice = Practice.objects.get(
+#                 user=self.request.user, dictation_id=dictation_id
+#             )
+
+#             if "*" not in corrected and "<" not in corrected:
+#                 practice.update_answered_lines(practice, line_nb, new_page)
+
+#                 Practice().save_dication_progress(
+#                     user=self.request.user,
+#                     dictation_id=dictation_id,
+#                     current_line=line_nb,
+#                 )
+
+#                 practice.update_is_done(
+#                     user=self.request.user, dictation_id=dictation_id
+#                 )
+
+#         else:
+#             if reset:
+#                 self.request.session["historic"]["revealed_line"] = []
+#                 self.request.session.modified = True
+#             if new_page:
+#                 free_create_first_session_page(request, dictation_id, line_nb)
+#                 save_user_segment_per_page_in_view(
+#                     request, dictation_id, line_nb, textarea_content
+#                 )
+#             else:
+#                 save_user_segment_per_page_in_view(
+#                     request, dictation_id, line_nb, textarea_content
+#                 )
+
+#         reference = convert_segment_to_b64(reference)
+
+#         return JsonResponse(
+#             {
+#                 "result": corrected,
+#                 "state": state,
+#                 "original": reference,
+#                 "reveal_attempts": attempts if reveal_status else attempts,
+#             },
+#             headers={"X-Robots-Tag": "noindex"},
+#         )
 
 
 def post_user_rating(request: HttpRequest) -> HttpResponse:

@@ -4,24 +4,27 @@ import re
 import base64
 import math
 import requests
-import json
+import yt_dlp
+import datetime as dt
+import logging
 
+from yt_dlp.utils import DownloadError
+from pathlib import Path
 from typing import Any
 from django.http import HttpRequest
+from django.urls import reverse
 from django.contrib.sites.models import Site
-from youtube_transcript_api import (
-    YouTubeTranscriptApi,
-    NoTranscriptFound,
-    TranslationLanguageNotAvailable,
-    TranscriptsDisabled,
-)
 
-from django.db.models import F, ExpressionWrapper, FloatField, IntegerField
+from django.db.models import F, ExpressionWrapper, FloatField, IntegerField, Avg
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import Cast
 from django.db import models
 from django.utils.safestring import mark_safe
+
 from config import settings
+from .utils import HandleCleaner
+
+logger = logging.getLogger(__name__)
 
 
 class Dictation(models.Model):
@@ -43,73 +46,21 @@ class Dictation(models.Model):
         """Return the string representation of the dictation."""
         return self.topic
 
+    @property
+    def get_html_url(self):
+        """Return the html url."""
+        return reverse("dictation:topic", args=(self.slug,))
+
     def get_absolute_url(self) -> str:
         """Return the absolute URL of the dictation."""
         return f"/topic/{self.slug}"
-
-    def get_video_data(self, video_id: str) -> Any:
-        """Get the original video title from YouTube."""
-        payload = {
-            "url": f"https://www.youtube.com/watch?v={video_id}",
-            "format": "json",
-        }
-        try:
-            r = requests.get("https://www.youtube.com/oembed", payload, timeout=3)
-        except requests.exceptions.RequestException:
-            print("Something went wrong")
-        return r.json()
-
-    def yt_get_transcript(
-        self, video_id: str, languages: list = ["en", "English", "en-GB", "en-US"]
-    ) -> Any:
-        """Get the transcript of the YouTube video."""
-        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-        res = transcript_list.find_manually_created_transcript(languages)
-        return YouTubeTranscriptApi.get_transcript(
-            video_id, languages=(res.language_code,)
-        )
 
     def slugify_title(self, video_title: str) -> str:
         """Return the slugified title."""
         video_title = re.sub(r"\W", " ", video_title)
         return "-".join(video_title.split()).lower()
 
-    def create_timestamps(self, yt_transcript) -> list:
-        """Create the timestamps list."""
-        timestamps = []
-        for line in yt_transcript:
-            timestamps += [round(line["start"], 2)]
-        timestamps += [timestamps[-1] + 5]
-        return timestamps
-
-    def clean_text(self, yt_transcript) -> list:
-        """Clean the text.
-
-        Remove the timestamps, the speaker's name, and the special characters.
-        """
-        reg = r"(\(.*\))|(\[.*\])"
-        cleaned_text = []
-        for line in yt_transcript:
-            line["text"] = re.sub(reg, "", line["text"])
-            cleaned_text += [
-                line["text"]
-                .replace("\ufeff", "")
-                .replace("\n", " ")
-                .replace("—", ", ")
-                .replace("\xa0", "")
-                .replace("\u2013", "-")
-                .replace("’", "'")
-                .replace("‘", "'")
-                .replace("“", '"')
-                .replace("”", '"')
-                .replace("…", "...")
-                .strip("-")
-                .strip()
-            ]
-
-        return cleaned_text
-
-    def generate_text(self, cleaned_text):
+    def generate_text(self, cleaned_text: list) -> list:
         """Generate the text."""
         text = []
         for line in cleaned_text:
@@ -121,89 +72,235 @@ class Dictation(models.Model):
                 )
         return text
 
-    def is_transcriptable(self, video_id):
-        """Check if the video is transcriptable."""
-        transcriptable = True
-        try:
-            self.yt_get_transcript(video_id)
-        except TranscriptsDisabled:
-            transcriptable = False
-        except NoTranscriptFound:
-            transcriptable = False
-        except TranslationLanguageNotAvailable:
-            transcriptable = False
-        return transcriptable
-
-    def is_manually_transcripted(self, video_id):
-        """Check if the video is manually transcripted."""
-        manually = True
-        try:
-            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-            transcript_list.find_manually_created_transcript(
-                ["en", "English", "en-GB", "en-US"]
-            )
-        except TranscriptsDisabled:
-            manually = False
-        except NoTranscriptFound:
-            manually = False
-        except TranslationLanguageNotAvailable:
-            manually = False
-        return manually
-
-    def get_current_language(self, video_id):
-        """Get the current language of the video."""
-
-        if self.is_manually_transcripted(video_id) == 0:
-            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-
-            langs = transcript_list.find_manually_created_transcript(
-                ["en", "English", "en-GB", "en-US"]
-            )
-        return (
-            langs.language_code
-            if self.is_manually_transcripted(video_id) == 0
-            else "en"
-        )
-
-    def create_dictation_data(self, video_id, yttrans):
+    def create_dictation_data(self, **kwargs: dict) -> Any:
         """Create the dictation data."""
-        data = self.get_video_data(video_id)
-        slug = self.slugify_title(data["title"])
-        yt_transcript = json.dumps(yttrans)
-        yt_transcript = json.loads(yt_transcript)
-        timestamps = self.create_timestamps(yt_transcript)
-        cleaned_text = self.clean_text(yt_transcript)
-        cleaned_text = self.generate_text(cleaned_text)
+        video_id = kwargs["video_id"]
+        filename = Path(kwargs["filename"])
+        filepath = self.get_vtt_file(video_id)
+        self.get_text(filepath)
+        timestamps = self.get_timestamps(filepath)
 
-        if not Dictation.objects.filter(filename=f"{slug}.txt").exists():
-
-            with open(settings.TXT_DIR / f"{slug}.txt", "w", encoding="utf-8") as f:
-                for i in cleaned_text:
-                    f.write(f"{i}\n")
+        if not Dictation.objects.filter(filename=f"{filename}.en.txt").exists():
 
             autodictation = Dictation.objects.get_or_create(
-                video_id=video_id,
-                topic=data["title"],
-                filename=f"{slug}.txt",
+                video_id=kwargs["video_id"],
+                topic=kwargs["video_title"],
+                filename=f"{filename}.{kwargs.get("sub_version")}.txt",
                 level=3,
-                slug=slug,
+                slug=kwargs["slug"],
                 timestamps={"data": timestamps},
                 tip=[{"": ""}],
             )
         else:
-            autodictation = [Dictation.objects.get(filename=f"{slug}.txt")]
+            autodictation = [Dictation.objects.get(filename=f"{filename}.en.txt")]
 
         self.update_total_line()
         return autodictation
 
-    def is_length_enough(self, video_id):
-        """Check if the video is long enough."""
-        yttrans = self.yt_get_transcript(video_id)
-        yt_transcript = json.dumps(yttrans)
-        yt_transcript = json.loads(yt_transcript)
-        return 10 < len(yt_transcript) <= 200
+    def get_data(self, video_id: str) -> dict:
+        """Get the data of the video."""
 
-    def update_total_line(self):
+        video_url = f"https://www.youtube.com/watch?v={video_id}"
+
+        # Set options to only extract info
+        ydl_opts = {
+            "extract_flat": True,
+            "skip_download": True,
+        }
+
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info_dict = ydl.extract_info(video_url, download=False)
+        except DownloadError as e:
+            logging.error(f"Download error: {e}")
+            return {}  # {"error": "DownloadError", "message": e}
+        except Exception as e:
+            logging.error(f"Unexpected errror: {e}")
+            return {"error": "DownloadError", "message": e}
+
+        video_title = info_dict.get("title", "video")
+        filename = re.sub(r"\W", " ", video_title)
+        slugified_title = "-".join(filename.split()).lower()
+        video_id = info_dict.get("id", "unknown")
+
+        filename = f"{settings.TXT_DIR}/{slugified_title}"
+        duration = info_dict.get("duration_string")
+        if duration:
+            duration = duration.replace(":", ".")
+            duration = float(duration)
+        year = info_dict.get("upload_date")[:4]
+        subtitles = info_dict.get("subtitles", [])
+        if len(subtitles) > 0:
+            sub_version = [lng for lng in subtitles.keys() if "en" in lng][0]
+            sub_version = (
+                sub_version[:3] + "US"
+                if len(sub_version) > 2 and sub_version[3:] not in ["US", "GB"]
+                else sub_version
+            )
+        else:
+            sub_version = []
+
+        print("subversion", sub_version)
+        # breakpoint()
+
+        return {
+            "video_title": video_title,
+            "filename": slugified_title,
+            "video_id": video_id,
+            "slug": slugified_title,
+            "last_between_1_and_6_minutes": 1 < duration < 7,
+            "is_subtitle_in_right_format": info_dict["language"]
+            in ["en", "en-GB", "en-US"],
+            "released_after_2020": year > "2020",
+            "has_subtitles": len(subtitles) > 0,
+            "sub_version": sub_version,
+        }
+
+    def get_text(self, filepath: Path) -> str:
+        """Get the text of the video."""
+        timestamps = r"^\d(.*)\d$"
+        text = ""
+
+        try:
+            with open(f"{settings.TXT_DIR / filepath}", "r", encoding="utf-8") as f:
+                lines = f.readlines()
+
+            lines = [
+                line
+                for line in lines
+                if not re.match(r"^(WEBVTT|Kind:|Language:)", line)
+            ]
+            lines = [line for line in lines if not re.match(timestamps, line)]
+            cleaner = HandleCleaner()
+            lines = cleaner.clean(lines)
+            text = "".join(self.concatenate_lines(lines))
+        except FileNotFoundError:
+            logging.error(f"The file {settings.TXT_DIR / filepath} was not found.")
+            print(f"The file {settings.TXT_DIR / filepath} was not found.")
+        except OSError as e:
+            logging.error(f"An error occured: {e}")
+
+        output_path = settings.TXT_DIR / f"{filepath.stem}.txt"
+        try:
+            with open(output_path, "w", encoding="utf-8") as outfile:
+                outfile.write(text)
+        except OSError as e:
+            logging.error(f"Error while writing the file {output_path}: {e}")
+
+        self.remove_blank_lines(output_path)
+        return text
+
+    def get_timestamps(self, filepath: Path) -> list:
+        """Get the timestamps of the video."""
+        non_digits = r"^\d{2}:\d{2}:\d{2}\.\d{3}.*"
+        timestamps = []
+
+        try:
+            with open(f"{settings.TXT_DIR / filepath}", "r", encoding="utf-8") as f:
+                lines = f.readlines()
+
+                pair_timestamps = [
+                    line.replace("\n", "").split(" --> ")
+                    for line in lines
+                    if re.match(non_digits, line)
+                ]
+                timestamps = [
+                    timestamp for pair in pair_timestamps for timestamp in pair
+                ]
+                timestamps = [self.dt_to_seconds(timestamp) for timestamp in timestamps]
+                timestamps = self.resync(timestamps)
+        except FileNotFoundError:
+            logging.error(f"The file {filepath} was not found.")
+        except OSError as e:
+            logging.error(f"An error occured: {e}")
+
+        return timestamps
+
+    def download_vtt(self, video_id: str, custom_filename: str) -> str:
+        """Download the vtt file of the video."""
+        video_url = f"https://www.youtube.com/watch?v={video_id}"
+        ydl_opts = {
+            "writesubtitles": True,
+            "subtitleslangs": ["en", "en-GB", "en-US"],
+            "skip_download": True,
+            "subtitlesformat": "vtt",
+            "outtmpl": f"{settings.TXT_DIR / custom_filename}",
+        }
+
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([video_url])
+        except DownloadError as e:
+            logging.error(f"Download failed: {str(e)}")
+
+        return custom_filename
+
+    def check_vtt(self, filename, info):
+        print("CHK", f"{settings.TXT_DIR / filename}.{info.get("sub_version")}.vtt")
+        # breakpoint()
+        try:
+            with open(
+                f"{settings.TXT_DIR / filename}.{info.get("sub_version")}.vtt",
+                "r",
+                encoding="utf-8",
+            ) as f:
+                lines = f.readlines()
+                length_lines = len(lines)
+
+        except FileNotFoundError:
+            logging.error("File not found!")
+
+            return ""
+        if length_lines > 500:
+            Path.unlink(
+                f"{settings.TXT_DIR / filename}.{info.get("sub_version")}.vtt",
+                missing_ok=True,
+            )
+            return ""
+        return filename
+
+    def get_vtt_file(self, video_id: str) -> Path:
+        """Get the vtt file of the video."""
+        data = self.get_data(video_id)
+        filename = data["filename"]
+        vtt_file = self.download_vtt(video_id, filename)
+        breakpoint()
+        return Path(f"{vtt_file}.{data.get("sub_version")}.vtt")
+
+    def remove_blank_lines(self, file: Path) -> None:
+        """Remove blank lines.
+
+        Used to remove the two last blank lines from the
+        generated .txt after cleaning.
+        """
+        file = Path(file)
+        lines = file.read_text().splitlines()
+        filtered = [line for line in lines if line.strip()]
+        file.write_text("\n".join(filtered))
+
+    def dt_to_seconds(self, timestamp: str) -> float:
+        """Convert a timestamp in the format HH:MM:SS.mmm to seconds."""
+        t = dt.datetime.strptime(timestamp, "%H:%M:%S.%f")
+        total_seconds = t.minute * 60 + t.second + t.microsecond / 1_000_000
+        return total_seconds
+
+    def concatenate_lines(self, lines: list) -> str:
+        """Concatenate the lines of the .txt file generated after cleaning."""
+        result = []
+        for line in lines:
+            if line == "\n":
+                result.append(line)
+            else:
+                result.append(line.replace("\n", " ").strip() + " ")
+        concatenated = "".join(result).strip()
+        return concatenated
+
+    def resync(self, ts: list) -> list:
+        """Resync the timestamps."""
+        ts = [ts[0]] + [ts[i] for i in range(len(ts)) if i % 2 == 1]
+        return [round(ts[0], 2)] + [round(ts[i] - 0.2, 2) for i in range(1, len(ts))]
+
+    def update_total_line(self) -> None:
         """Update the total_line field."""
         dictation = Dictation()
         filenames = [dictation.filename for dictation in Dictation.objects.all()]
@@ -232,13 +329,18 @@ class Dictation(models.Model):
 
     def get_video_title(self, video_id: str) -> Any:
         """Get the original video title from YouTube."""
-        payload = {
-            "url": f"https://www.youtube.com/watch?v={video_id}",
-            "format": "json",
-        }
-        response = requests.get("https://www.youtube.com/oembed", payload, timeout=3)
-        data = response.json()
-        return data["title"]
+        dictation = Dictation.objects.get(video_id=video_id)
+        return dictation.topic
+        # breakpoint()
+        # payload = {
+        #     "url": f"https://www.youtube.com/watch?v={video_id}",
+        #     "format": "json",
+        # }
+        # response = requests.get("https://www.youtube.com/oembed", payload, timeout=3)
+        # breakpoint()
+        # data = response.json()
+
+        # return data["title"]
 
     def get_filename(self, slug: str) -> Any:
         """Return the filename of the current dictation from the given slug."""
@@ -281,15 +383,16 @@ class Practice(models.Model):
     def average_rating(self) -> dict:
         """Calculate the average rating."""
         ratings = {}
-        dictation_ids = list(set([i["id"] for i in Dictation.objects.values("id")]))
-        for pk in dictation_ids:
-            queryset = Practice.objects.values("user_rating").filter(dictation_id=pk)
-            queratings = [int(i["user_rating"]) for i in queryset if i["user_rating"]]
-
-            if queratings and len(queratings) > 0:
-                ratings.update(
-                    {f"dictation_{pk}": math.floor(sum(queratings) / len(queratings))}
-                )
+        queryset = (
+            Practice.objects.values("dictation_id")
+            .annotate(user_rating_int=Cast("user_rating", IntegerField()))
+            .annotate(average=Avg("user_rating_int"))
+        )
+        for entry in queryset:
+            pk = entry["dictation_id"]
+            avg_rating = entry["average"]
+            if avg_rating:
+                ratings[f"dictation_{pk}"] = math.floor(avg_rating)
         return ratings
 
     def update_dictation_rating(self, ratings: dict) -> int:
@@ -318,15 +421,25 @@ class Practice(models.Model):
                 user_current_line=current_line
             )
 
-    def update_answered_lines(self, practice, line_nb, new_page) -> list:
+    # def update_answered_lines(self, practice, line_nb, new_page) -> list:
+    #     """Update the list of good answers."""
+    #     if line_nb - 1 not in practice.lines["data"] and new_page:
+    #         practice.lines["data"].append(line_nb - 1)
+    #         practice.save()
+    #     if line_nb not in practice.lines["data"] and not new_page:
+    #         practice.lines["data"].append(line_nb)
+    #         practice.save()
+    #     return practice.lines["data"]
+
+    def update_answered_lines(self, line_nb, new_page) -> list:
         """Update the list of good answers."""
-        if line_nb - 1 not in practice.lines["data"] and new_page:
-            practice.lines["data"].append(line_nb - 1)
-            practice.save()
-        if line_nb not in practice.lines["data"] and not new_page:
-            practice.lines["data"].append(line_nb)
-            practice.save()
-        return practice.lines["data"]
+        if line_nb - 1 not in self.lines["data"] and new_page:
+            self.lines["data"].append(line_nb - 1)
+            self.save()
+        if line_nb not in self.lines["data"] and not new_page:
+            self.lines["data"].append(line_nb)
+            self.save()
+        return self.lines["data"]
 
     def update_is_done(self, user, dictation_id):
         """Update the boolean is_done."""
