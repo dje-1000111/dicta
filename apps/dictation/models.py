@@ -140,9 +140,6 @@ class Dictation(models.Model):
         else:
             sub_version = []
 
-        print("subversion", sub_version)
-        # breakpoint()
-
         return {
             "video_title": video_title,
             "filename": slugified_title,
@@ -236,8 +233,6 @@ class Dictation(models.Model):
         return custom_filename
 
     def check_vtt(self, filename, info):
-        print("CHK", f"{settings.TXT_DIR / filename}.{info.get("sub_version")}.vtt")
-        # breakpoint()
         try:
             with open(
                 f"{settings.TXT_DIR / filename}.{info.get("sub_version")}.vtt",
@@ -264,7 +259,6 @@ class Dictation(models.Model):
         data = self.get_data(video_id)
         filename = data["filename"]
         vtt_file = self.download_vtt(video_id, filename)
-        breakpoint()
         return Path(f"{vtt_file}.{data.get("sub_version")}.vtt")
 
     def remove_blank_lines(self, file: Path) -> None:
@@ -331,16 +325,6 @@ class Dictation(models.Model):
         """Get the original video title from YouTube."""
         dictation = Dictation.objects.get(video_id=video_id)
         return dictation.topic
-        # breakpoint()
-        # payload = {
-        #     "url": f"https://www.youtube.com/watch?v={video_id}",
-        #     "format": "json",
-        # }
-        # response = requests.get("https://www.youtube.com/oembed", payload, timeout=3)
-        # breakpoint()
-        # data = response.json()
-
-        # return data["title"]
 
     def get_filename(self, slug: str) -> Any:
         """Return the filename of the current dictation from the given slug."""
