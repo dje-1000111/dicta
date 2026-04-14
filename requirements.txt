@@ -114,4 +114,5 @@ wheel==0.44.0
 whitenoise==6.7.0
 wordcloud==1.9.3
 wrapt==1.16.0
-
+youtube-transcript-api==1.2.4
+yt-dlp==2026.3.17
